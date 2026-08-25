@@ -3,6 +3,7 @@ import Appointment from '../models/Appointment.js';
 import AuditLog from '../models/AuditLog.js';
 import { requireAuth, optionalAuth, allowRoles } from '../middleware/auth.js';
 import { sendAppointmentNotifications } from '../config/mailer.js';
+import { appointmentCreationLimiter } from '../middleware/rateLimit.js';
 
 const router = express.Router();
 const appointmentSlots = ['09:00 AM', '10:30 AM', '01:00 PM', '02:30 PM', '04:00 PM'];
@@ -27,7 +28,7 @@ router.get('/availability', async (req, res) => {
   }
 });
 
-router.post('/', optionalAuth, async (req, res) => {
+router.post('/', appointmentCreationLimiter, optionalAuth, async (req, res) => {
   try {
     const { name, email, phone, service, preferredDate, preferredTime, message } = req.body;
     const userId = req.user?.id;

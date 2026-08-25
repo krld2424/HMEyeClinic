@@ -2,6 +2,9 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import crypto from 'node:crypto';
+import { sendPasswordResetOtp } from '../config/resend.js';
+import { forgotPasswordLimiter, loginLimiter, otpLimiter, registrationLimiter } from '../middleware/rateLimit.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'hm-visionsync-dev-secret';
@@ -27,7 +30,91 @@ const nextPatientId = async () => {
   return `HME-${String(highest + 1).padStart(6, '0')}`;
 };
 
-router.post('/register', async (req, res) => {
+const genericResetResponse = {
+  success: true,
+  message: 'If the account exists, a password reset code has been sent.',
+};
+
+const hashValue = (value) => crypto.createHash('sha256').update(value).digest('hex');
+
+router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  if (!email) return res.status(200).json(genericResetResponse);
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(200).json(genericResetResponse);
+
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    user.passwordResetOtpHash = hashValue(otp);
+    user.passwordResetOtpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    user.passwordResetOtpAttempts = 0;
+    user.passwordResetTokenHash = undefined;
+    user.passwordResetTokenExpiresAt = undefined;
+    await user.save();
+
+    try {
+      await sendPasswordResetOtp(user.email, otp);
+    } catch (error) {
+      user.passwordResetOtpHash = undefined;
+      user.passwordResetOtpExpiresAt = undefined;
+      user.passwordResetOtpAttempts = 0;
+      await user.save();
+      console.error('Password reset email error:', error.message);
+    }
+  } catch (error) {
+    console.error('Forgot password error:', error.message);
+  }
+
+  return res.status(200).json(genericResetResponse);
+});
+
+router.post('/verify-otp', otpLimiter, async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  const otp = String(req.body.otp || '').trim();
+  const user = await User.findOne({ email });
+  const invalidResponse = { success: false, message: 'Invalid or expired verification code.' };
+
+  if (!user || !/^\d{6}$/.test(otp) || !user.passwordResetOtpHash || !user.passwordResetOtpExpiresAt || user.passwordResetOtpExpiresAt <= new Date()) {
+    return res.status(400).json(invalidResponse);
+  }
+
+  if (user.passwordResetOtpAttempts >= 5 || hashValue(otp) !== user.passwordResetOtpHash) {
+    user.passwordResetOtpAttempts += 1;
+    await user.save();
+    return res.status(400).json(invalidResponse);
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  user.passwordResetOtpHash = undefined;
+  user.passwordResetOtpExpiresAt = undefined;
+  user.passwordResetOtpAttempts = 0;
+  user.passwordResetTokenHash = hashValue(resetToken);
+  user.passwordResetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  await user.save();
+
+  return res.status(200).json({ success: true, message: 'Code verified.', resetToken });
+});
+
+router.post('/reset-password', async (req, res) => {
+  const resetToken = String(req.body.resetToken || '').trim();
+  const password = String(req.body.password || '');
+  if (!resetToken || password.length < 8) return res.status(400).json({ success: false, message: 'A valid reset token and password are required.' });
+
+  const user = await User.findOne({
+    passwordResetTokenHash: hashValue(resetToken),
+    passwordResetTokenExpiresAt: { $gt: new Date() },
+  });
+  if (!user) return res.status(400).json({ success: false, message: 'Invalid or expired password reset session.' });
+
+  user.password = await bcrypt.hash(password, 10);
+  user.passwordResetTokenHash = undefined;
+  user.passwordResetTokenExpiresAt = undefined;
+  await user.save();
+  return res.status(200).json({ success: true, message: 'Password reset successfully.' });
+});
+
+router.post('/register', registrationLimiter, async (req, res) => {
   try {
     const { name, firstName, lastName, middleInitial, suffix, age, gender, email, password, phone } = req.body;
 
@@ -80,7 +167,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password, role } = req.body;
 
