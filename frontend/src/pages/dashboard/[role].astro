@@ -1,0 +1,433 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SidebarIcon from '../../components/SidebarIcon.astro';
+const { role } = Astro.params;
+
+const validRoles = ['patient', 'owner', 'optometrist', 'eye-care-assistant'];
+const isValidRole = validRoles.includes(role || '');
+
+export function getStaticPaths() {
+  return ['patient', 'owner', 'optometrist', 'eye-care-assistant'].map((routeRole) => ({
+    params: { role: routeRole },
+  }));
+}
+
+const dashboardContent = {
+  patient: {
+    heading: 'Patient Dashboard',
+    summary: 'Manage your eye care journey with appointment access, treatment information, and follow-up reminders.',
+  },
+  optometrist: {
+    heading: 'Optometrist Dashboard',
+    summary: 'Review daily schedules, patient history requests, and care plans from a single clinical overview.',
+  },
+  'eye-care-assistant': {
+    heading: 'Eye Care Assistant Dashboard',
+    summary: 'Coordinate front-desk operations, billing, and clinic workflow with real-time summaries.',
+  },
+  owner: {
+    heading: 'Owner Dashboard',
+    summary: 'Manage Hernandez Mercado Eye Clinic and work across the optometrist and clinic operations workspace.',
+  },
+};
+
+const content = isValidRole ? dashboardContent[role] : null;
+const iconPaths = {
+  dashboard: 'M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z',
+  'book-exam': 'M6 3h12v18H6V3Zm3 0v4h6V3M9 12h6m-6 4h4',
+  appointments: 'M7 3v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13H4V6a1 1 0 0 1 1-1Z',
+  'medical-records': 'M6 3h9l3 3v15H6V3Zm9 0v4h3M9 12h6m-6 4h4',
+  prescriptions: 'M7 3h10v18H7V3Zm3 4h4m-4 4h4m-4 4h3',
+  notifications: 'M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4',
+  profile: 'M20 21a8 8 0 0 0-16 0m12-13a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z',
+  'today-patients': 'M4 5h16v14H4V5Zm4 4h8m-8 4h5',
+  consultations: 'M5 4h14v16H5V4Zm3 4h8m-8 4h8m-8 4h5',
+  'clinical-records': 'M6 3h9l3 3v15H6V3Zm9 0v4h3M9 12h6m-6 4h4',
+  'follow-ups': 'M4 12a8 8 0 1 0 2-5m-2 0V3m0 4h4',
+  'clinic-queue': 'M4 6h16M4 12h16M4 18h16M8 6v12',
+  'check-in': 'M5 4h14v16H5V4Zm3 4h8m-8 4h8m-8 4h5',
+  'patient-records': 'M4 5h16v14H4V5Zm3 4h10m-10 4h7',
+  billing: 'M6 3h12v18H6V3Zm3 5h6m-6 4h6m-6 4h4',
+  reports: 'M5 20V10m7 10V4m7 16v-7',
+  'manage-team': 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0-8 0 4 4 0 0 0 8 0Zm6-3a4 4 0 0 1 0-7.75M22 21v-2a4 4 0 0 0-3-3.87',
+  'manage-users': 'M4 5h16v14H4V5Zm3 4h10m-10 4h7',
+  'roles-permissions': 'M12 3 20 7v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Zm-3 9 2 2 4-4',
+  'audit-logs': 'M6 3h12v18H6V3Zm3 4h6m-6 4h6m-6 4h4',
+  'clinic-settings': 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0-5v2m0 14v2m9-9h-2M5 12H3m15.36-6.36-1.42 1.42M7.06 16.94l-1.42 1.42m12.72 0-1.42-1.42M7.06 7.06 5.64 5.64',
+};
+const sidebarGroups = {
+  patient: [
+    { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }] },
+    { label: 'Care', links: [{ label: 'Book Appointment', slug: 'book-exam' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Medical Records', slug: 'medical-records' }, { label: 'Prescriptions', slug: 'prescriptions' }] },
+    { label: 'Account', links: [{ label: 'Notifications', slug: 'notifications' }, { label: 'Profile', slug: 'profile' }] },
+  ],
+  optometrist: [
+    { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: "Today's Patients", slug: 'today-patients' }] },
+    { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Clinical Records', slug: 'clinical-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
+  ],
+  'eye-care-assistant': [
+    { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: 'Clinic Queue', slug: 'clinic-queue' }] },
+    { label: 'Operations', links: [{ label: 'Check-In', slug: 'check-in' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Patient Records', slug: 'patient-records' }, { label: 'Billing', slug: 'billing' }] },
+  ],
+  owner: [
+    { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Clinical Records', slug: 'clinical-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
+    { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: 'Reports', slug: 'reports' }] },
+    { label: 'Management', links: [{ label: 'Manage Team', slug: 'manage-team' }, { label: 'Manage Users', slug: 'manage-users' }, { label: 'Roles & Permissions', slug: 'roles-permissions' }] },
+    { label: 'Monitoring & Settings', links: [{ label: 'Audit Logs', slug: 'audit-logs' }, { label: 'Clinic Settings', slug: 'clinic-settings' }] },
+  ],
+};
+const groupIcons = {
+  Overview: 'overview',
+  Care: 'care',
+  Account: 'account',
+  'Clinical Work': 'clinical-work',
+  Operations: 'operations',
+  Management: 'management',
+  'Monitoring & Settings': 'monitoring-settings',
+};
+---
+
+<Layout title={content ? `${content.heading} | HM VisionSync` : 'Dashboard | HM VisionSync'}>
+  <main class="dashboard-page dashboard-layout">
+    <aside class="dashboard-sidebar">
+      <div class="sidebar-header">
+        <a class="sidebar-brand" href="/">HM VisionSync</a>
+        <button class="sidebar-collapse-toggle" type="button" id="sidebar-collapse-toggle" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar"><SidebarIcon name="panel-left" /></button>
+      </div>
+      <span class="sidebar-role">{content ? content.heading : 'Clinic workspace'}</span>
+      {role !== 'owner' && (
+        <div class="sidebar-identity" aria-label="Account identifier">
+          <span>{role === 'patient' ? 'Patient ID' : 'User ID'}</span>
+          <strong id="sidebar-user-id">Loading...</strong>
+        </div>
+      )}
+      <nav class="sidebar-groups" aria-label="Dashboard navigation">
+        {(sidebarGroups[role] || []).map((group, index) => {
+          const isExpanded = role === 'owner' && group.label === 'Clinical Work' || index === 0;
+          return (
+          <div class={`sidebar-group ${isExpanded ? '' : 'is-collapsed'}`}>
+            <button class="sidebar-group-toggle" type="button" aria-expanded={isExpanded ? 'true' : 'false'}>
+              <SidebarIcon name={groupIcons[group.label]} /><span>{group.label}</span><span class="sidebar-chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div class="sidebar-group-links">
+              {group.links.map((link) => <a href={`/dashboard/${role}/${link.slug}`}><SidebarIcon name={link.slug} /><span>{link.label}</span></a>)}
+            </div>
+          </div>
+          );
+        })}
+      </nav>
+      <div class="sidebar-divider" aria-hidden="true"></div>
+      <span class="sidebar-section-label">Account</span>
+      <nav class="sidebar-nav sidebar-account-nav" aria-label="Account tasks">
+        <a href="#" id="sidebar-logout"><SidebarIcon name="signout" /><span>Sign out</span></a>
+      </nav>
+      <a class="sidebar-home" href="/"><SidebarIcon name="home" /><span>Back to clinic site</span></a>
+    </aside>
+    <div class="dashboard-main">
+    <section class="dashboard-header container">
+      <div>
+        <span class="eyebrow">Clinic access</span>
+        <h1>{content ? content.heading : 'Access unavailable'}</h1>
+      </div>
+      <div class="dashboard-header-actions">
+        <button type="button" class="notification-button" id="notification-button" aria-label="Open notifications" aria-expanded="false" title="Notifications">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg><span id="notification-count" class="notification-count" hidden></span>
+        </button>
+        <button type="button" class="btn btn-secondary" id="logout-button">Log out</button>
+        <div class="notification-popover" id="notification-popover" hidden><strong>Notifications</strong><div id="notification-list"><p>Loading notifications...</p></div></div>
+      </div>
+    </section>
+
+    <section class="container dashboard-grid">
+      {
+        isValidRole && content ? (
+          <>
+            <div class="dashboard-summary card">
+              <p>{content.summary}</p>
+            </div>
+
+          </>
+        ) : (
+          <div class="card empty-state">
+            <h2>Role access not found</h2>
+            <p>Please sign in with a valid clinic account.</p>
+            <a href="/auth" class="btn btn-primary">Return to login</a>
+          </div>
+        )
+      }
+    </section>
+
+    <section class="container dashboard-appointments card" id="appointment-panel" hidden>
+      <div class="section-header split">
+        <div>
+          <span class="eyebrow">Appointment workflow</span>
+          <h2 id="appointment-heading">Appointments</h2>
+        </div>
+      </div>
+      <div class="list-toolbar">
+        <input id="overview-appointment-search" type="search" placeholder="Search patient or service" />
+        <select id="overview-appointment-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Rejected</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select>
+        <input id="overview-appointment-date" type="date" aria-label="Filter by appointment date" />
+      </div>
+      <div id="appointment-list" class="appointment-list"></div>
+      <div id="overview-appointment-pagination" class="pagination" aria-label="Appointment pages"></div>
+    </section>
+
+    <section class="container admin-panel card" id="admin-panel" hidden>
+      <div class="section-header">
+        <span class="eyebrow">Account administration</span>
+        <h2>Create an optometrist or eye care assistant account</h2>
+      </div>
+      <form id="admin-user-form" class="admin-user-form">
+        <div class="field-row">
+          <div class="field-group">
+            <label for="admin-name">Full name</label>
+            <input id="admin-name" name="name" type="text" required />
+          </div>
+          <div class="field-group">
+            <label for="admin-role">Account type</label>
+            <select id="admin-role" name="role" required>
+              <option value="optometrist">Optometrist</option>
+              <option value="eye-care-assistant">Eye Care Assistant</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="admin-email">Email</label>
+            <input id="admin-email" name="email" type="email" required />
+          </div>
+          <div class="field-group">
+            <label for="admin-password">Temporary password</label>
+            <input id="admin-password" name="password" type="password" required />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="admin-phone">Phone</label>
+            <input id="admin-phone" name="phone" type="tel" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" />
+          </div>
+          <div class="field-group">
+            <label for="admin-specialty">Specialty / Department</label>
+            <input id="admin-specialty" name="specialty" type="text" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create account</button>
+        <p id="admin-status" class="form-status" aria-live="polite"></p>
+      </form>
+      <div id="managed-users" class="managed-users"></div>
+    </section>
+    </div>
+  </main>
+
+  <script>
+    const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+    const role = window.location.pathname.split('/').filter(Boolean).pop();
+    const storedUser = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+    const token = localStorage.getItem('hmVisionToken');
+    const isValidRole = ['patient', 'owner', 'optometrist', 'eye-care-assistant'].includes(role);
+
+    if (!isValidRole || !storedUser || storedUser.role !== role) {
+      window.location.href = '/auth';
+    }
+
+    const sidebarCollapseToggle = document.getElementById('sidebar-collapse-toggle');
+    sidebarCollapseToggle?.addEventListener('click', () => {
+      const isCollapsed = document.body.classList.toggle('sidebar-is-collapsed');
+      sidebarCollapseToggle.setAttribute('aria-expanded', String(!isCollapsed));
+      sidebarCollapseToggle.setAttribute('aria-label', `${isCollapsed ? 'Expand' : 'Collapse'} sidebar`);
+      sidebarCollapseToggle.setAttribute('title', `${isCollapsed ? 'Expand' : 'Collapse'} sidebar`);
+    });
+
+    const sidebarUserId = document.getElementById('sidebar-user-id');
+    if (sidebarUserId) sidebarUserId.textContent = storedUser?.patientId || (storedUser?.role === 'patient' ? 'Unavailable' : storedUser?.id || storedUser?._id || 'Unavailable');
+
+    const appointmentPanel = document.getElementById('appointment-panel');
+    const appointmentList = document.getElementById('appointment-list');
+    const appointmentSearch = document.getElementById('overview-appointment-search');
+    const appointmentStatusFilter = document.getElementById('overview-appointment-status');
+    const appointmentDateFilter = document.getElementById('overview-appointment-date');
+    const appointmentPagination = document.getElementById('overview-appointment-pagination');
+    let appointments = [];
+    let appointmentPage = 1;
+    const pageSize = 5;
+    const escapeHtml = (value) =>
+      String(value || '').replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+      })[character]);
+
+    const appointmentActions = (appointment) => {
+      if (role === 'patient') return '<span class="appointment-action-empty">-</span>';
+      const actions = {
+        pending: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
+        confirmed: [['completed', 'Mark completed'], ['rescheduled', 'Reschedule'], ['cancelled', 'Cancel']],
+        rescheduled: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
+      }[appointment.status] || [];
+      if (appointment.status === 'completed' || appointment.status === 'cancelled') return `<a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View</a><a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View Clinical Record</a>${appointment.status === 'cancelled' ? '<button type="button" class="btn btn-secondary appointment-action action-rescheduled" data-appointment-id="' + escapeHtml(appointment._id) + '" data-status="rescheduled">Reschedule</button>' : ''}`;
+      return actions.map(([status, label]) => `<button type="button" class="btn btn-secondary appointment-action action-${status}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${status}">${label}</button>`).join('');
+    };
+
+    const renderAppointmentPage = () => {
+      if (!appointmentList) return;
+      const query = (appointmentSearch?.value || '').toLowerCase().trim();
+      const status = appointmentStatusFilter?.value || '';
+      const date = appointmentDateFilter?.value || '';
+      const filtered = appointments.filter((item) => (!status || item.status === status) && (!date || item.preferredDate === date) && (!query || `${item.name} ${item.email} ${item.service}`.toLowerCase().includes(query)));
+      const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      appointmentPage = Math.min(appointmentPage, pages);
+      const visible = filtered.slice((appointmentPage - 1) * pageSize, appointmentPage * pageSize);
+      appointmentList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Examination / Appointment</th><th scope="col">Patient</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service)}</strong></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></td><td data-label="Actions"><div class="appointment-actions">${appointmentActions(item)}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No appointments match these filters.</p>';
+      appointmentPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : '';
+      appointmentPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { appointmentPage -= 1; renderAppointmentPage(); });
+      appointmentPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { appointmentPage += 1; renderAppointmentPage(); });
+      appointmentList.querySelectorAll('.appointment-action').forEach((button) => button.addEventListener('click', async () => {
+        button.disabled = true;
+        const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: button.dataset.status }) });
+        if (!response.ok) { button.disabled = false; return; }
+        appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? { ...item, status: button.dataset.status } : item);
+        renderAppointmentPage();
+      }));
+    };
+
+    const loadAppointments = async () => {
+      if (!appointmentPanel || !token || !storedUser) return;
+
+      const endpoint = role === 'patient' ? '/api/appointments/mine' : '/api/appointments';
+
+      try {
+        const response = await fetch(`${api}${endpoint}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const result = await response.json();
+
+        if (!response.ok) throw new Error(result.message || 'Unable to load appointments.');
+
+        appointmentPanel.hidden = false;
+        appointments = result.appointments;
+        renderAppointmentPage();
+      } catch (error) {
+        appointmentPanel.hidden = false;
+        appointmentList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`;
+      }
+    };
+
+    loadAppointments();
+    [appointmentSearch, appointmentStatusFilter, appointmentDateFilter].forEach((control) => control?.addEventListener('input', () => { appointmentPage = 1; renderAppointmentPage(); }));
+
+    const adminPanel = document.getElementById('admin-panel');
+    const adminForm = document.getElementById('admin-user-form');
+    const adminStatus = document.getElementById('admin-status');
+    const managedUsers = document.getElementById('managed-users');
+    const adminPhone = document.getElementById('admin-phone');
+
+    adminPhone?.addEventListener('input', () => {
+      const digits = adminPhone.value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
+      adminPhone.value = `+63 ${[digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean).join('-')}`;
+    });
+
+    const loadManagedUsers = async () => {
+      if (role !== 'owner' || !adminPanel) return;
+
+      adminPanel.hidden = false;
+      const response = await fetch(`${api}/api/admin/users`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load managed accounts.');
+
+      managedUsers.innerHTML = result.users.length
+        ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">Email</th><th scope="col">Status</th></tr></thead><tbody>${result.users.map((user) => `<tr><td data-label="Name"><strong>${escapeHtml(user.name)}</strong></td><td data-label="Role">${escapeHtml(user.role)}</td><td data-label="Email">${escapeHtml(user.email)}</td><td data-label="Status"><span class="appointment-status ${user.isActive === false ? 'status-cancelled' : 'status-confirmed'}">${user.isActive === false ? 'Inactive' : 'Active'}</span></td></tr>`).join('')}</tbody></table></div>`
+        : '<p class="empty-appointments">No optometrist or eye care assistant accounts yet.</p>';
+    };
+
+    adminForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      adminStatus.textContent = 'Creating account...';
+      adminStatus.classList.remove('error');
+
+      try {
+        const response = await fetch(`${api}/api/admin/users`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(Object.fromEntries(new FormData(adminForm).entries())),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to create account.');
+        adminStatus.textContent = result.message;
+        adminForm.reset();
+        await loadManagedUsers();
+      } catch (error) {
+        adminStatus.textContent = error.message;
+        adminStatus.classList.add('error');
+      }
+    });
+
+    loadManagedUsers().catch((error) => {
+      if (adminStatus) {
+        adminStatus.textContent = error.message;
+        adminStatus.classList.add('error');
+      }
+    });
+
+    document.getElementById('logout-button')?.addEventListener('click', () => {
+      localStorage.removeItem('hmVisionToken');
+      localStorage.removeItem('hmVisionUser');
+      window.location.href = '/auth';
+    });
+
+    document.getElementById('sidebar-logout')?.addEventListener('click', (event) => {
+      event.preventDefault();
+      document.getElementById('logout-button')?.click();
+    });
+
+    const notificationButton = document.getElementById('notification-button');
+    const notificationPopover = document.getElementById('notification-popover');
+    notificationButton?.addEventListener('click', () => {
+      const isOpen = notificationButton.getAttribute('aria-expanded') === 'true';
+      notificationButton.setAttribute('aria-expanded', String(!isOpen));
+      notificationPopover.hidden = isOpen;
+    });
+    const notificationList = document.getElementById('notification-list');
+    const notificationCount = document.getElementById('notification-count');
+    const loadNotifications = async () => {
+      if (!notificationList) return;
+      const headers = { Authorization: `Bearer ${token}` };
+      const appointmentResponse = await fetch(`${api}/api/appointments${role === 'patient' ? '/mine' : ''}`, { headers });
+      const appointmentResult = await appointmentResponse.json();
+      const notifications = [];
+      const today = new Date().toISOString().slice(0, 10);
+      (appointmentResult.appointments || []).forEach((item) => {
+        if (item.preferredDate >= today && ['pending', 'confirmed'].includes(item.status)) notifications.push({ text: `${role === 'patient' ? 'Appointment' : `Appointment request from ${item.name}`} ${item.status} for ${item.preferredDate}.`, href: `/dashboard/${role}/appointments` });
+      });
+      if (['owner', 'optometrist'].includes(role)) {
+        const followUpResponse = await fetch(`${api}/api/follow-ups`, { headers });
+        const followUpResult = await followUpResponse.json();
+        (followUpResult.followUps || []).forEach((item) => { if (['requested', 'scheduled'].includes(item.status)) notifications.push({ text: `Follow-up ${item.status} for ${item.patientName}.`, href: `/dashboard/${role}/follow-ups` }); });
+      } else if (role === 'patient') {
+        const followUpResponse = await fetch(`${api}/api/follow-ups/mine`, { headers });
+        const followUpResult = await followUpResponse.json();
+        (followUpResult.followUps || []).forEach((item) => { if (['requested', 'scheduled'].includes(item.status)) notifications.push({ text: `Your follow-up is ${item.status}.`, href: `/dashboard/${role}/follow-ups` }); });
+      }
+      const visible = notifications.slice(0, 5);
+      notificationCount.hidden = !visible.length;
+      notificationCount.textContent = visible.length;
+      notificationList.innerHTML = visible.length ? visible.map((item) => `<a class="notification-item" href="${item.href}">${item.text}</a>`).join('') : '<p>No new notifications.</p>';
+    };
+    loadNotifications().catch(() => { if (notificationList) notificationList.innerHTML = '<p>Notifications unavailable.</p>'; });
+
+    document.querySelectorAll('.sidebar-group-toggle').forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        toggle.closest('.sidebar-group')?.classList.toggle('is-collapsed', expanded);
+      });
+    });
+  </script>
+</Layout>

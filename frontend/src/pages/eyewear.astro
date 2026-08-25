@@ -1,0 +1,179 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const collections = [
+  {
+    id: 'contact-lens',
+    title: 'Contact Lens and Glasses',
+    description: 'Comfortable vision solutions for everyday wear, special occasions, and changing prescriptions.',
+    products: [
+      { name: 'Colored', description: 'Expressive colors with a comfortable fit.', size: '14.2 mm', colors: 'Hazel, Brown, Gray', price: 'PHP 899', image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?auto=format&fit=crop&w=900&q=80' },
+      { name: 'Clear', description: 'Simple, natural correction for daily routines.', size: '14.0 mm', colors: 'Clear, Aqua, Gray', price: 'PHP 799', image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=80' },
+      { name: 'Contact Lens Solutions', description: 'Cleaning and storage essentials for lens care.', size: '120 ml', colors: 'Clear Bottle, Blue Cap', price: 'PHP 249', image: 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?auto=format&fit=crop&w=900&q=80' },
+    ],
+  },
+  {
+    id: 'reading-glasses',
+    title: 'Reading Glasses',
+    description: 'Reliable near-vision support in styles made for Men, Women, Kids, and Unisex wear.',
+    products: [
+      { name: 'Men', description: 'Confident shapes for work and everyday reading.', size: '52 mm', colors: 'Matte Black, Tortoise, Navy', price: 'PHP 899', image: 'https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=900&q=80' },
+      { name: 'Women', description: 'Refined colors and silhouettes for close-up comfort.', size: '51 mm', colors: 'Rose Brown, Black, Crystal', price: 'PHP 999', image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=80' },
+      { name: 'Kids', description: 'Durable, lightweight choices for young readers.', size: '46 mm', colors: 'Blue, Red, Purple', price: 'PHP 699', image: 'https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=900&q=80' },
+      { name: 'Unisex', description: 'Easy-to-wear frames for every personal style.', size: '50 mm', colors: 'Crystal Clear, Black, Green', price: 'PHP 849', image: 'https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=900&q=80' },
+    ],
+  },
+  {
+    id: 'sunglasses',
+    title: 'Sunglasses',
+    description: 'Everyday sun protection with comfortable fits for Men, Women, Kids, and Unisex wear.',
+    products: [
+      { name: 'Men', description: 'Strong, classic frames for bright days outdoors.', size: '58 mm', colors: 'Tortoise, Black, Navy', price: 'PHP 1,299', image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=80' },
+      { name: 'Women', description: 'Polished silhouettes that bring personality to every look.', size: '55 mm', colors: 'Black, Brown, Rose Gold', price: 'PHP 1,199', image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=80' },
+      { name: 'Kids', description: 'Lightweight, playful protection for active days.', size: '48 mm', colors: 'Red, Blue, Yellow', price: 'PHP 799', image: 'https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=900&q=80' },
+      { name: 'Unisex', description: 'Versatile everyday styles for the whole family.', size: '54 mm', colors: 'Smoke Gray, Black, Green', price: 'PHP 999', image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=80' },
+    ],
+  },
+  {
+    id: 'accessories',
+    title: 'Accessories',
+    description: 'Small essentials that help you care for and personalize your eyewear.',
+    products: [
+      { name: 'Accessories', description: 'Cases, cloths, chains, and practical eyewear essentials.', size: 'Universal', colors: 'Black, Clear, Brown', price: 'PHP 199', image: 'https://images.unsplash.com/photo-1556306535-38febf6782e7?auto=format&fit=crop&w=900&q=80' },
+    ],
+  },
+  {
+    id: 'anti-rad',
+    title: 'Anti-Rad',
+    description: 'Protective lens options designed for screen-heavy routines and modern lifestyles.',
+    products: [
+      { name: 'Anti-Rad Lens', description: 'Screen-friendly lenses with a clean everyday look.', size: '52 mm', colors: 'Clear Blue Filter, Clear, Smoke Gray', price: 'PHP 1,499', image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=80' },
+    ],
+  },
+];
+---
+
+<Layout title="Eyewear Collection | Hernandez Mercado Eye Clinic">
+  <main class="eyewear-page">
+    <section class="eyewear-page-hero section-surface">
+      <div class="container">
+        <a class="auth-back-link" href="/">Back to clinic</a>
+        <span class="eyebrow">Eyewear Collection</span>
+        <h1>Contact lens and glasses for every way you see.</h1>
+        <p>Explore practical vision solutions and personal styles selected by Hernandez Mercado Eye Clinic.</p>
+      </div>
+    </section>
+
+    <div class="container eyewear-catalog">
+      {collections.map((collection) => (
+        <section id={collection.id} class="eyewear-category">
+          <div class="section-header">
+            <span class="eyebrow">{collection.title}</span>
+            <h2>{collection.title}</h2>
+            <p class="section-copy">{collection.description}</p>
+          </div>
+          <div class="eyewear-grid">
+            {collection.products.map((product) => (
+              <article class="eyewear-card homepage-eyewear-card catalog-eyewear-card">
+                <img src={product.image} alt={`${collection.title} - ${product.name}`} loading="lazy" />
+                <div class="eyewear-card-body">
+                  <h3>{product.name}</h3>
+                  <p>{product.description}</p>
+                  <div class="eyewear-product-meta">
+                    <div class="eyewear-color-picker">
+                      <span class="eyewear-color-label">Color</span>
+                      <div class="color-options" role="group" aria-label={`Choose a color for ${product.name}`}>
+                        {product.colors.split(', ').map((color, index) => (
+                          <button type="button" class={`color-option ${index === 0 ? 'is-selected' : ''}`} data-color={color} aria-label={`${color} color`} aria-pressed={index === 0 ? 'true' : 'false'} title={color}>
+                            <i class="color-swatch" aria-hidden="true"></i>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <strong>{product.price}</strong>
+                  </div>
+                  <span class="eyewear-size">Size: {product.size}</span>
+                  <a class="text-link" href="/#contact">Ask about this collection</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const colorValues = {
+    'Clear Blue Filter': '#8cc9d6',
+    Clear: '#dbe9e6',
+    'Smoke Gray': '#6d858b',
+    Black: '#202526',
+    'Matte Black': '#202526',
+    Tortoise: '#8a5b3d',
+    Brown: '#704a34',
+    Navy: '#344f75',
+    Blue: '#4f9fba',
+    Red: '#a9324a',
+    Green: '#5b9a75',
+    Purple: '#8667a9',
+    Hazel: '#9b744f',
+    Gray: '#87979b',
+    'Rose Brown': '#aa6f72',
+    'Rose Gold': '#c78d83',
+    Crystal: '#c9ded9',
+    'Crystal Clear': '#c9ded9',
+    Yellow: '#d5b44d',
+    Aqua: '#69baca',
+    'Clear Bottle': '#dce9e8',
+    'Blue Cap': '#4f9fba',
+  };
+
+  const colorFilters = {
+    'Clear Blue Filter': 'hue-rotate(155deg) saturate(0.85)',
+    Clear: 'grayscale(0.1) brightness(1.08)',
+    'Smoke Gray': 'grayscale(0.75) contrast(1.05)',
+    Black: 'grayscale(0.8) brightness(0.78)',
+    'Matte Black': 'grayscale(0.8) brightness(0.78)',
+    Tortoise: 'sepia(0.45) saturate(1.25)',
+    Brown: 'sepia(0.65) saturate(1.15)',
+    Navy: 'hue-rotate(175deg) saturate(1.1)',
+    Blue: 'hue-rotate(175deg) saturate(1.25)',
+    Red: 'sepia(0.3) saturate(2.2) hue-rotate(315deg)',
+    Green: 'hue-rotate(70deg) saturate(1.2)',
+    Purple: 'hue-rotate(250deg) saturate(1.25)',
+    Hazel: 'sepia(0.45) saturate(1.45)',
+    Gray: 'grayscale(0.55)',
+    'Rose Brown': 'sepia(0.25) saturate(1.4) hue-rotate(315deg)',
+    'Rose Gold': 'sepia(0.2) saturate(1.6) hue-rotate(320deg)',
+    Crystal: 'brightness(1.12) saturate(0.65)',
+    'Crystal Clear': 'brightness(1.12) saturate(0.65)',
+    'Smoke Gray': 'grayscale(0.75) contrast(1.05)',
+    Yellow: 'sepia(0.5) saturate(2) hue-rotate(355deg)',
+    Aqua: 'hue-rotate(140deg) saturate(1.2)',
+    'Clear Bottle': 'brightness(1.08) saturate(0.7)',
+    'Blue Cap': 'hue-rotate(175deg) saturate(1.2)',
+    'Clear Blue Filter': 'hue-rotate(155deg) saturate(0.85)',
+  };
+
+  document.querySelectorAll('.eyewear-card').forEach((card) => {
+    const image = card.querySelector('img');
+    image.addEventListener('error', () => {
+      image.src = 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=80';
+    }, { once: true });
+    card.querySelectorAll('.color-option').forEach((option) => {
+      const swatch = option.querySelector('.color-swatch');
+      if (swatch) swatch.style.background = colorValues[option.dataset.color] || '#a9d0cc';
+      option.addEventListener('click', () => {
+        card.querySelectorAll('.color-option').forEach((item) => {
+          item.classList.remove('is-selected');
+          item.setAttribute('aria-pressed', 'false');
+        });
+        option.classList.add('is-selected');
+        option.setAttribute('aria-pressed', 'true');
+        image.style.filter = colorFilters[option.dataset.color] || 'none';
+      });
+    });
+  });
+</script>

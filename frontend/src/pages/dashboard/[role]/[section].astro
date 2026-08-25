@@ -1,0 +1,837 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import SidebarIcon from '../../../components/SidebarIcon.astro';
+
+const { role, section } = Astro.params;
+const iconPaths = {
+  dashboard: 'M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z',
+  'book-exam': 'M6 3h12v18H6V3Zm3 0v4h6V3M9 12h6m-6 4h4',
+  appointments: 'M7 3v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13H4V6a1 1 0 0 1 1-1Z',
+  'follow-ups': 'M4 12a8 8 0 1 0 2-5m-2 0V3m0 4h4',
+  'medical-records': 'M6 3h9l3 3v15H6V3Zm9 0v4h3M9 12h6m-6 4h4',
+  prescriptions: 'M7 3h10v18H7V3Zm3 4h4m-4 4h4m-4 4h3',
+  notifications: 'M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4',
+  profile: 'M20 21a8 8 0 0 0-16 0m12-13a4 4 0 1 1-8 0 4 4 0 0 0 8 0Z',
+  'today-patients': 'M4 5h16v14H4V5Zm4 4h8m-8 4h5',
+  consultations: 'M5 4h14v16H5V4Zm3 4h8m-8 4h8m-8 4h5',
+  'clinical-records': 'M6 3h9l3 3v15H6V3Zm9 0v4h3M9 12h6m-6 4h4',
+  'clinic-queue': 'M4 6h16M4 12h16M4 18h16M8 6v12',
+  'check-in': 'M5 4h14v16H5V4Zm3 4h8m-8 4h8m-8 4h5',
+  'patient-records': 'M4 5h16v14H4V5Zm3 4h10m-10 4h7',
+  billing: 'M6 3h12v18H6V3Zm3 5h6m-6 4h6m-6 4h4',
+  reports: 'M5 20V10m7 10V4m7 16v-7',
+  'manage-team': 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0-8 0 4 4 0 0 0 8 0Zm6-3a4 4 0 0 1 0-7.75M22 21v-2a4 4 0 0 0-3-3.87',
+  'manage-users': 'M4 5h16v14H4V5Zm3 4h10m-10 4h7',
+  'roles-permissions': 'M12 3 20 7v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Zm-3 9 2 2 4-4',
+  'audit-logs': 'M6 3h12v18H6V3Zm3 4h6m-6 4h6m-6 4h4',
+  'clinic-settings': 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0-5v2m0 14v2m9-9h-2M5 12H3m15.36-6.36-1.42 1.42M7.06 16.94l-1.42 1.42m12.72 0-1.42-1.42M7.06 7.06 5.64 5.64',
+};
+
+const navigation = {
+  patient: {
+    dashboard: 'Patient Dashboard',
+    'book-exam': 'Book an Appointment',
+    appointments: 'Appointments',
+    'follow-ups': 'Follow-ups',
+    'medical-records': 'Medical Records',
+    prescriptions: 'Prescriptions',
+    notifications: 'Notifications',
+    profile: 'Profile',
+  },
+  optometrist: {
+    dashboard: 'Optometrist Dashboard',
+    'today-patients': "Today's Patients",
+    appointments: 'Appointments',
+    consultations: 'Consultations',
+    'clinical-records': 'Clinical Records',
+    prescriptions: 'Prescriptions',
+    'follow-ups': 'Follow-ups',
+  },
+  'eye-care-assistant': {
+    dashboard: 'Eye Care Assistant Dashboard',
+    'check-in': 'Patient Check-In',
+    appointments: 'Appointments',
+    'clinic-queue': 'Clinic Queue',
+    'patient-records': 'Patient Records',
+    billing: 'Billing',
+  },
+  owner: {
+    dashboard: 'Owner Dashboard',
+    'today-patients': "Today's Patients",
+    appointments: 'Appointments',
+    consultations: 'Consultations',
+    'clinical-records': 'Clinical Records',
+    prescriptions: 'Prescriptions',
+    'follow-ups': 'Follow-ups',
+    'manage-team': 'Manage Team',
+    'manage-users': 'Manage Users',
+    'roles-permissions': 'Roles & Permissions',
+    'audit-logs': 'Audit Logs',
+    reports: 'Reports',
+    'clinic-settings': 'Clinic Settings',
+  },
+};
+
+const sidebarGroups = {
+  patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions']], ['Account', ['notifications', 'profile']]],
+  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']]],
+  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'billing']]],
+  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'manage-users', 'roles-permissions']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']]],
+};
+const groupIcons = {
+  Overview: 'overview',
+  Care: 'care',
+  Account: 'account',
+  'Clinical Work': 'clinical-work',
+  Operations: 'operations',
+  Management: 'management',
+  'Monitoring & Settings': 'monitoring-settings',
+};
+
+const roleNavigation = navigation[role] || {};
+const pageTitle = roleNavigation[section] || 'Workspace';
+const isValidRoute = Boolean(roleNavigation[section]);
+
+const routePairs = [
+  ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'],
+  ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'clinical-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
+  ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'],
+  ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'clinical-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
+];
+
+export function getStaticPaths() {
+  return [
+    ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'],
+    ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'clinical-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
+    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'],
+    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'clinical-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
+  ].map(([routeRole, routeSection]) => ({ params: { role: routeRole, section: routeSection } }));
+}
+
+const pageCopy = {
+  dashboard: 'A focused overview of today\'s work, priorities, and activity.',
+  'book-exam': 'Choose a service, preferred date, and available time for your visit.',
+  appointments: 'Review upcoming and previous visits, status, and appointment details.',
+  'follow-ups': 'Request a follow-up visit and track its progress with the clinic team.',
+  'medical-records': 'Review your examination and consultation history.',
+  prescriptions: 'View prescriptions shared with your account.',
+  notifications: 'Appointment reminders, confirmations, prescription updates, and clinic notices.',
+  profile: 'Keep your personal, contact, and account information up to date.',
+  'today-patients': 'See today\'s schedule and open the next consultation workspace.',
+  consultations: 'Record examination findings, diagnosis, notes, prescriptions, and follow-up plans.',
+  'clinical-records': 'Search and review a patient\'s longitudinal consultations, findings, diagnoses, notes, prescriptions, and follow-up history.',
+  'follow-ups': 'Track upcoming, due, completed, and missed follow-up care.',
+  'check-in': 'Find an arriving patient, verify the visit, and add them to the queue.',
+  'clinic-queue': 'Monitor the live queue and update each patient\'s operational status.',
+  'patient-records': 'Search registration and contact information without exposing restricted clinical data.',
+  billing: 'Review charges, payment status, invoices, and transaction history.',
+  'manage-team': 'Create and manage optometrist and eye care assistant accounts from one protected workspace.',
+  'manage-users': 'Search accounts, filter by role and status, and manage user access.',
+  'roles-permissions': 'Review which modules each role can access and adjust permissions.',
+  'audit-logs': 'Review administrative, access, appointment, and record activity.',
+  reports: 'Review appointment, patient, consultation, and billing summaries.',
+  'clinic-settings': 'Configure clinic identity, hours, services, schedules, and closed dates.',
+};
+
+const copy = pageCopy[section] || 'This workspace is ready for your clinic workflow.';
+---
+
+<Layout title={`${pageTitle} | HM VisionSync`}>
+  <main class="dashboard-page dashboard-layout">
+    <aside class="dashboard-sidebar">
+      <div class="sidebar-header">
+        <a class="sidebar-brand" href={`/dashboard/${role}/dashboard`}>HM VisionSync</a>
+        <button class="sidebar-collapse-toggle" type="button" id="sidebar-collapse-toggle" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar"><SidebarIcon name="panel-left" /></button>
+      </div>
+      <span class="sidebar-role">{role} workspace</span>
+      {role !== 'owner' && (
+        <div class="sidebar-identity" aria-label="Account identifier">
+          <span id="sidebar-id-label">{role === 'patient' ? 'Patient ID' : 'User ID'}</span>
+          <strong id="sidebar-user-id">Loading...</strong>
+        </div>
+      )}
+      <nav class="sidebar-groups" aria-label="Dashboard navigation">
+        {(sidebarGroups[role] || []).map(([groupLabel, groupSections]) => {
+          const isExpanded = role === 'owner' && groupLabel === 'Clinical Work' || groupSections.includes(section);
+          return (
+          <div class={`sidebar-group ${isExpanded ? '' : 'is-collapsed'}`}>
+            <button class="sidebar-group-toggle" type="button" aria-expanded={isExpanded ? 'true' : 'false'}>
+              <SidebarIcon name={groupIcons[groupLabel]} /><span>{groupLabel}</span><span class="sidebar-chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div class="sidebar-group-links">
+              {groupSections.map((routeSection) => (
+                <a class={routeSection === section ? 'is-current' : ''} href={`/dashboard/${role}/${routeSection}`}>
+                  <SidebarIcon name={routeSection} /><span>{roleNavigation[routeSection]}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+          );
+        })}
+      </nav>
+      <div class="sidebar-divider" aria-hidden="true"></div>
+      <span class="sidebar-section-label">Account</span>
+      <nav class="sidebar-nav sidebar-account-nav">
+        <a href="#" id="sidebar-logout"><SidebarIcon name="signout" /><span>Sign out</span></a>
+      </nav>
+      <a class="sidebar-home" href="/"><SidebarIcon name="home" /><span>Back to clinic site</span></a>
+    </aside>
+
+    <div class="dashboard-main">
+      <section class="dashboard-header container">
+        <div>
+          <span class="eyebrow">{role} workspace</span>
+          <h1>{pageTitle}</h1>
+          <p class="breadcrumb">Dashboard / {pageTitle}</p>
+        </div>
+        <div class="dashboard-header-actions">
+          <button type="button" class="notification-button" id="notification-button" aria-label="Open notifications" aria-expanded="false" title="Notifications">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg><span id="notification-count" class="notification-count" hidden></span>
+          </button>
+          <a href={`/dashboard/${role}/dashboard`} class="btn btn-secondary">Overview</a>
+          <div class="notification-popover" id="notification-popover" hidden><strong>Notifications</strong><div id="notification-list"><p>Loading notifications...</p></div></div>
+        </div>
+      </section>
+
+      {isValidRoute && (
+        <section class="container task-page-card card">
+          <p class="task-page-description">{copy}</p>
+          <div class="task-state" id="task-state">
+            <span class="loading-dot"></span>
+            Loading workspace data...
+          </div>
+
+          {section === 'book-exam' && (
+            <form id="booking-workflow" class="workflow-form">
+              <div class="booking-calendar">
+                <div class="calendar-heading"><strong id="calendar-month">Booking calendar</strong><div class="calendar-nav"><button type="button" id="calendar-prev" aria-label="Previous month">&lt;</button><button type="button" id="calendar-next" aria-label="Next month">&gt;</button></div></div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+              </div>
+              <div class="field-row">
+                <div class="field-group"><label for="workflow-service">Service</label><select id="workflow-service" name="service" required><option value="">Select a service</option><option>Comprehensive Eye Examination</option><option>Vision Assessment</option><option>Eye Health Screening</option><option>Optical Consultation</option></select></div>
+                <div class="field-group"><label for="workflow-date">Preferred date</label><input id="workflow-date" name="preferredDate" type="date" required /></div>
+              </div>
+              <div class="field-row">
+                <div class="field-group"><label for="workflow-time">Available time</label><select id="workflow-time" name="preferredTime" required><option value="">Select a date first</option></select></div>
+                <div class="field-group"><label for="workflow-message">Appointment information</label><input id="workflow-message" name="message" placeholder="Reason for your visit" /></div>
+              </div>
+              <div class="review-panel"><strong>Review before confirmation</strong><span id="booking-review">Choose a service, date, and time.</span></div>
+              <button type="submit" class="btn btn-primary">Confirm booking</button>
+              <p class="form-status" id="booking-status" aria-live="polite"></p>
+            </form>
+          )}
+
+          {section === 'appointments' && (
+            <div class="workflow-list">
+              <div class="booking-calendar appointment-calendar">
+                <div class="calendar-heading"><strong id="appointment-calendar-month">Appointments calendar</strong><div class="calendar-nav"><button type="button" id="appointment-calendar-prev" aria-label="Previous month">&lt;</button><button type="button" id="appointment-calendar-next" aria-label="Next month">&gt;</button></div></div>
+                <div class="calendar-grid" id="appointment-calendar-grid"></div>
+              </div>
+              <div class="list-toolbar">
+                <input id="appointment-search" type="search" placeholder="Search patient or service" />
+                <select id="appointment-status-filter"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Rejected</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select>
+                <input id="appointment-date-filter" type="date" aria-label="Filter by appointment date" />
+              </div>
+              <div id="appointment-list" class="appointment-list"><p class="empty-appointments">Loading appointments...</p></div>
+              <div id="appointment-pagination" class="pagination" aria-label="Appointment pages"></div>
+            </div>
+          )}
+
+          {section === 'today-patients' && ['owner', 'optometrist'].includes(role) && (
+            <div class="workflow-list">
+              <div class="list-toolbar"><input id="today-patient-search" type="search" placeholder="Search patient or service" /><select id="today-patient-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Rejected</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select><input id="today-patient-date" type="date" aria-label="Today's patient date" /></div>
+              <div id="today-patient-list" class="appointment-list"><p class="empty-appointments">Loading today's patients...</p></div>
+              <div id="today-patient-pagination" class="pagination" aria-label="Today's patient pages"></div>
+            </div>
+          )}
+
+          {section === 'follow-ups' && (
+            <div class="follow-up-workspace">
+              {role === 'patient' ? (
+                <form id="follow-up-form" class="workflow-form">
+                  <div class="field-group"><label for="follow-up-reason">Reason for follow-up</label><textarea id="follow-up-reason" name="reason" rows="4" required placeholder="Tell the clinic what you need help with"></textarea></div>
+                  <div class="field-group"><label for="follow-up-date">Preferred date</label><input id="follow-up-date" name="preferredDate" type="date" /></div>
+                  <button type="submit" class="btn btn-primary">Request follow-up</button>
+                  <p id="follow-up-status" class="form-status" aria-live="polite"></p>
+                </form>
+              ) : (
+                <div class="workflow-list">
+                  <div class="list-toolbar"><input id="follow-up-search" type="search" placeholder="Search patient or reason" /><select id="follow-up-status-filter"><option value="">All statuses</option><option value="requested">Requested</option><option value="scheduled">Scheduled</option><option value="completed">Completed</option><option value="rejected">Rejected</option><option value="cancelled">Cancelled</option></select></div>
+                  <div id="follow-up-list" class="follow-up-list"><p class="empty-appointments">Loading follow-up requests...</p></div>
+                  <div id="follow-up-pagination" class="pagination" aria-label="Follow-up pages"></div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {section === 'manage-users' && (
+            <div class="workflow-list">
+              <div class="list-toolbar"><input id="user-search" type="search" placeholder="Search users" /><select id="user-role-filter"><option value="">All roles</option><option value="patient">Patients</option><option value="optometrist">Optometrists</option><option value="eye-care-assistant">Eye Care Assistants</option></select><select id="user-status-filter"><option value="">All account statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+              <div id="managed-users" class="managed-users"><p class="empty-appointments">Loading users...</p></div>
+              <div id="user-pagination" class="pagination" aria-label="User pages"></div>
+            </div>
+          )}
+
+          {section === 'manage-team' && (
+            <form id="admin-user-form" class="workflow-form">
+              <div class="field-row"><div class="field-group"><label for="admin-name">Full name</label><input id="admin-name" name="name" required /></div><div class="field-group"><label for="admin-role">Account type</label><select id="admin-role" name="role"><option value="optometrist">Optometrist</option><option value="eye-care-assistant">Eye Care Assistant</option></select></div></div>
+              <div class="field-row"><div class="field-group"><label for="admin-email">Email</label><input id="admin-email" name="email" type="email" required /></div><div class="field-group"><label for="admin-password">Temporary password</label><input id="admin-password" name="password" type="password" required /></div></div>
+              <div class="field-row"><div class="field-group"><label for="admin-phone">Contact</label><input id="admin-phone" name="phone" type="tel" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" /></div><div class="field-group"><label for="admin-specialty">Specialty / Department</label><input id="admin-specialty" name="specialty" /></div></div>
+              <button type="submit" class="btn btn-primary">Create account</button>
+              <p id="admin-status" class="form-status" aria-live="polite"></p>
+            </form>
+          )}
+
+          {section === 'profile' && role === 'patient' && (
+            <form id="profile-form" class="workflow-form">
+              <div class="field-row"><div class="field-group"><label for="profile-name">Full name</label><input id="profile-name" name="name" required /></div><div class="field-group"><label for="profile-email">Email</label><input id="profile-email" name="email" type="email" disabled /></div></div>
+              <div class="field-row"><div class="field-group"><label for="profile-phone">Contact number</label><input id="profile-phone" name="phone" type="tel" /></div><div class="field-group"><label for="profile-age">Age</label><input id="profile-age" name="age" type="number" min="0" max="120" /></div></div>
+              <div class="field-group"><label for="profile-gender">Gender</label><input id="profile-gender" name="gender" /></div>
+              <button type="submit" class="btn btn-primary">Save profile</button><p id="profile-status" class="form-status" aria-live="polite"></p>
+            </form>
+          )}
+
+          {(['medical-records', 'prescriptions'].includes(section) && role === 'patient') && <div id="patient-record-list" class="record-list"><p class="empty-appointments">Loading records...</p></div>}
+
+          {(['clinical-records', 'consultations', 'prescriptions'].includes(section) && ['owner', 'optometrist'].includes(role)) && (
+            <div class="clinical-workspace">
+              {section !== 'clinical-records' && <form id="clinical-record-form" class="workflow-form">
+                <div class="field-row"><div class="field-group"><label for="record-patient">Patient ID</label><input id="record-patient" name="patientId" placeholder="HME-000127" pattern="HME-[0-9]{6}" required /></div><div class="field-group"><label for="record-title">Title</label><input id="record-title" name="title" required /></div></div>
+                <div class="field-group"><label for="record-details">Clinical encounter details</label><textarea id="record-details" name="details" rows="7" placeholder="Chief complaint, history, eye examination, assessment, clinical notes, treatment recommendations, and follow-up plan" required></textarea></div>
+                <button type="submit" class="btn btn-primary">Save {section === 'consultations' ? 'consultation' : 'prescription'}</button><p id="record-status" class="form-status" aria-live="polite"></p>
+              </form>}
+              {section === 'clinical-records' && <div class="list-toolbar"><input id="clinical-record-search" type="search" placeholder="Search patient, diagnosis, or record" aria-label="Search clinical records" /></div>}
+              <div id="clinical-record-list" class="record-list"><p class="empty-appointments">Loading records...</p></div>
+            </div>
+          )}
+
+          {section === 'roles-permissions' && role === 'owner' && <div id="permissions-list" class="record-list"><p class="empty-appointments">Loading permissions...</p></div>}
+
+          {section === 'audit-logs' && role === 'owner' && (
+            <div class="workflow-list">
+              <div class="list-toolbar"><input id="audit-search" type="search" placeholder="Search Performed By, action, or patient" /><select id="audit-module-filter"><option value="">All modules</option><option value="appointments">Appointment Management</option><option value="administration">Clinic Administration</option></select><input id="audit-date-filter" type="date" aria-label="Filter audit logs by date" /></div>
+              <div id="audit-log-list" class="record-list"><p class="empty-appointments">Loading audit logs...</p></div>
+              <div id="audit-pagination" class="pagination" aria-label="Audit log pages"></div>
+            </div>
+          )}
+
+          {section === 'clinic-settings' && role === 'owner' && (
+            <form id="clinic-settings-form" class="workflow-form"><div class="field-group"><label for="clinic-name">Clinic name</label><input id="clinic-name" name="name" required /></div><div class="field-row"><div class="field-group"><label for="clinic-phone">Phone</label><input id="clinic-phone" name="phone" /></div><div class="field-group"><label for="clinic-email">Email</label><input id="clinic-email" name="email" type="email" /></div></div><div class="field-group"><label for="clinic-address">Address</label><input id="clinic-address" name="address" /></div><div class="field-group"><label for="clinic-hours">Hours</label><input id="clinic-hours" name="hours" /></div><button type="submit" class="btn btn-primary">Save clinic settings</button><p id="settings-status" class="form-status" aria-live="polite"></p></form>
+          )}
+
+          {section !== 'dashboard' && section !== 'book-exam' && section !== 'appointments' && section !== 'today-patients' && section !== 'follow-ups' && section !== 'profile' && !['medical-records', 'prescriptions', 'clinical-records', 'consultations', 'roles-permissions', 'audit-logs', 'clinic-settings'].includes(section) && (
+            <div class="task-grid">
+              <article class="task-summary-card"><span>Access scope</span><strong>{role === 'patient' ? 'Personal records only' : role === 'optometrist' ? 'Authorized clinical care' : role === 'eye-care-assistant' ? 'Clinic operations' : 'Clinic administration and clinical care'}</strong><small>Protected by role permissions</small></article>
+              <article class="task-summary-card"><span>Current state</span><strong>Ready to review</strong><small>Use this workspace for {pageTitle.toLowerCase()}</small></article>
+              <div class="empty-state task-empty"><h2>No records loaded yet</h2><p>Connect this workspace to clinic records as activity becomes available.</p></div>
+            </div>
+          )}
+        </section>
+      )}
+    </div>
+  </main>
+
+  <script>
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const role = pathParts[1];
+    const section = pathParts[2];
+    const token = localStorage.getItem('hmVisionToken');
+    const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+    const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+
+    const sidebarUserId = document.getElementById('sidebar-user-id');
+    if (sidebarUserId) sidebarUserId.textContent = user?.patientId || (user?.role === 'patient' ? 'Unavailable' : user?.id || user?._id || 'Unavailable');
+
+    if (!token || !user || user.role !== role) window.location.href = '/login';
+
+    const sidebarCollapseToggle = document.getElementById('sidebar-collapse-toggle');
+    sidebarCollapseToggle?.addEventListener('click', () => {
+      const isCollapsed = document.body.classList.toggle('sidebar-is-collapsed');
+      sidebarCollapseToggle.setAttribute('aria-expanded', String(!isCollapsed));
+      sidebarCollapseToggle.setAttribute('aria-label', `${isCollapsed ? 'Expand' : 'Collapse'} sidebar`);
+      sidebarCollapseToggle.setAttribute('title', `${isCollapsed ? 'Expand' : 'Collapse'} sidebar`);
+    });
+
+    const logout = (event) => {
+      event.preventDefault();
+      localStorage.removeItem('hmVisionToken');
+      localStorage.removeItem('hmVisionUser');
+      window.location.href = '/login';
+    };
+    document.getElementById('sidebar-logout')?.addEventListener('click', logout);
+    const notificationButton = document.getElementById('notification-button');
+    const notificationPopover = document.getElementById('notification-popover');
+    notificationButton?.addEventListener('click', () => {
+      const isOpen = notificationButton.getAttribute('aria-expanded') === 'true';
+      notificationButton.setAttribute('aria-expanded', String(!isOpen));
+      notificationPopover.hidden = isOpen;
+    });
+    const notificationList = document.getElementById('notification-list');
+    const notificationCount = document.getElementById('notification-count');
+    const loadNotifications = async () => {
+      if (!notificationList) return;
+      const headers = { Authorization: `Bearer ${token}` };
+      const appointmentResponse = await fetch(`${api}/api/appointments${role === 'patient' ? '/mine' : ''}`, { headers });
+      const appointmentResult = await appointmentResponse.json();
+      const notifications = [];
+      const today = new Date().toISOString().slice(0, 10);
+      (appointmentResult.appointments || []).forEach((item) => {
+        if (item.preferredDate >= today && ['pending', 'confirmed'].includes(item.status)) notifications.push({ id: `appointment-${item._id}-${item.status}`, text: `${role === 'patient' ? 'Appointment' : `Appointment request from ${item.name}`} ${item.status} for ${item.preferredDate}.`, href: `/dashboard/${role}/appointments` });
+      });
+      if (['owner', 'optometrist'].includes(role)) {
+        const followUpResponse = await fetch(`${api}/api/follow-ups`, { headers });
+        const followUpResult = await followUpResponse.json();
+        (followUpResult.followUps || []).forEach((item) => { if (['requested', 'scheduled'].includes(item.status)) notifications.push({ id: `follow-up-${item._id}-${item.status}`, text: `Follow-up ${item.status} for ${item.patientName}.`, href: `/dashboard/${role}/follow-ups` }); });
+      } else if (role === 'patient') {
+        const followUpResponse = await fetch(`${api}/api/follow-ups/mine`, { headers });
+        const followUpResult = await followUpResponse.json();
+        (followUpResult.followUps || []).forEach((item) => { if (['requested', 'scheduled'].includes(item.status)) notifications.push({ id: `follow-up-${item._id}-${item.status}`, text: `Your follow-up is ${item.status}.`, href: `/dashboard/${role}/follow-ups` }); });
+      }
+      const readNotifications = JSON.parse(localStorage.getItem('hmVisionReadNotifications') || '[]');
+      const visible = notifications.filter((item) => !readNotifications.includes(item.id)).slice(0, 5);
+      notificationCount.hidden = !visible.length;
+      notificationCount.textContent = visible.length ? visible.length : '';
+      notificationList.innerHTML = visible.length ? visible.map((item) => `<a class="notification-item" data-notification-id="${item.id}" href="${item.href}">${item.text}</a>`).join('') : '<p>No new notifications.</p>';
+    };
+    loadNotifications().catch(() => { if (notificationList) notificationList.innerHTML = '<p>Notifications unavailable.</p>'; });
+    notificationList?.addEventListener('click', (event) => {
+      const item = event.target.closest('[data-notification-id]');
+      if (!item) return;
+      const readNotifications = JSON.parse(localStorage.getItem('hmVisionReadNotifications') || '[]');
+      if (!readNotifications.includes(item.dataset.notificationId)) readNotifications.push(item.dataset.notificationId);
+      localStorage.setItem('hmVisionReadNotifications', JSON.stringify(readNotifications.slice(-100)));
+      item.remove();
+      const remaining = notificationList.querySelectorAll('[data-notification-id]').length;
+      notificationCount.hidden = !remaining;
+      notificationCount.textContent = remaining ? remaining : '';
+      if (!remaining) notificationList.innerHTML = '<p>No new notifications.</p>';
+    });
+
+    document.querySelectorAll('.sidebar-group-toggle').forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        toggle.closest('.sidebar-group')?.classList.toggle('is-collapsed', expanded);
+      });
+    });
+
+    const state = document.getElementById('task-state');
+    const showState = (message, type = '') => {
+      if (!state) return;
+      state.className = `task-state ${type}`;
+      state.textContent = message;
+    };
+
+    const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]);
+    const appointmentList = document.getElementById('appointment-list') || document.getElementById('today-patient-list');
+    const appointmentSearch = document.getElementById('appointment-search') || document.getElementById('today-patient-search');
+    const appointmentStatusFilter = document.getElementById('appointment-status-filter') || document.getElementById('today-patient-status');
+    const appointmentDateFilter = document.getElementById('appointment-date-filter') || document.getElementById('today-patient-date');
+    const appointmentPagination = document.getElementById('appointment-pagination') || document.getElementById('today-patient-pagination');
+    const appointmentCalendarGrid = document.getElementById('appointment-calendar-grid');
+    const appointmentCalendarMonth = document.getElementById('appointment-calendar-month');
+    let appointments = [];
+    let appointmentPage = 1;
+    const pageSize = 5;
+
+    if (section === 'today-patients' && appointmentDateFilter) appointmentDateFilter.value = new Date().toISOString().slice(0, 10);
+
+    const appointmentActions = (appointment) => {
+      if (role === 'patient') return '<span class="appointment-action-empty">-</span>';
+      const actions = {
+        pending: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
+        confirmed: [['completed', 'Mark completed'], ['rescheduled', 'Reschedule'], ['cancelled', 'Cancel']],
+        rescheduled: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
+      }[appointment.status] || [];
+      if (appointment.status === 'completed' || appointment.status === 'cancelled') return `<a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View</a><a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View Clinical Record</a>${appointment.status === 'cancelled' ? '<button type="button" class="btn btn-secondary appointment-action action-rescheduled" data-appointment-id="' + escapeHtml(appointment._id) + '" data-status="rescheduled">Reschedule</button>' : ''}`;
+      return actions.map(([status, label]) => `<button type="button" class="btn btn-secondary appointment-action action-${status}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${status}">${label}</button>`).join('');
+    };
+
+    const renderAppointmentPage = () => {
+      const query = (appointmentSearch?.value || '').toLowerCase().trim();
+      const status = appointmentStatusFilter?.value || '';
+      const date = appointmentDateFilter?.value || '';
+      const filtered = appointments.filter((item) => (!status || item.status === status) && (!date || item.preferredDate === date) && (!query || `${item.name} ${item.email} ${item.service}`.toLowerCase().includes(query)));
+      const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      appointmentPage = Math.min(appointmentPage, pages);
+      const visible = filtered.slice((appointmentPage - 1) * pageSize, appointmentPage * pageSize);
+      appointmentList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Examination / Appointment</th><th scope="col">Patient</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service)}</strong></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></td><td data-label="Actions"><div class="appointment-actions">${appointmentActions(item)}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No appointments match these filters.</p>';
+      appointmentPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : '';
+      appointmentPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { appointmentPage -= 1; renderAppointmentPage(); });
+      appointmentPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { appointmentPage += 1; renderAppointmentPage(); });
+      appointmentList.querySelectorAll('.appointment-action').forEach((button) => button.addEventListener('click', async () => {
+        button.disabled = true;
+        const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: button.dataset.status }) });
+        if (!response.ok) { button.disabled = false; return; }
+        appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? { ...item, status: button.dataset.status } : item);
+        renderAppointmentPage();
+      }));
+    };
+
+    let appointmentCalendarCursor = new Date();
+    const renderAppointmentCalendar = () => {
+      if (!appointmentCalendarGrid || !appointmentCalendarMonth) return;
+      const year = appointmentCalendarCursor.getFullYear();
+      const month = appointmentCalendarCursor.getMonth();
+      const appointmentDates = new Set(appointments.map((item) => item.preferredDate).filter(Boolean));
+      appointmentCalendarMonth.textContent = appointmentCalendarCursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      appointmentCalendarGrid.innerHTML = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => `<span class="calendar-label">${day}</span>`).join('');
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (let index = 0; index < firstDay; index += 1) appointmentCalendarGrid.insertAdjacentHTML('beforeend', '<span class="calendar-day empty"></span>');
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const date = new Date(year, month, day);
+        const value = isoDate(date);
+        const selected = appointmentDateFilter?.value === value;
+        const hasAppointments = appointmentDates.has(value);
+        appointmentCalendarGrid.insertAdjacentHTML('beforeend', `<button type="button" class="calendar-day ${selected ? 'selected' : ''} ${hasAppointments ? 'has-appointments' : ''}" data-appointment-calendar-date="${value}">${day}</button>`);
+      }
+      appointmentCalendarGrid.querySelectorAll('[data-appointment-calendar-date]').forEach((button) => button.addEventListener('click', () => {
+        appointmentDateFilter.value = button.dataset.appointmentCalendarDate;
+        appointmentPage = 1;
+        renderAppointmentCalendar();
+        renderAppointmentPage();
+      }));
+    };
+
+    document.getElementById('appointment-calendar-prev')?.addEventListener('click', () => { appointmentCalendarCursor.setMonth(appointmentCalendarCursor.getMonth() - 1); renderAppointmentCalendar(); });
+    document.getElementById('appointment-calendar-next')?.addEventListener('click', () => { appointmentCalendarCursor.setMonth(appointmentCalendarCursor.getMonth() + 1); renderAppointmentCalendar(); });
+
+    if (appointmentList) {
+      const endpoint = role === 'patient' ? '/api/appointments/mine' : '/api/appointments';
+      fetch(`${api}${endpoint}`, { headers: { Authorization: `Bearer ${token}` } })
+        .then(async (response) => { const result = await response.json(); if (!response.ok) throw new Error(result.message); return result; })
+        .then((result) => {
+          showState(`${result.appointments?.length || 0} appointment${result.appointments?.length === 1 ? '' : 's'} found.`, 'success');
+          appointments = result.appointments || [];
+          renderAppointmentCalendar();
+          renderAppointmentPage();
+        })
+        .catch((error) => { showState(error.message || 'Unable to load appointments.', 'error'); appointmentList.innerHTML = '<p class="empty-appointments">Try again when the clinic API is available.</p>'; });
+    } else if (section !== 'book-exam' && section !== 'manage-team') {
+      showState('Workspace ready. No records require attention right now.', 'success');
+    }
+
+    [appointmentSearch, appointmentStatusFilter, appointmentDateFilter].forEach((control) => control?.addEventListener('input', () => { appointmentPage = 1; renderAppointmentCalendar(); renderAppointmentPage(); }));
+
+    const bookingForm = document.getElementById('booking-workflow');
+    const bookingReview = document.getElementById('booking-review');
+    const bookingStatus = document.getElementById('booking-status');
+    const workflowDate = document.getElementById('workflow-date');
+    const workflowTime = document.getElementById('workflow-time');
+    const calendarGrid = document.getElementById('calendar-grid');
+    const calendarMonth = document.getElementById('calendar-month');
+    let calendarCursor = new Date();
+    let selectedDate = '';
+
+    const isoDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const loadAvailability = async (date) => {
+      if (!workflowTime) return;
+      workflowTime.innerHTML = '<option value="">Loading available times...</option>';
+      try {
+        const response = await fetch(`${api}/api/appointments/availability?date=${date}`);
+        const result = await response.json();
+        workflowTime.innerHTML = result.slots?.some((slot) => slot.available)
+          ? '<option value="">Select a time</option>' + result.slots.map((slot) => `<option value="${slot.time}" ${slot.available ? '' : 'disabled'}>${slot.time}${slot.available ? '' : ' - booked'}</option>`).join('')
+          : '<option value="">No times available</option>';
+      } catch {
+        workflowTime.innerHTML = '<option value="">Availability unavailable</option>';
+      }
+    };
+
+    const renderCalendar = () => {
+      if (!calendarGrid || !calendarMonth) return;
+      const year = calendarCursor.getFullYear();
+      const month = calendarCursor.getMonth();
+      calendarMonth.textContent = calendarCursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      calendarGrid.innerHTML = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => `<span class="calendar-label">${day}</span>`).join('');
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (let index = 0; index < firstDay; index += 1) calendarGrid.insertAdjacentHTML('beforeend', '<span class="calendar-day empty"></span>');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const date = new Date(year, month, day);
+        const value = isoDate(date);
+        const disabled = date < today;
+        calendarGrid.insertAdjacentHTML('beforeend', `<button type="button" class="calendar-day ${value === selectedDate ? 'selected' : ''}" data-calendar-date="${value}" ${disabled ? 'disabled' : ''}>${day}</button>`);
+      }
+      calendarGrid.querySelectorAll('[data-calendar-date]').forEach((button) => button.addEventListener('click', () => {
+        selectedDate = button.dataset.calendarDate;
+        workflowDate.value = selectedDate;
+        renderCalendar();
+        loadAvailability(selectedDate);
+      }));
+    };
+
+    if (workflowDate) {
+      workflowDate.min = new Date().toISOString().slice(0, 10);
+      workflowDate.addEventListener('change', () => {
+        selectedDate = workflowDate.value;
+        loadAvailability(selectedDate);
+        renderCalendar();
+      });
+    }
+    document.getElementById('calendar-prev')?.addEventListener('click', () => { calendarCursor.setMonth(calendarCursor.getMonth() - 1); renderCalendar(); });
+    document.getElementById('calendar-next')?.addEventListener('click', () => { calendarCursor.setMonth(calendarCursor.getMonth() + 1); renderCalendar(); });
+    renderCalendar();
+    bookingForm?.addEventListener('input', () => {
+      const data = Object.fromEntries(new FormData(bookingForm).entries());
+      bookingReview.textContent = data.service && data.preferredDate && data.preferredTime ? `${data.service} on ${data.preferredDate} at ${data.preferredTime}` : 'Choose a service, date, and time.';
+    });
+    bookingForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(bookingForm).entries());
+      const currentUser = JSON.parse(localStorage.getItem('hmVisionUser') || '{}');
+      bookingStatus.textContent = 'Submitting booking...';
+      try {
+        const response = await fetch(`${api}/api/appointments`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ ...data, name: currentUser.name, email: currentUser.email }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to book appointment.');
+        bookingStatus.textContent = 'Booking submitted. Status: Pending.';
+        bookingForm.reset();
+      } catch (error) { bookingStatus.textContent = error.message; bookingStatus.classList.add('error'); }
+    });
+
+    const followUpForm = document.getElementById('follow-up-form');
+    const followUpStatus = document.getElementById('follow-up-status');
+    const followUpDate = document.getElementById('follow-up-date');
+    const followUpList = document.getElementById('follow-up-list');
+    const followUpSearch = document.getElementById('follow-up-search');
+    const followUpStatusFilter = document.getElementById('follow-up-status-filter');
+    const followUpPagination = document.getElementById('follow-up-pagination');
+    let followUps = [];
+    let followUpPage = 1;
+    const renderFollowUps = () => {
+      if (!followUpList) return;
+      const query = (followUpSearch?.value || '').toLowerCase().trim();
+      const status = followUpStatusFilter?.value || '';
+      const filtered = followUps.filter((item) => (!status || item.status === status) && (!query || `${item.patientName} ${item.patientEmail} ${item.reason}`.toLowerCase().includes(query)));
+      const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      followUpPage = Math.min(followUpPage, pages);
+      const visible = filtered.slice((followUpPage - 1) * pageSize, followUpPage * pageSize);
+      followUpList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Patient</th><th scope="col">Reason</th><th scope="col">Preferred Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Patient"><strong>${escapeHtml(item.patientName)}</strong><small>${escapeHtml(item.patientEmail)}</small></td><td data-label="Reason">${escapeHtml(item.reason)}</td><td data-label="Preferred Date">${escapeHtml(item.preferredDate || 'No date provided')}${item.scheduledDate ? `<small>Scheduled: ${escapeHtml(item.scheduledDate)}</small>` : ''}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></td><td data-label="Actions"><div class="appointment-actions">${role !== 'patient' ? `${item.status === 'requested' ? `<button type="button" class="btn btn-secondary action-scheduled follow-up-action" data-id="${item._id}" data-status="scheduled">Schedule</button><button type="button" class="btn btn-secondary action-rejected follow-up-action" data-id="${item._id}" data-status="rejected">Reject</button>` : ''}${item.status === 'scheduled' ? `<button type="button" class="btn btn-secondary action-completed follow-up-action" data-id="${item._id}" data-status="completed">Mark completed</button><button type="button" class="btn btn-secondary action-cancelled follow-up-action" data-id="${item._id}" data-status="cancelled">Cancel</button>` : ''}` : '<span class="appointment-action-empty">-</span>'}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No follow-up requests found.</p>';
+      followUpPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${followUpPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${followUpPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${followUpPage === pages ? 'disabled' : ''}>Next</button>` : '';
+      followUpPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { followUpPage -= 1; renderFollowUps(); });
+      followUpPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { followUpPage += 1; renderFollowUps(); });
+      followUpList.querySelectorAll('.follow-up-action').forEach((button) => button.addEventListener('click', async () => {
+        button.disabled = true;
+        const update = { status: button.dataset.status };
+        if (button.dataset.status === 'scheduled') update.scheduledDate = window.prompt('Scheduled date (YYYY-MM-DD):', new Date().toISOString().slice(0, 10));
+        const response = await fetch(`${api}/api/follow-ups/${button.dataset.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(update) });
+        if (!response.ok) { button.disabled = false; return; }
+        followUps = followUps.map((item) => item._id === button.dataset.id ? { ...item, ...update } : item);
+        renderFollowUps();
+      }));
+    };
+
+    followUpDate && (followUpDate.min = new Date().toISOString().slice(0, 10));
+    followUpForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      followUpStatus.textContent = 'Submitting request...';
+      try {
+        const response = await fetch(`${api}/api/follow-ups`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(Object.fromEntries(new FormData(followUpForm).entries())) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to submit request.');
+        followUpStatus.textContent = result.message;
+        followUpForm.reset();
+        await loadPatientFollowUps();
+      } catch (error) { followUpStatus.textContent = error.message; followUpStatus.classList.add('error'); }
+    });
+
+    const loadPatientFollowUps = async () => {
+      if (!followUpForm) return;
+      const response = await fetch(`${api}/api/follow-ups/mine`, { headers: { Authorization: `Bearer ${token}` } });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load follow-ups.');
+      followUps = result.followUps || [];
+      renderFollowUps();
+    };
+
+    const loadClinicalFollowUps = async () => {
+      if (!followUpList || role === 'patient') return;
+      const response = await fetch(`${api}/api/follow-ups`, { headers: { Authorization: `Bearer ${token}` } });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load follow-ups.');
+      followUps = result.followUps || [];
+      renderFollowUps();
+    };
+
+    [followUpSearch, followUpStatusFilter].forEach((control) => control?.addEventListener('input', () => { followUpPage = 1; renderFollowUps(); }));
+    loadPatientFollowUps().catch((error) => { if (followUpStatus) followUpStatus.textContent = error.message; });
+    loadClinicalFollowUps().catch((error) => { if (followUpList) followUpList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
+
+    const recordType = section === 'medical-records' ? 'medical-record' : section === 'consultations' ? 'consultation' : section === 'prescriptions' ? 'prescription' : null;
+    const patientRecordList = document.getElementById('patient-record-list');
+    const clinicalRecordList = document.getElementById('clinical-record-list');
+    const clinicalRecordSearch = document.getElementById('clinical-record-search');
+    let clinicalRecords = [];
+    const renderRecords = (records, target) => {
+      if (!target) return;
+      target.innerHTML = records.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Record</th><th scope="col">Type</th><th scope="col">Date</th><th scope="col">Details</th><th scope="col">Status</th></tr></thead><tbody>${records.map((record) => `<tr><td data-label="Record"><strong>${escapeHtml(record.title)}</strong></td><td data-label="Type">${escapeHtml(record.type || 'Clinical record')}</td><td data-label="Date">${escapeHtml(record.issuedAt || new Date(record.createdAt).toLocaleDateString())}</td><td data-label="Details">${escapeHtml(record.details)}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(record.status)}">${escapeHtml(record.status)}</span></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No records found.</p>';
+    };
+    const loadPatientRecords = async () => {
+      if (!patientRecordList) return;
+      const response = await fetch(`${api}/api/clinical-records/mine?type=${recordType}`, { headers: { Authorization: `Bearer ${token}` } });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load records.');
+      renderRecords(result.records || [], patientRecordList);
+    };
+    const loadClinicalRecords = async () => {
+      if (!clinicalRecordList) return;
+      const query = recordType ? `?type=${recordType}` : '';
+      const response = await fetch(`${api}/api/clinical-records${query}`, { headers: { Authorization: `Bearer ${token}` } });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load records.');
+      clinicalRecords = result.records || [];
+      renderRecords(clinicalRecords, clinicalRecordList);
+    };
+    clinicalRecordSearch?.addEventListener('input', () => {
+      const query = clinicalRecordSearch.value.toLowerCase().trim();
+      const filteredRecords = clinicalRecords.filter((record) => `${record.title} ${record.details} ${record.type} ${record.status}`.toLowerCase().includes(query));
+      renderRecords(filteredRecords, clinicalRecordList);
+    });
+    const clinicalRecordForm = document.getElementById('clinical-record-form');
+    const recordStatus = document.getElementById('record-status');
+    clinicalRecordForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(clinicalRecordForm).entries());
+      try {
+        const response = await fetch(`${api}/api/clinical-records`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ ...data, type: recordType }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to save record.');
+        recordStatus.textContent = result.message;
+        clinicalRecordForm.reset();
+        await loadClinicalRecords();
+      } catch (error) { recordStatus.textContent = error.message; recordStatus.classList.add('error'); }
+    });
+    loadPatientRecords().catch((error) => { if (patientRecordList) patientRecordList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
+    loadClinicalRecords().catch((error) => { if (clinicalRecordList) clinicalRecordList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
+
+    const profileForm = document.getElementById('profile-form');
+    const profileStatus = document.getElementById('profile-status');
+    const loadProfile = async () => {
+      if (!profileForm) return;
+      const response = await fetch(`${api}/api/workspace/profile`, { headers: { Authorization: `Bearer ${token}` } });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load profile.');
+      ['name', 'email', 'phone', 'age', 'gender'].forEach((field) => { const input = profileForm.elements.namedItem(field); if (input) input.value = result.user[field] || ''; });
+    };
+    profileForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const response = await fetch(`${api}/api/workspace/profile`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(Object.fromEntries(new FormData(profileForm).entries())) });
+      const result = await response.json();
+      profileStatus.textContent = result.message || 'Profile updated.';
+      if (response.ok) localStorage.setItem('hmVisionUser', JSON.stringify({ ...user, name: result.user.name }));
+    });
+    loadProfile().catch((error) => { if (profileStatus) profileStatus.textContent = error.message; });
+
+    const permissionsList = document.getElementById('permissions-list');
+    const auditLogList = document.getElementById('audit-log-list');
+    const auditSearch = document.getElementById('audit-search');
+    const auditModuleFilter = document.getElementById('audit-module-filter');
+    const auditDateFilter = document.getElementById('audit-date-filter');
+    const auditPagination = document.getElementById('audit-pagination');
+    const settingsForm = document.getElementById('clinic-settings-form');
+    const settingsStatus = document.getElementById('settings-status');
+    const renderSimpleList = (items, target, formatter) => { if (target) target.innerHTML = items.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Role</th><th scope="col">Access</th></tr></thead><tbody>${items.map(formatter).join('')}</tbody></table></div>` : '<p class="empty-appointments">No data available.</p>'; };
+    if (permissionsList) fetch(`${api}/api/workspace/permissions`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => renderSimpleList(result.permissions || [], permissionsList, (item) => `<tr><td data-label="Role"><strong>${escapeHtml(item.role)}</strong></td><td data-label="Access">${escapeHtml(item.access)}</td></tr>`));
+    const formatAuditData = (data) => data ? Object.entries(data).map(([key, value]) => `${key}: ${value}`).join(' · ') : 'Previous data unavailable for this historical record.';
+    const auditModule = (item) => item.target.startsWith('Appointment for ') ? 'Appointment Management' : 'Clinic Administration';
+    const auditSubject = (item) => item.target.startsWith('Appointment for ') ? item.target.replace('Appointment for ', '') : item.target;
+    let auditLogs = [];
+    let auditPage = 1;
+    const renderAuditLogs = () => {
+      if (!auditLogList) return;
+      const query = (auditSearch?.value || '').toLowerCase().trim();
+      const module = auditModuleFilter?.value || '';
+      const date = auditDateFilter?.value || '';
+      const filtered = auditLogs.filter((item) => (!module || (module === 'appointments' ? auditModule(item) === 'Appointment Management' : auditModule(item) === 'Clinic Administration')) && (!date || item.createdAt.slice(0, 10) === date) && (!query || `${item.action} ${item.target} ${item.details || ''} ${item.actorId?.name || ''} ${item.actorId?.role || ''} ${item.actorId?.email || ''}`.toLowerCase().includes(query)));
+      const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      auditPage = Math.min(auditPage, pages);
+      const visible = filtered.slice((auditPage - 1) * pageSize, auditPage * pageSize);
+      auditLogList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Date</th><th scope="col">Performed By</th><th scope="col">Action</th><th scope="col">Module</th><th scope="col">Target</th><th scope="col">Status</th><th scope="col">Details</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Date">${new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}<small>${new Date(item.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</small></td><td data-label="Performed By">${item.actorId ? `${escapeHtml(item.actorId.name)} (${escapeHtml(item.actorId.role)})<small>${escapeHtml(item.actorId.email)}</small>` : 'Historical appointment status record'}</td><td data-label="Action">${escapeHtml(item.action)}</td><td data-label="Module">${auditModule(item)}</td><td data-label="Target">${escapeHtml(auditSubject(item))}</td><td data-label="Status"><span class="audit-success">Successful</span></td><td data-label="Details"><strong>Previous:</strong> ${escapeHtml(formatAuditData(item.previousData))}<br /><strong>New:</strong> ${escapeHtml(formatAuditData(item.newData))}${item.details ? `<small>${escapeHtml(item.details)}</small>` : ''}</td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No audit logs match these filters.</p>';
+      auditPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${auditPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${auditPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${auditPage === pages ? 'disabled' : ''}>Next</button>` : '';
+      auditPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { auditPage -= 1; renderAuditLogs(); });
+      auditPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { auditPage += 1; renderAuditLogs(); });
+    };
+    if (auditLogList) fetch(`${api}/api/workspace/audit-logs`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => { auditLogs = result.logs || []; renderAuditLogs(); });
+    [auditSearch, auditModuleFilter, auditDateFilter].forEach((control) => control?.addEventListener('input', () => { auditPage = 1; renderAuditLogs(); }));
+    const loadSettings = async () => {
+      if (!settingsForm) return;
+      const response = await fetch(`${api}/api/workspace/clinic-settings`, { headers: { Authorization: `Bearer ${token}` } });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load clinic settings.');
+      ['name', 'phone', 'email', 'address', 'hours'].forEach((field) => { const input = settingsForm.elements.namedItem(field); if (input) input.value = result.settings[field] || ''; });
+    };
+    settingsForm?.addEventListener('submit', async (event) => { event.preventDefault(); const response = await fetch(`${api}/api/workspace/clinic-settings`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(Object.fromEntries(new FormData(settingsForm).entries())) }); const result = await response.json(); settingsStatus.textContent = result.message || 'Settings updated.'; });
+    loadSettings().catch((error) => { if (settingsStatus) settingsStatus.textContent = error.message; });
+
+    const adminForm = document.getElementById('admin-user-form');
+    const adminStatus = document.getElementById('admin-status');
+    const adminPhone = document.getElementById('admin-phone');
+    adminPhone?.addEventListener('input', () => {
+      const digits = adminPhone.value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
+      adminPhone.value = `+63 ${[digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean).join('-')}`;
+    });
+    adminForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      adminStatus.textContent = 'Creating account...';
+      try {
+        const response = await fetch(`${api}/api/admin/users`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(Object.fromEntries(new FormData(adminForm).entries())) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to create account.');
+        adminStatus.textContent = result.message;
+        adminForm.reset();
+      } catch (error) { adminStatus.textContent = error.message; adminStatus.classList.add('error'); }
+    });
+
+    const managedUsers = document.getElementById('managed-users');
+    const userSearch = document.getElementById('user-search');
+    const userRoleFilter = document.getElementById('user-role-filter');
+    const userStatusFilter = document.getElementById('user-status-filter');
+    let users = [];
+    let userPage = 1;
+
+    const renderUsers = () => {
+      const query = (userSearch?.value || '').toLowerCase();
+      const filter = userRoleFilter?.value || '';
+      const status = userStatusFilter?.value || '';
+      const filtered = users.filter((item) => (!filter || item.role === filter) && (!status || (status === 'active' ? item.isActive : !item.isActive)) && (!query || `${item.name} ${item.email}`.toLowerCase().includes(query)));
+      const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      userPage = Math.min(userPage, pages);
+      const visible = filtered.slice((userPage - 1) * pageSize, userPage * pageSize);
+      managedUsers.innerHTML = visible.length
+        ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Identifier</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Name"><strong>${escapeHtml(item.name)}</strong></td><td data-label="Email">${escapeHtml(item.email)}</td><td data-label="Role">${escapeHtml(item.role)}</td><td data-label="Identifier">${escapeHtml(item.patientId || item._id)}</td><td data-label="Status"><span class="appointment-status ${item.isActive ? 'status-confirmed' : 'status-cancelled'}">${item.isActive ? 'Active' : 'Inactive'}</span></td><td data-label="Action"><button class="btn btn-secondary user-status-button ${item.isActive ? 'action-deactivate' : 'action-activate'}" data-user-id="${item._id}" data-active="${item.isActive}">${item.isActive ? 'Deactivate' : 'Activate'}</button></td></tr>`).join('')}</tbody></table></div>`
+        : '<p class="empty-appointments">No matching users.</p>';
+      const userPagination = document.getElementById('user-pagination');
+      userPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${userPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${userPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${userPage === pages ? 'disabled' : ''}>Next</button>` : '';
+      userPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { userPage -= 1; renderUsers(); });
+      userPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { userPage += 1; renderUsers(); });
+      managedUsers.querySelectorAll('[data-user-id]').forEach((button) => button.addEventListener('click', async () => {
+        await fetch(`${api}/api/admin/users/${button.dataset.userId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ isActive: button.dataset.active !== 'true' }) });
+        await loadUsers();
+      }));
+    };
+
+    const loadUsers = async () => {
+      if (!managedUsers || role !== 'owner') return;
+      const response = await fetch(`${api}/api/admin/users`, { headers: { Authorization: `Bearer ${token}` } });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load users.');
+      users = result.users;
+      renderUsers();
+    };
+
+    userSearch?.addEventListener('input', () => { userPage = 1; renderUsers(); });
+    userRoleFilter?.addEventListener('change', () => { userPage = 1; renderUsers(); });
+    userStatusFilter?.addEventListener('change', () => { userPage = 1; renderUsers(); });
+    loadUsers().catch((error) => { if (managedUsers) managedUsers.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
+  </script>
+</Layout>

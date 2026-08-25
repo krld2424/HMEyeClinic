@@ -1,0 +1,79 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Patient Registration | Hernandez Mercado Eye Clinic">
+  <main class="auth-page auth-page-centered">
+    <section class="auth-card auth-card-centered auth-card-register">
+      <a class="auth-back-link" href="/">Hernandez Mercado Eye Clinic</a>
+      <span class="eyebrow">Patient Registration</span>
+      <h1>Create your account</h1>
+      <p class="auth-intro">Your registration automatically creates a Patient account.</p>
+
+      <form id="register-form" class="auth-form active">
+        <div class="field-row">
+          <div class="field-group"><label for="first-name">First name</label><input id="first-name" name="firstName" type="text" required /></div>
+          <div class="field-group"><label for="last-name">Last name</label><input id="last-name" name="lastName" type="text" required /></div>
+        </div>
+        <div class="field-row">
+          <div class="field-group"><label for="middle-initial">Middle initial</label><input id="middle-initial" name="middleInitial" type="text" maxlength="1" pattern="[A-Za-z]?" /></div>
+          <div class="field-group"><label for="suffix">Suffix</label><input id="suffix" name="suffix" type="text" placeholder="Jr., Sr., III" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field-group"><label for="age">Age</label><input id="age" name="age" type="number" min="0" max="120" required /></div>
+          <div class="field-group"><label for="gender">Gender</label><select id="gender" name="gender" required><option value="">Select gender</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select></div>
+        </div>
+        <div class="field-group"><label for="register-email">Email</label><input id="register-email" name="email" type="email" placeholder="name@example.com" required /></div>
+        <div class="field-group"><label for="register-phone">Contact number</label><input id="register-phone" name="phone" type="tel" inputmode="tel" placeholder="+63 000-000-0000" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" required /></div>
+        <div class="field-group"><label for="register-password">Password</label><div class="password-field"><input id="register-password" name="password" type="password" minlength="8" required /><button class="password-toggle" type="button" data-password-toggle="register-password" aria-label="Show password">Show</button></div></div>
+        <div class="field-group"><label for="confirm-password">Confirm password</label><div class="password-field"><input id="confirm-password" name="confirmPassword" type="password" minlength="8" required /><button class="password-toggle" type="button" data-password-toggle="confirm-password" aria-label="Show password">Show</button></div></div>
+        <button type="submit" class="btn btn-primary auth-submit">Create Patient Account</button>
+        <p id="register-status" class="form-status" aria-live="polite"></p>
+      </form>
+      <p class="auth-switch">Already registered? <a href="/login">Sign in</a></p>
+    </section>
+  </main>
+
+  <script type="module">
+    const form = document.getElementById('register-form');
+    const status = document.getElementById('register-status');
+    const phone = document.getElementById('register-phone');
+
+    const formatPhone = (value) => {
+      const digits = value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
+      const groups = [digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean);
+      return `+63 ${groups.join('-')}`;
+    };
+    phone.addEventListener('input', () => { phone.value = formatPhone(phone.value); });
+
+    document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const input = document.getElementById(toggle.dataset.passwordToggle);
+        const visible = input.type === 'password';
+        input.type = visible ? 'text' : 'password';
+        toggle.textContent = visible ? 'Hide' : 'Show';
+        toggle.setAttribute('aria-label', `${visible ? 'Hide' : 'Show'} password`);
+      });
+    });
+
+    const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      const payload = Object.fromEntries(new FormData(form).entries());
+      if (payload.password !== payload.confirmPassword) { status.textContent = 'Passwords do not match.'; status.classList.add('error'); return; }
+      delete payload.confirmPassword;
+      payload.name = [payload.firstName, payload.middleInitial ? `${payload.middleInitial}.` : '', payload.lastName, payload.suffix].filter(Boolean).join(' ');
+
+      try {
+        const response = await fetch(`${api}/api/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to create account.');
+        localStorage.setItem('hmVisionToken', result.token);
+        localStorage.setItem('hmVisionUser', JSON.stringify(result.user));
+        window.location.href = `/dashboard/${result.user.role}`;
+      } catch (error) { status.textContent = error.message; status.classList.add('error'); }
+    });
+  </script>
+</Layout>

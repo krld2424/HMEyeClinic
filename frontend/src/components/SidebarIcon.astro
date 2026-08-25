@@ -1,0 +1,67 @@
+---
+import {
+  Activity,
+  BarChart3,
+  Bell,
+  CalendarDays,
+  CalendarPlus,
+  ClipboardList,
+  ContactRound,
+  FileText,
+  House,
+  LayoutDashboard,
+  ListChecks,
+  LogOut,
+  Pill,
+  PanelLeft,
+  ReceiptText,
+  RefreshCw,
+  ScrollText,
+  Settings,
+  ShieldCheck,
+  Stethoscope,
+  UserCheck,
+  UserCog,
+  UserRound,
+  UsersRound,
+} from '@lucide/astro';
+
+const { name } = Astro.props;
+const icons = {
+  dashboard: LayoutDashboard,
+  'book-exam': CalendarPlus,
+  appointments: CalendarDays,
+  'medical-records': FileText,
+  prescriptions: Pill,
+  notifications: Bell,
+  profile: UserRound,
+  'today-patients': ClipboardList,
+  consultations: Stethoscope,
+  'clinical-records': FileText,
+  'follow-ups': RefreshCw,
+  'clinic-queue': ListChecks,
+  'check-in': UserCheck,
+  'patient-records': ContactRound,
+  billing: ReceiptText,
+  reports: BarChart3,
+  'manage-team': UsersRound,
+  'manage-users': UserCog,
+  'roles-permissions': ShieldCheck,
+  'audit-logs': ScrollText,
+  'clinic-settings': Settings,
+  signout: LogOut,
+  home: House,
+  'panel-left': PanelLeft,
+  overview: LayoutDashboard,
+  care: Activity,
+  'clinical-work': Stethoscope,
+  operations: ClipboardList,
+  account: UserRound,
+  management: UserCog,
+  'monitoring-settings': Settings,
+};
+
+const Icon = icons[name] || Activity;
+---
+
+<Icon class="sidebar-link-icon" size={16} strokeWidth={1.7} aria-hidden="true" />

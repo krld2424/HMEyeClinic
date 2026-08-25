@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Login | Hernandez Mercado Eye Clinic">
+  <main class="auth-page auth-page-centered">
+    <section class="auth-card auth-card-centered">
+      <a class="auth-back-link" href="/">Hernandez Mercado Eye Clinic</a>
+      <span class="eyebrow">Secure Access</span>
+      <h1>Welcome back</h1>
+      <p class="auth-intro">Sign in to continue to your clinic workspace.</p>
+
+      <form id="login-form" class="auth-form active">
+        <div class="field-group">
+          <label for="login-email">Email</label>
+          <input id="login-email" name="email" type="email" placeholder="name@example.com" required />
+        </div>
+        <div class="field-group">
+          <label for="login-password">Password</label>
+          <div class="password-field">
+            <input id="login-password" name="password" type="password" placeholder="Enter your password" required />
+            <button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="Show password">Show</button>
+          </div>
+        </div>
+        <a class="auth-forgot-link" href="#forgot-password" id="forgot-password-link">Forgot password?</a>
+        <button type="submit" class="btn btn-primary auth-submit">Sign In</button>
+        <p id="login-status" class="form-status" aria-live="polite"></p>
+      </form>
+      <p class="auth-switch">New patient? <a href="/register">Create an account</a></p>
+    </section>
+  </main>
+
+  <script type="module">
+    const form = document.getElementById('login-form');
+    const status = document.getElementById('login-status');
+
+    document.getElementById('forgot-password-link').addEventListener('click', (event) => {
+      event.preventDefault();
+      status.textContent = 'Please contact the clinic administrator to reset your password.';
+      status.classList.remove('error');
+    });
+
+    const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+
+    document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const input = document.getElementById(toggle.dataset.passwordToggle);
+        const visible = input.type === 'password';
+        input.type = visible ? 'text' : 'password';
+        toggle.textContent = visible ? 'Hide' : 'Show';
+        toggle.setAttribute('aria-label', `${visible ? 'Hide' : 'Show'} password`);
+      });
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      status.textContent = 'Signing in...';
+      status.classList.remove('error');
+
+      try {
+        const response = await fetch(`${api}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.fromEntries(new FormData(form).entries())),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to sign in.');
+        localStorage.setItem('hmVisionToken', result.token);
+        localStorage.setItem('hmVisionUser', JSON.stringify(result.user));
+        window.location.href = `/dashboard/${result.user.role}`;
+      } catch (error) {
+        status.textContent = error.message;
+        status.classList.add('error');
+      }
+    });
+  </script>
+</Layout>

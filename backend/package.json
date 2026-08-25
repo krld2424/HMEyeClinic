@@ -1,0 +1,20 @@
+{
+  "name": "hm-visionsync-backend",
+  "version": "1.0.0",
+  "description": "Express API for Hernandez Mercado Eye Clinic",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.6.3",
+    "nodemailer": "^9.0.5"
+  }
+}

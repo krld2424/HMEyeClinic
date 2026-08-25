@@ -1,0 +1,188 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Clinic Access | Hernandez Mercado Eye Clinic">
+  <main class="auth-page">
+    <section class="auth-shell container">
+      <div class="auth-hero">
+        <span class="eyebrow">Secure Access</span>
+        <h1>Welcome back to your eye care portal.</h1>
+        <p>
+          Access patient care, optometry, and clinic operations through your
+          secure HM VisionSync account.
+        </p>
+
+        <div class="auth-role-list">
+          <div class="auth-role-item">
+            <strong>Patient</strong>
+            <span>Book visits, review records, and track care.</span>
+          </div>
+          <div class="auth-role-item">
+            <strong>Owner</strong>
+            <span>Manage the clinic and perform optometrist functions.</span>
+          </div>
+          <div class="auth-role-item">
+            <strong>Optometrist</strong>
+            <span>Manage appointments, consultations, and patient care.</span>
+          </div>
+          <div class="auth-role-item">
+            <strong>Eye Care Assistant</strong>
+            <span>Coordinate services, check-in, and clinic operations.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <a class="auth-tab active" href="/login">Login</a>
+          <a class="auth-tab" href="/register">Register</a>
+        </div>
+
+        <form id="login-form" class="auth-form active">
+          <div class="field-group">
+            <label for="login-email">Email</label>
+            <input id="login-email" name="email" type="email" placeholder="name@example.com" required />
+          </div>
+
+          <div class="field-group">
+            <label for="login-password">Password</label>
+            <div class="password-field">
+              <input id="login-password" name="password" type="password" placeholder="••••••••" required />
+              <button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary auth-submit">Sign In</button>
+        </form>
+
+        <form id="register-form" class="auth-form">
+          <div class="field-group">
+            <label for="register-name">Full name</label>
+            <input id="register-name" name="name" type="text" placeholder="Your full name" required />
+          </div>
+
+          <div class="field-group">
+            <label for="register-email">Email</label>
+            <input id="register-email" name="email" type="email" placeholder="name@example.com" required />
+          </div>
+
+          <div class="field-group">
+            <label for="register-phone">Phone</label>
+            <input id="register-phone" name="phone" type="tel" placeholder="(555) 123-4567" />
+          </div>
+
+          <div class="field-group">
+            <label for="register-password">Password</label>
+            <div class="password-field">
+              <input id="register-password" name="password" type="password" placeholder="Create a password" minlength="8" required />
+              <button class="password-toggle" type="button" data-password-toggle="register-password" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="register-confirm-password">Confirm password</label>
+            <div class="password-field">
+              <input id="register-confirm-password" name="confirmPassword" type="password" placeholder="Re-enter your password" minlength="8" required />
+              <button class="password-toggle" type="button" data-password-toggle="register-confirm-password" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary auth-submit">Create Account</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    const tabs = document.querySelectorAll('[data-auth-tab]');
+    const forms = {
+      login: document.getElementById('login-form'),
+      register: document.getElementById('register-form'),
+    };
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.authTab;
+
+        tabs.forEach((item) => item.classList.toggle('active', item === tab));
+        forms.login.classList.toggle('active', target === 'login');
+        forms.register.classList.toggle('active', target === 'register');
+      });
+    });
+
+    const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+
+    document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const input = document.getElementById(toggle.dataset.passwordToggle);
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        toggle.textContent = isPassword ? 'Hide' : 'Show';
+        toggle.setAttribute('aria-label', `${isPassword ? 'Hide' : 'Show'} password`);
+      });
+    });
+
+    const handleLogin = async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const payload = Object.fromEntries(new FormData(form).entries());
+
+      try {
+        const response = await fetch(`${api}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || 'Unable to sign in.');
+        }
+
+        localStorage.setItem('hmVisionToken', result.token);
+        localStorage.setItem('hmVisionUser', JSON.stringify(result.user));
+        window.location.href = `/dashboard/${result.user.role}`;
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    const handleRegister = async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const payload = Object.fromEntries(new FormData(form).entries());
+
+      if (payload.password !== payload.confirmPassword) {
+        alert('Passwords do not match.');
+        return;
+      }
+
+      delete payload.confirmPassword;
+
+      try {
+        const response = await fetch(`${api}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || 'Unable to create account.');
+        }
+
+        localStorage.setItem('hmVisionToken', result.token);
+        localStorage.setItem('hmVisionUser', JSON.stringify(result.user));
+        window.location.href = `/dashboard/${result.user.role}`;
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    forms.login.addEventListener('submit', handleLogin);
+    forms.register.addEventListener('submit', handleRegister);
+  </script>
+</Layout>
