@@ -34,6 +34,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api', generalApiLimiter);
 
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    service: 'Hernandez Mercado Eye Clinic API',
+    status: 'ok',
+    health: '/api/health',
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
@@ -58,7 +66,7 @@ const startServer = async () => {
   }
 
   app.listen(PORT, () => {
-    console.log(`Backend server running on http://localhost:${PORT}`);
+    console.log(`Backend server listening on port ${PORT}`);
   });
 };
 
