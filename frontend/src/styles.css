@@ -1291,6 +1291,11 @@ textarea {
   color: var(--white);
 }
 
+.mobile-sidebar-toggle,
+.sidebar-overlay {
+  display: none;
+}
+
 .sidebar-collapse-toggle {
   display: flex;
   align-items: center;
@@ -2447,60 +2452,6 @@ body.sidebar-is-collapsed .sidebar-group-links a {
     grid-template-columns: 1fr;
   }
 
-  .dashboard-layout {
-    padding: 0 16px 60px;
-  }
-
-  .dashboard-sidebar {
-    position: static;
-    width: auto;
-    height: auto;
-    min-height: 0;
-    padding: 22px 16px;
-  }
-
-  body.sidebar-is-collapsed .dashboard-layout {
-    padding-left: 16px;
-  }
-
-  body.sidebar-is-collapsed .dashboard-sidebar {
-    width: auto;
-    padding: 22px 16px;
-  }
-
-  body.sidebar-is-collapsed .sidebar-brand,
-  body.sidebar-is-collapsed .sidebar-role,
-  body.sidebar-is-collapsed .sidebar-identity,
-  body.sidebar-is-collapsed .sidebar-group-toggle > span:not(.sidebar-chevron),
-  body.sidebar-is-collapsed .sidebar-section-label,
-  body.sidebar-is-collapsed .sidebar-group-links a span,
-  body.sidebar-is-collapsed .sidebar-nav a span,
-  body.sidebar-is-collapsed .sidebar-home span {
-    display: initial;
-  }
-
-  body.sidebar-is-collapsed .sidebar-collapse-toggle,
-  body.sidebar-is-collapsed .sidebar-group-toggle,
-  body.sidebar-is-collapsed .sidebar-group-links a,
-  body.sidebar-is-collapsed .sidebar-nav a,
-  body.sidebar-is-collapsed .sidebar-home {
-    justify-content: initial;
-    padding-right: initial;
-    padding-left: initial;
-  }
-
-  .sidebar-nav {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .sidebar-home {
-    margin-top: 4px;
-  }
-
-  .dashboard-main {
-    padding-top: 0;
-  }
-
   .dashboard-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2529,6 +2480,111 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 }
 
 @media (max-width: 760px) {
+  .dashboard-layout {
+    padding: 0 16px 60px;
+  }
+
+  .dashboard-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(86vw, 320px);
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 22px 16px;
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+  }
+
+  body.mobile-sidebar-is-open .dashboard-sidebar {
+    transform: translateX(0);
+  }
+
+  body.mobile-sidebar-is-open {
+    overflow: hidden;
+  }
+
+  .dashboard-sidebar .sidebar-collapse-toggle {
+    display: none;
+  }
+
+  body.sidebar-is-collapsed .dashboard-sidebar {
+    width: min(86vw, 320px);
+    padding: 22px 16px;
+  }
+
+  body.sidebar-is-collapsed .dashboard-layout {
+    padding-left: 16px;
+  }
+
+  body.sidebar-is-collapsed .sidebar-brand,
+  body.sidebar-is-collapsed .sidebar-role,
+  body.sidebar-is-collapsed .sidebar-identity,
+  body.sidebar-is-collapsed .sidebar-group-toggle > span:not(.sidebar-chevron),
+  body.sidebar-is-collapsed .sidebar-section-label,
+  body.sidebar-is-collapsed .sidebar-group-links a span,
+  body.sidebar-is-collapsed .sidebar-nav a span,
+  body.sidebar-is-collapsed .sidebar-home span,
+  body.sidebar-is-collapsed .sidebar-chevron {
+    display: initial;
+  }
+
+  body.sidebar-is-collapsed .sidebar-collapse-toggle,
+  body.sidebar-is-collapsed .sidebar-group-toggle,
+  body.sidebar-is-collapsed .sidebar-group-links a,
+  body.sidebar-is-collapsed .sidebar-nav a,
+  body.sidebar-is-collapsed .sidebar-home {
+    justify-content: initial;
+    padding-right: initial;
+    padding-left: initial;
+  }
+
+  .mobile-sidebar-toggle {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid rgba(14, 132, 130, 0.22);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--primary-dark);
+    box-shadow: 0 8px 20px rgba(17, 56, 58, 0.12);
+    cursor: pointer;
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 89;
+    display: block;
+    background: rgba(17, 56, 58, 0.42);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  body.mobile-sidebar-is-open .sidebar-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .dashboard-main {
+    padding-top: 76px;
+  }
+
+  .sidebar-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sidebar-home {
+    margin-top: 4px;
+  }
+
   .nav {
     min-height: 72px;
   }

@@ -138,6 +138,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
 <Layout title={`${pageTitle} | HM VisionSync`}>
   <main class="dashboard-page dashboard-layout">
+    <button class="mobile-sidebar-toggle" type="button" id="mobile-sidebar-toggle" aria-label="Open dashboard navigation" aria-expanded="false" title="Open dashboard navigation"><SidebarIcon name="panel-left" /></button>
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
     <aside class="dashboard-sidebar">
       <div class="sidebar-header">
         <a class="sidebar-brand" href={`/dashboard/${role}/dashboard`}>HM VisionSync</a>
@@ -345,6 +347,25 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     if (!token || !user || user.role !== role) window.location.href = '/login';
 
     const sidebarCollapseToggle = document.getElementById('sidebar-collapse-toggle');
+    const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    const setMobileSidebarOpen = (isOpen) => {
+      document.body.classList.toggle('mobile-sidebar-is-open', isOpen);
+      mobileSidebarToggle?.setAttribute('aria-expanded', String(isOpen));
+      sidebarOverlay?.setAttribute('aria-hidden', String(!isOpen));
+    };
+
+    mobileSidebarToggle?.addEventListener('click', () => setMobileSidebarOpen(true));
+    sidebarOverlay?.addEventListener('click', () => setMobileSidebarOpen(false));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') setMobileSidebarOpen(false);
+    });
+
+    document.querySelectorAll('.dashboard-sidebar a').forEach((link) => {
+      link.addEventListener('click', () => setMobileSidebarOpen(false));
+    });
+
     sidebarCollapseToggle?.addEventListener('click', () => {
       const isCollapsed = document.body.classList.toggle('sidebar-is-collapsed');
       sidebarCollapseToggle.setAttribute('aria-expanded', String(!isCollapsed));
