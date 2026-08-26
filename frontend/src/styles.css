@@ -1189,6 +1189,183 @@ textarea {
   display: grid;
 }
 
+.reset-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.reset-progress {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin: 0 0 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.reset-progress li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.reset-progress li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: calc(50% + 15px);
+  width: calc(100% - 30px);
+  height: 2px;
+  background: var(--line);
+}
+
+.reset-progress li.is-complete:not(:last-child)::after {
+  background: var(--primary);
+}
+
+.reset-progress li span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(13, 53, 55, 0.16);
+  border-radius: 50%;
+  background: var(--white);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.reset-progress li.is-current,
+.reset-progress li.is-complete {
+  color: var(--primary-dark);
+}
+
+.reset-progress li.is-current span,
+.reset-progress li.is-complete span {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--white);
+}
+
+.reset-progress li.is-complete span {
+  font-size: 0;
+}
+
+.reset-progress li.is-complete span::before {
+  content: '✓';
+  font-size: 0.78rem;
+}
+
+.reset-heading h2 {
+  margin: 0;
+  color: var(--text);
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.reset-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.reset-code-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.reset-countdown {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.reset-countdown.is-expired {
+  color: #b42318;
+}
+
+.reset-action {
+  width: 100%;
+}
+
+.reset-step {
+  display: grid;
+  gap: 18px;
+}
+
+.otp-inputs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.otp-input {
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 1;
+  border: 1px solid rgba(13, 53, 55, 0.16);
+  border-radius: 10px;
+  background: #f9fefe;
+  color: var(--text);
+  font-size: 1.3rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.otp-input:focus {
+  outline: 2px solid rgba(14, 132, 130, 0.2);
+  border-color: rgba(14, 132, 130, 0.5);
+}
+
+.reset-resend {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  text-align: center;
+}
+
+.password-requirements {
+  display: grid;
+  gap: 4px;
+  margin: -6px 0 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  list-style: none;
+}
+
+.password-requirements li::before {
+  content: '○';
+  display: inline-block;
+  width: 20px;
+  color: var(--muted);
+}
+
+.password-requirements li.is-met {
+  color: var(--primary-dark);
+}
+
+.password-requirements li.is-met::before {
+  content: '✓';
+  font-weight: 800;
+}
+
+.reset-cancel {
+  justify-self: center;
+}
+
 .auth-forgot-link {
   justify-self: end;
   margin-top: -6px;

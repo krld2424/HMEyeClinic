@@ -16,10 +16,13 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:4321')
+const configuredOrigins = (process.env.CORS_ORIGIN || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? configuredOrigins
+  : [...new Set(['http://localhost:4321', ...configuredOrigins])];
 
 app.use(
   cors({
@@ -43,10 +46,11 @@ app.get('/', (_req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
+  const mongoUri = process.env.MONGODB_URI || (process.env.NODE_ENV === 'production' ? '' : 'mongodb://127.0.0.1:27017/hm_visionsync');
   res.status(200).json({
     status: 'ok',
     service: 'Hernandez Mercado Eye Clinic API',
-    database: process.env.MONGODB_URI ? 'Atlas configured' : 'No MongoDB URI configured',
+    database: mongoUri ? (mongoUri.startsWith('mongodb+srv://') ? 'Atlas configured' : 'Local MongoDB configured') : 'No MongoDB URI configured',
   });
 });
 

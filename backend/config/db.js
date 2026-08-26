@@ -1,15 +1,10 @@
 import mongoose from 'mongoose';
 
 const connectDB = async () => {
-  const mongoUri = process.env.MONGODB_URI;
+  const mongoUri = process.env.MONGODB_URI || (process.env.NODE_ENV === 'production' ? '' : 'mongodb://127.0.0.1:27017/hm_visionsync');
 
   if (!mongoUri) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('MONGODB_URI must be configured in production.');
-    }
-
-    console.warn('MONGODB_URI is not set. Starting without a MongoDB Atlas connection.');
-    return false;
+    throw new Error('MONGODB_URI must be configured in production.');
   }
 
   try {
@@ -17,7 +12,7 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 10000,
       maxPoolSize: 10,
     });
-    console.log('MongoDB Atlas connected successfully.');
+    console.log(`MongoDB connected successfully (${mongoUri.startsWith('mongodb+srv://') ? 'Atlas' : 'local'}).`);
     return true;
   } catch (error) {
     console.error('MongoDB connection failed:', error.message);

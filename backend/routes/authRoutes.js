@@ -99,7 +99,8 @@ router.post('/verify-otp', otpLimiter, async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   const resetToken = String(req.body.resetToken || '').trim();
   const password = String(req.body.password || '');
-  if (!resetToken || password.length < 8) return res.status(400).json({ success: false, message: 'A valid reset token and password are required.' });
+  const validPassword = password.length >= 8 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /\d/.test(password) && /[^A-Za-z0-9]/.test(password);
+  if (!resetToken || !validPassword) return res.status(400).json({ success: false, message: 'Password must be 8+ characters with uppercase, lowercase, number, and special character.' });
 
   const user = await User.findOne({
     passwordResetTokenHash: hashValue(resetToken),

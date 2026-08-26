@@ -1,0 +1,102 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Verification Code | Hernandez Mercado Eye Clinic">
+  <main class="auth-page auth-page-centered">
+    <section class="auth-card auth-card-centered reset-card">
+      <a class="auth-back-link" href="/reset-password">Back to account email</a>
+      <ol class="reset-progress" aria-label="Password reset progress">
+        <li class="is-complete"><span>1</span><strong>Account email</strong></li>
+        <li class="is-current"><span>2</span><strong>Verification code</strong></li>
+        <li><span>3</span><strong>New password</strong></li>
+      </ol>
+      <div class="reset-step is-active">
+        <span class="eyebrow">Step 2 of 3</span>
+        <div class="reset-heading"><h1>Enter verification code</h1><p>We sent a 6-digit code to <strong id="reset-email-label">your email</strong>.</p></div>
+        <form id="reset-code-form" class="auth-form active">
+          <div class="otp-inputs" aria-label="Six-digit verification code">
+            <input class="otp-input" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Verification code digit 1" required />
+            <input class="otp-input" inputmode="numeric" maxlength="1" aria-label="Verification code digit 2" required />
+            <input class="otp-input" inputmode="numeric" maxlength="1" aria-label="Verification code digit 3" required />
+            <input class="otp-input" inputmode="numeric" maxlength="1" aria-label="Verification code digit 4" required />
+            <input class="otp-input" inputmode="numeric" maxlength="1" aria-label="Verification code digit 5" required />
+            <input class="otp-input" inputmode="numeric" maxlength="1" aria-label="Verification code digit 6" required />
+          </div>
+          <p class="reset-countdown" id="reset-countdown" role="status" aria-live="polite">Code expires in 10:00</p>
+          <button type="submit" class="btn btn-primary reset-action">Verify code</button>
+          <p class="reset-resend">Haven't got the email yet? <button type="button" class="text-link" id="resend-reset-code">Resend email</button></p>
+          <p id="reset-status" class="form-status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script type="module">
+    const email = sessionStorage.getItem('resetEmail');
+    const expiresAt = Number(sessionStorage.getItem('resetExpiresAt'));
+    if (!email || !expiresAt) window.location.replace('/reset-password');
+
+    const form = document.getElementById('reset-code-form');
+    const inputs = [...document.querySelectorAll('.otp-input')];
+    const status = document.getElementById('reset-status');
+    const countdown = document.getElementById('reset-countdown');
+    const resend = document.getElementById('resend-reset-code');
+    const emailLabel = document.getElementById('reset-email-label');
+    const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+    emailLabel.textContent = email;
+    let timer;
+
+    const updateCountdown = () => {
+      const remaining = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+      countdown.textContent = remaining ? `Code expires in ${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}` : 'This code has expired. Request a new code.';
+      countdown.classList.toggle('is-expired', remaining === 0);
+      if (!remaining) { form.querySelector('button[type="submit"]').disabled = true; clearInterval(timer); }
+    };
+    updateCountdown();
+    timer = window.setInterval(updateCountdown, 1000);
+
+    const getOtp = () => inputs.map((input) => input.value).join('');
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', () => {
+        input.value = input.value.replace(/\D/g, '').slice(0, 1);
+        if (input.value && inputs[index + 1]) inputs[index + 1].focus();
+      });
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Backspace' && !input.value && inputs[index - 1]) inputs[index - 1].focus();
+      });
+      input.addEventListener('paste', (event) => {
+        const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        if (!pasted) return;
+        event.preventDefault();
+        pasted.split('').forEach((digit, digitIndex) => { if (inputs[digitIndex]) inputs[digitIndex].value = digit; });
+        inputs[Math.min(pasted.length, 6) - 1].focus();
+      });
+    });
+
+    const requestCode = async () => {
+      const response = await fetch(`${api}/api/auth/forgot-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to resend the code.');
+      sessionStorage.setItem('resetExpiresAt', String(Date.now() + 10 * 60 * 1000));
+      window.location.reload();
+    };
+    resend.addEventListener('click', async () => {
+      status.textContent = 'Sending a new code...';
+      try { await requestCode(); } catch (error) { status.textContent = error.message; status.classList.add('error'); }
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (getOtp().length !== 6) { status.textContent = 'Enter all 6 digits.'; status.classList.add('error'); return; }
+      status.textContent = 'Verifying code...';
+      try {
+        const response = await fetch(`${api}/api/auth/verify-otp`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, otp: getOtp() }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to verify code.');
+        sessionStorage.setItem('resetToken', result.resetToken);
+        clearInterval(timer);
+        window.location.href = '/reset-password/new-password';
+      } catch (error) { status.textContent = error.message; status.classList.add('error'); }
+    });
+  </script>
+</Layout>

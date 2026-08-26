@@ -57,8 +57,8 @@ Owner route aliases `/dashboard/owner/managed-users` and `/dashboard/owner/audit
 ## Environment and Local Run
 
 1. Copy `backend/.env.example` to `backend/.env`.
-2. Set `MONGODB_URI`, `JWT_SECRET`, and Owner provisioning credentials (`SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD`).
-3. For local MongoDB, use `mongodb://127.0.0.1:27017/hm_visionsync`.
+2. Set `MONGODB_URI`, `JWT_SECRET`, and Owner provisioning credentials (`SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD`). The development default is `mongodb://127.0.0.1:27017/hm_visionsync` when `MONGODB_URI` is not set.
+3. To use local MongoDB explicitly, set `MONGODB_URI=mongodb://127.0.0.1:27017/hm_visionsync`. To use Atlas, replace it with your `mongodb+srv://...` connection string.
 4. Set `RESEND_API_KEY` to the key from the Resend dashboard and set `MAIL_FROM` to a sender Resend allows. For production, verify your domain in Resend and use an address from that domain. The example `onboarding@resend.dev` sender is for Resend testing only.
 5. Start both applications with `npm run dev`.
 6. Open `http://localhost:4321`.

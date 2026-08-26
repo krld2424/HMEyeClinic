@@ -95,6 +95,12 @@ import Layout from '../layouts/Layout.astro';
   </main>
 
   <script type="module">
+    const token = localStorage.getItem('hmVisionToken');
+    const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+    if (token && user && user.role) {
+      window.location.href = `/dashboard/${user.role}`;
+    }
+
     const tabs = document.querySelectorAll('[data-auth-tab]');
     const forms = {
       login: document.getElementById('login-form'),

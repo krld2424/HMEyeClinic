@@ -533,6 +533,35 @@ const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
 </Layout>
 
 <script>
+  // Check for active login session to update navigation options dynamically
+  const token = localStorage.getItem('hmVisionToken');
+  const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+  if (token && user && user.role) {
+    const loginBtn = document.querySelector('.nav-menu .btn-primary[href="/login"]');
+    const signUpBtn = document.querySelector('.nav-menu .btn-secondary[href="/register"]');
+    if (loginBtn) {
+      loginBtn.textContent = 'Dashboard';
+      loginBtn.setAttribute('href', `/dashboard/${user.role}`);
+    }
+    if (signUpBtn) {
+      signUpBtn.textContent = 'Sign Out';
+      signUpBtn.setAttribute('href', '#');
+      signUpBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('hmVisionToken');
+        localStorage.removeItem('hmVisionUser');
+        window.location.reload();
+      });
+    }
+
+    document.querySelectorAll('a[href="/login"]').forEach(link => {
+      link.setAttribute('href', `/dashboard/${user.role}`);
+      if (link.textContent.trim() === 'Open Patient Portal') {
+        link.textContent = 'Go to Patient Portal';
+      }
+    });
+  }
+
   const navToggle = document.querySelector('.nav-toggle');
   const navMenu = document.querySelector('.nav-menu');
 
