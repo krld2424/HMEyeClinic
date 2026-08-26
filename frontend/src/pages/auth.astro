@@ -98,7 +98,7 @@ import Layout from '../layouts/Layout.astro';
     const token = localStorage.getItem('hmVisionToken');
     const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
     if (token && user && user.role) {
-      window.location.href = `/dashboard/${user.role}`;
+      window.location.href = `/dashboard/${user.role}/dashboard`;
     }
 
     const tabs = document.querySelectorAll('[data-auth-tab]');
@@ -149,7 +149,7 @@ import Layout from '../layouts/Layout.astro';
 
         localStorage.setItem('hmVisionToken', result.token);
         localStorage.setItem('hmVisionUser', JSON.stringify(result.user));
-        window.location.href = `/dashboard/${result.user.role}`;
+        window.location.href = `/dashboard/${result.user.role}/dashboard`;
       } catch (error) {
         alert(error.message);
       }
@@ -182,7 +182,7 @@ import Layout from '../layouts/Layout.astro';
 
         localStorage.setItem('hmVisionToken', result.token);
         localStorage.setItem('hmVisionUser', JSON.stringify(result.user));
-        window.location.href = `/dashboard/${result.user.role}`;
+        window.location.href = `/dashboard/${result.user.role}/dashboard`;
       } catch (error) {
         alert(error.message);
       }

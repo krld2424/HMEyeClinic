@@ -196,12 +196,84 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       </section>
 
       {isValidRoute && (
-        <section class="container task-page-card card">
-          <p class="task-page-description">{copy}</p>
-          <div class="task-state" id="task-state">
-            <span class="loading-dot"></span>
-            Loading workspace data...
-          </div>
+        section === 'dashboard' ? (
+          <>
+            <section class="container dashboard-grid" style="margin-top: 2rem;">
+              <div class="dashboard-summary card">
+                <p>{copy}</p>
+              </div>
+            </section>
+
+            <section class="container dashboard-appointments card" id="appointment-panel" hidden style="margin-top: 2rem;">
+              <div class="section-header split">
+                <div>
+                  <span class="eyebrow">Appointment workflow</span>
+                  <h2 id="appointment-heading">Appointments</h2>
+                </div>
+              </div>
+              <div class="list-toolbar">
+                <input id="overview-appointment-search" type="search" placeholder="Search patient or service" />
+                <select id="overview-appointment-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Rejected</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select>
+                <input id="overview-appointment-date" type="date" aria-label="Filter by appointment date" />
+              </div>
+              <div id="appointment-list" class="appointment-list"></div>
+              <div id="overview-appointment-pagination" class="pagination" aria-label="Appointment pages"></div>
+            </section>
+
+            {role === 'owner' && (
+              <section class="container admin-panel card" id="admin-panel" hidden style="margin-top: 2rem;">
+                <div class="section-header">
+                  <span class="eyebrow">Account administration</span>
+                  <h2>Create an optometrist or eye care assistant account</h2>
+                </div>
+                <form id="admin-user-form" class="admin-user-form">
+                  <div class="field-row">
+                    <div class="field-group">
+                      <label for="admin-name">Full name</label>
+                      <input id="admin-name" name="name" type="text" required />
+                    </div>
+                    <div class="field-group">
+                      <label for="admin-role">Account type</label>
+                      <select id="admin-role" name="role" required>
+                        <option value="optometrist">Optometrist</option>
+                        <option value="eye-care-assistant">Eye Care Assistant</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-group">
+                      <label for="admin-email">Email</label>
+                      <input id="admin-email" name="email" type="email" required />
+                    </div>
+                    <div class="field-group">
+                      <label for="admin-password">Temporary password</label>
+                      <input id="admin-password" name="password" type="password" required />
+                    </div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-group">
+                      <label for="admin-phone">Phone</label>
+                      <input id="admin-phone" name="phone" type="tel" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" />
+                    </div>
+                    <div class="field-group">
+                      <label for="admin-specialty">Specialty / Department</label>
+                      <input id="admin-specialty" name="specialty" type="text" />
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Create account</button>
+                  <p id="admin-status" class="form-status" aria-live="polite"></p>
+                </form>
+                <div id="managed-users" class="managed-users"></div>
+              </section>
+            )}
+          </>
+        ) : (
+          <section class="container task-page-card card">
+            <p class="task-page-description">{copy}</p>
+            <div class="task-state" id="task-state">
+              <span class="loading-dot"></span>
+              Loading workspace data...
+            </div>
 
           {section === 'book-exam' && (
             <form id="booking-workflow" class="workflow-form">
@@ -329,6 +401,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             </div>
           )}
         </section>
+        )
       )}
     </div>
   </main>
@@ -854,5 +927,130 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     userRoleFilter?.addEventListener('change', () => { userPage = 1; renderUsers(); });
     userStatusFilter?.addEventListener('change', () => { userPage = 1; renderUsers(); });
     loadUsers().catch((error) => { if (managedUsers) managedUsers.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
+    // Overview Dashboard Logic (when section === 'dashboard')
+    if (section === 'dashboard') {
+      const appointmentPanel = document.getElementById('appointment-panel');
+      const appointmentList = document.getElementById('appointment-list');
+      const appointmentSearch = document.getElementById('overview-appointment-search');
+      const appointmentStatusFilter = document.getElementById('overview-appointment-status');
+      const appointmentDateFilter = document.getElementById('overview-appointment-date');
+      const appointmentPagination = document.getElementById('overview-appointment-pagination');
+      let appointments = [];
+      let appointmentPage = 1;
+      const pageSize = 5;
+
+      const appointmentActions = (appointment) => {
+        if (role === 'patient') return '<span class="appointment-action-empty">-</span>';
+        const actions = {
+          pending: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
+          confirmed: [['completed', 'Mark completed'], ['rescheduled', 'Reschedule'], ['cancelled', 'Cancel']],
+          rescheduled: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
+        }[appointment.status] || [];
+        if (appointment.status === 'completed' || appointment.status === 'cancelled') return `<a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View</a><a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View Clinical Record</a>${appointment.status === 'cancelled' ? '<button type="button" class="btn btn-secondary appointment-action action-rescheduled" data-appointment-id="' + escapeHtml(appointment._id) + '" data-status="rescheduled">Reschedule</button>' : ''}`;
+        return actions.map(([status, label]) => `<button type="button" class="btn btn-secondary appointment-action action-${status}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${status}">${label}</button>`).join('');
+      };
+
+      const renderAppointmentPage = () => {
+        if (!appointmentList) return;
+        const query = (appointmentSearch?.value || '').toLowerCase().trim();
+        const status = appointmentStatusFilter?.value || '';
+        const date = appointmentDateFilter?.value || '';
+        const filtered = appointments.filter((item) => (!status || item.status === status) && (!date || item.preferredDate === date) && (!query || `${item.name} ${item.email} ${item.service}`.toLowerCase().includes(query)));
+        const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        appointmentPage = Math.min(appointmentPage, pages);
+        const visible = filtered.slice((appointmentPage - 1) * pageSize, appointmentPage * pageSize);
+        appointmentList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Examination / Appointment</th><th scope="col">Patient</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service)}</strong></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></td><td data-label="Actions"><div class="appointment-actions">${appointmentActions(item)}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No appointments match these filters.</p>';
+        appointmentPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : '';
+        appointmentPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { appointmentPage -= 1; renderAppointmentPage(); });
+        appointmentPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { appointmentPage += 1; renderAppointmentPage(); });
+        appointmentList.querySelectorAll('.appointment-action').forEach((button) => button.addEventListener('click', async () => {
+          button.disabled = true;
+          const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: button.dataset.status }) });
+          if (!response.ok) { button.disabled = false; return; }
+          appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? { ...item, status: button.dataset.status } : item);
+          renderAppointmentPage();
+        }));
+      };
+
+      const loadAppointments = async () => {
+        if (!appointmentPanel || !token || !user) return;
+        const endpoint = role === 'patient' ? '/api/appointments/mine' : '/api/appointments';
+        try {
+          const response = await fetch(`${api}${endpoint}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || 'Unable to load appointments.');
+          appointmentPanel.hidden = false;
+          appointments = result.appointments;
+          renderAppointmentPage();
+        } catch (error) {
+          appointmentPanel.hidden = false;
+          appointmentList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`;
+        }
+      };
+
+      loadAppointments();
+      [appointmentSearch, appointmentStatusFilter, appointmentDateFilter].forEach((control) => control?.addEventListener('input', () => { appointmentPage = 1; renderAppointmentPage(); }));
+
+      if (role === 'owner') {
+        const adminPanel = document.getElementById('admin-panel');
+        const adminForm = document.getElementById('admin-user-form');
+        const adminStatus = document.getElementById('admin-status');
+        const managedUsers = document.getElementById('managed-users');
+        const adminPhone = document.getElementById('admin-phone');
+
+        adminPhone?.addEventListener('input', () => {
+          const digits = adminPhone.value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
+          adminPhone.value = `+63 ${[digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean).join('-')}`;
+        });
+
+        const loadManagedUsers = async () => {
+          if (!adminPanel) return;
+          adminPanel.hidden = false;
+          const response = await fetch(`${api}/api/admin/users`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || 'Unable to load managed accounts.');
+
+          managedUsers.innerHTML = result.users.length
+            ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">Email</th><th scope="col">Status</th></tr></thead><tbody>${result.users.map((user) => `<tr><td data-label="Name"><strong>${escapeHtml(user.name)}</strong></td><td data-label="Role">${escapeHtml(user.role)}</td><td data-label="Email">${escapeHtml(user.email)}</td><td data-label="Status"><span class="appointment-status ${user.isActive === false ? 'status-cancelled' : 'status-confirmed'}">${user.isActive === false ? 'Inactive' : 'Active'}</span></td></tr>`).join('')}</tbody></table></div>`
+            : '<p class="empty-appointments">No optometrist or eye care assistant accounts yet.</p>';
+        };
+
+        adminForm?.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          adminStatus.textContent = 'Creating account...';
+          adminStatus.classList.remove('error');
+
+          try {
+            const response = await fetch(`${api}/api/admin/users`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(Object.fromEntries(new FormData(adminForm).entries())),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Unable to create account.');
+            adminStatus.textContent = result.message;
+            adminForm.reset();
+            await loadManagedUsers();
+          } catch (error) {
+            adminStatus.textContent = error.message;
+            adminStatus.classList.add('error');
+          }
+        });
+
+        loadManagedUsers().catch((error) => {
+          if (adminStatus) {
+            adminStatus.textContent = error.message;
+            adminStatus.classList.add('error');
+          }
+        });
+      }
+    }
   </script>
 </Layout>

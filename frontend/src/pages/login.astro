@@ -34,7 +34,7 @@ import Layout from '../layouts/Layout.astro';
     const token = localStorage.getItem('hmVisionToken');
     const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
     if (token && user && user.role) {
-      window.location.href = `/dashboard/${user.role}`;
+      window.location.href = `/dashboard/${user.role}/dashboard`;
     }
 
     const form = document.getElementById('login-form');
@@ -67,7 +67,7 @@ import Layout from '../layouts/Layout.astro';
         if (!response.ok) throw new Error(result.message || 'Unable to sign in.');
         localStorage.setItem('hmVisionToken', result.token);
         localStorage.setItem('hmVisionUser', JSON.stringify(result.user));
-        window.location.href = `/dashboard/${result.user.role}`;
+        window.location.href = `/dashboard/${result.user.role}/dashboard`;
       } catch (error) {
         status.textContent = error.message;
         status.classList.add('error');

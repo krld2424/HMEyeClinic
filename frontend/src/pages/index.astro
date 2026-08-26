@@ -541,7 +541,7 @@ const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
     const signUpBtn = document.querySelector('.nav-menu .btn-secondary[href="/register"]');
     if (loginBtn) {
       loginBtn.textContent = 'Dashboard';
-      loginBtn.setAttribute('href', `/dashboard/${user.role}`);
+      loginBtn.setAttribute('href', `/dashboard/${user.role}/dashboard`);
     }
     if (signUpBtn) {
       signUpBtn.textContent = 'Sign Out';
@@ -555,7 +555,7 @@ const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
     }
 
     document.querySelectorAll('a[href="/login"]').forEach(link => {
-      link.setAttribute('href', `/dashboard/${user.role}`);
+      link.setAttribute('href', `/dashboard/${user.role}/dashboard`);
       if (link.textContent.trim() === 'Open Patient Portal') {
         link.textContent = 'Go to Patient Portal';
       }

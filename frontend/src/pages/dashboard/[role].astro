@@ -231,6 +231,8 @@ const groupIcons = {
 
     if (!isValidRole || !storedUser || storedUser.role !== role) {
       window.location.href = '/auth';
+    } else {
+      window.location.replace(`/dashboard/${role}/dashboard`);
     }
 
     const sidebarCollapseToggle = document.getElementById('sidebar-collapse-toggle');
