@@ -2480,6 +2480,51 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 }
 
 @media (max-width: 760px) {
+  .auth-page {
+    padding: 32px 0 56px;
+  }
+
+  .auth-page-centered {
+    min-height: 100vh;
+    padding: 24px 12px;
+    align-items: start;
+  }
+
+  .auth-card,
+  .auth-card-centered,
+  .auth-card-register {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+
+  .auth-back-link {
+    margin-bottom: 22px;
+    overflow-wrap: anywhere;
+  }
+
+  .auth-card-centered h1,
+  .auth-hero h1 {
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+
+  .auth-form,
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-tabs {
+    gap: 6px;
+    margin-bottom: 18px;
+    padding: 6px;
+  }
+
+  .auth-tab {
+    padding: 10px 8px;
+  }
+
   .dashboard-layout {
     padding: 0 16px 60px;
   }

@@ -59,9 +59,20 @@ Owner route aliases `/dashboard/owner/managed-users` and `/dashboard/owner/audit
 1. Copy `backend/.env.example` to `backend/.env`.
 2. Set `MONGODB_URI`, `JWT_SECRET`, and Owner provisioning credentials (`SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD`).
 3. For local MongoDB, use `mongodb://127.0.0.1:27017/hm_visionsync`.
-4. Start both applications with `npm run dev`.
-5. Open `http://localhost:4321`.
-6. Check backend health at `http://localhost:5000/api/health`.
+4. Set `RESEND_API_KEY` to the key from the Resend dashboard and set `MAIL_FROM` to a sender Resend allows. For production, verify your domain in Resend and use an address from that domain. The example `onboarding@resend.dev` sender is for Resend testing only.
+5. Start both applications with `npm run dev`.
+6. Open `http://localhost:4321`.
+7. Check backend health at `http://localhost:5000/api/health`.
+
+### Password reset with Resend
+
+The login page already provides the complete flow:
+
+1. `POST /api/auth/forgot-password` creates a random six-digit OTP, stores only its hash, and sends it through Resend. The code expires after 10 minutes.
+2. `POST /api/auth/verify-otp` validates the email and OTP, then returns a short-lived reset token.
+3. `POST /api/auth/reset-password` accepts that reset token and the new password.
+
+Keep `RESEND_API_KEY` on the backend only. Add it to the backend `.env` locally and to the backend hosting provider's environment variables; never put it in `PUBLIC_*` frontend variables or commit it to the repository.
 
 Never commit `backend/.env`; it is ignored by `.gitignore`. Rotate credentials immediately if they are exposed.
 
