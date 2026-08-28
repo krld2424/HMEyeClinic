@@ -1,0 +1,534 @@
+<div class="template-builder" id="template-builder">
+  <div class="template-builder-bar">
+    <div>
+      <span class="eyebrow">Billing Workspace</span>
+      <h2>Invoice Generator & Customizer</h2>
+      <p class="generator-subtitle">Configure your clinic's invoice logo, brand colors, and header/footer text fields.</p>
+    </div>
+    <div class="template-builder-actions">
+      <button class="btn btn-secondary" type="button" id="template-preview">Preview</button>
+      <button class="btn btn-primary" type="button" id="template-save">Save template</button>
+    </div>
+  </div>
+
+  <div class="template-meta">
+    <label>Template Name 
+      <input id="template-name" maxlength="120" value="Default Invoice" />
+    </label>
+    <label>Paper Size 
+      <select id="template-paper">
+        <option value="A4">A4</option>
+        <option value="Letter">Letter</option>
+        <option value="Legal">Legal</option>
+      </select>
+    </label>
+    <label>Orientation 
+      <select id="template-orientation">
+        <option value="portrait">Portrait</option>
+        <option value="landscape">Landscape</option>
+      </select>
+    </label>
+    <span id="template-status" class="form-status" aria-live="polite"></span>
+  </div>
+
+  <div class="template-builder-grid">
+    <!-- Form Inputs Panel -->
+    <aside class="template-panel">
+      <h3>Invoice Branding</h3>
+      
+      <div class="form-group">
+        <label for="generator-logo">Company Logo URL</label>
+        <input id="generator-logo" type="text" placeholder="https://example.com/logo.png" />
+      </div>
+
+      <div class="form-group color-picker-group">
+        <label for="generator-color">Accent Theme Color</label>
+        <div class="color-row">
+          <input id="generator-color" type="color" value="#0d9488" />
+          <input id="generator-color-text" type="text" placeholder="#0d9488" value="#0d9488" maxlength="7" />
+        </div>
+      </div>
+
+      <h3>Invoice Content</h3>
+      
+      <div class="form-group">
+        <label for="generator-title">Invoice Title</label>
+        <input id="generator-title" type="text" placeholder="INVOICE" value="INVOICE" />
+      </div>
+
+      <div class="form-group">
+        <label for="generator-footer">Footer Message</label>
+        <textarea id="generator-footer" rows="3" placeholder="Thank you for trusting us with your vision."></textarea>
+      </div>
+    </aside>
+
+    <!-- Live Preview Stage -->
+    <section class="template-stage">
+      <div class="template-stage-note">Live Preview</div>
+      <div id="invoice-canvas" class="invoice-canvas" aria-label="Invoice design canvas"></div>
+    </section>
+  </div>
+</div>
+
+<dialog id="template-preview-dialog" class="audit-detail-modal template-preview-dialog">
+  <div class="audit-detail-modal-header">
+    <h2>Invoice Preview</h2>
+    <div class="billing-modal-actions">
+      <button type="button" class="btn btn-secondary" id="template-print">Print</button>
+      <button type="button" class="btn btn-secondary" id="template-preview-close">Close</button>
+    </div>
+  </div>
+  <div id="template-preview-content"></div>
+</dialog>
+
+<style>
+  .template-builder {
+    margin-top: 1.25rem;
+  }
+  .template-builder-bar, .template-meta, .template-builder-actions {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+  }
+  .template-builder-bar {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .generator-subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .template-meta {
+    padding: .9rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: .7rem .7rem 0 0;
+    flex-wrap: wrap;
+  }
+  .template-meta label {
+    display: grid;
+    gap: .3rem;
+    font-size: .84rem;
+    color: var(--muted);
+  }
+  .template-meta input, .template-meta select {
+    min-height: 2.25rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0 0.5rem;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .template-builder-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    min-height: 720px;
+    border-radius: 0 0 0.7rem 0.7rem;
+  }
+  .template-panel {
+    padding: 1.5rem !important;
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto;
+  }
+  .template-panel h3 {
+    font-size: .95rem;
+    margin: 0;
+    font-weight: 700;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.5rem;
+    color: var(--text);
+  }
+  .form-group {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .form-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .form-group input, .form-group textarea {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+  .color-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .color-row input[type="color"] {
+    width: 42px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    cursor: pointer;
+    background: none;
+  }
+  .color-row input[type="text"] {
+    flex: 1;
+  }
+  .template-stage {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem !important;
+    overflow-y: auto;
+  }
+  .template-stage-note {
+    color: var(--muted);
+    font-size: .82rem;
+    margin-bottom: .75rem;
+  }
+  .invoice-canvas, .invoice-preview-sheet {
+    position: relative;
+    width: 794px;
+    height: 1123px;
+    background: white;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, .17);
+    transform: scale(0.8);
+    transform-origin: top center;
+    color: #1f2937;
+  }
+  .invoice-element {
+    position: absolute;
+    box-sizing: border-box;
+    padding: 2px;
+    overflow: hidden;
+  }
+  .invoice-element-content {
+    height: 100%;
+    overflow: hidden;
+    line-height: 1.35;
+  }
+  .dynamic-token {
+    color: #2563eb;
+    background: #dbeafe;
+    padding: 1px 3px;
+    border-radius: 2px;
+  }
+  .invoice-items-preview {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: inherit;
+  }
+  .invoice-items-preview th, .invoice-items-preview td {
+    border: 1px solid #94a3b8;
+    padding: 6px;
+  }
+  .invoice-totals {
+    display: grid;
+    gap: 4px;
+  }
+  .invoice-totals span, .invoice-totals strong {
+    display: flex;
+    justify-content: space-between;
+  }
+  .invoice-totals strong {
+    border-top: 1px solid #64748b;
+    padding-top: 3px;
+  }
+  .invoice-logo-placeholder {
+    height: 100%;
+    border: 1px dashed #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 0.8rem;
+    background: #f8fafc;
+  }
+  .invoice-logo-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .signature-line {
+    border-top: 1px solid #334155;
+    margin-top: 22px;
+    padding-top: 4px;
+    font-size: .8em;
+  }
+  .form-status {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary);
+  }
+  .form-status.error {
+    color: var(--error);
+  }
+  .template-preview-dialog {
+    width: min(920px, 95vw);
+  }
+  .template-preview-dialog #template-preview-content {
+    overflow: auto;
+    padding: 1rem;
+    background: #e2e8f0;
+  }
+  @media (max-width: 1024px) {
+    .template-builder-grid {
+      grid-template-columns: 1fr;
+    }
+    .template-panel {
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .invoice-canvas {
+      transform: scale(0.6);
+      margin-bottom: -400px;
+    }
+  }
+</style>
+
+<script>
+  const builder = document.getElementById('template-builder');
+  if (builder) {
+    const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+    const token = localStorage.getItem('hmVisionToken');
+    const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+    const canvas = document.getElementById('invoice-canvas');
+    const status = document.getElementById('template-status');
+    const fields = { 
+      business_name: 'Hernandez Mercado Eye Clinic', 
+      business_address: '123 Vision Avenue, Manila', 
+      business_contact: '+63 912 345 6789', 
+      invoice_number: 'INV-000001', 
+      invoice_date: 'August 29, 2026', 
+      due_date: 'September 12, 2026', 
+      customer_name: 'Juan Dela Cruz', 
+      customer_address: '45 Mabini Street, Manila', 
+      customer_phone: '+63 917 555 0101', 
+      customer_email: 'juan@example.com', 
+      subtotal: '₱500.00', 
+      discount: '₱0.00', 
+      tax: '₱0.00', 
+      total_amount: '₱500.00', 
+      amount_paid: '₱300.00', 
+      outstanding_balance: '₱200.00', 
+      payment_method: 'GCash', 
+      payment_reference: 'GC-20260829', 
+      payment_date: 'August 29, 2026' 
+    };
+
+    let templateId = '', elements = [];
+    const makeId = () => crypto.randomUUID ? crypto.randomUUID() : `element-${Date.now()}-${Math.random()}`;
+    const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[c]);
+    
+    const defaultElements = () => [
+      { id: makeId(), type: 'image', x: 48, y: 42, w: 120, h: 70, text: '' },
+      { id: makeId(), type: 'heading', text: '{{business_name}}', field: 'business_name', x: 180, y: 42, w: 310, h: 38, style: { size: 20, bold: true } },
+      { id: makeId(), type: 'text', text: '{{business_address}}', field: 'business_address', x: 180, y: 80, w: 310, h: 36, style: { size: 10 } },
+      { id: makeId(), type: 'heading', text: 'INVOICE', x: 500, y: 42, w: 240, h: 36, style: { size: 26, bold: true, align: 'right' } },
+      { id: makeId(), type: 'text', text: 'Invoice #: {{invoice_number}}\nDate: {{invoice_date}}\nDue: {{due_date}}', x: 500, y: 80, w: 240, h: 66, style: { size: 10, align: 'right' } },
+      { id: makeId(), type: 'customer', x: 48, y: 188, w: 330, h: 105, style: { size: 12 } },
+      { id: makeId(), type: 'items-table', x: 48, y: 330, w: 682, h: 160, style: { size: 11 } },
+      { id: makeId(), type: 'total', x: 450, y: 525, w: 280, h: 118, style: { size: 12 } },
+      { id: makeId(), type: 'footer', text: 'Thank you for trusting us with your vision.', x: 48, y: 1015, w: 682, h: 28, style: { size: 10, align: 'center' } },
+    ];
+
+    const normalize = el => ({ 
+      id: el.id || makeId(), 
+      type: el.type || 'text', 
+      text: el.text || '', 
+      field: el.field || '', 
+      x: Number(el.x ?? 48), 
+      y: Number(el.y ?? 48), 
+      w: Number(el.w ?? 240), 
+      h: Number(el.h ?? 34), 
+      style: { font: 'Arial', size: 12, color: '#1f2937', background: '#ffffff', align: 'left', border: 'none', ...el.style } 
+    });
+
+    const elementHtml = el => {
+      const value = el.field ? `{{${el.field}}}` : el.text;
+      if (el.type === 'items-table') return `<table class="invoice-items-preview"><thead><tr style="background:${el.style?.color || '#0d9488'};color:#ffffff;"><th>Service</th><th>Qty</th><th>Price</th><th>Amount</th></tr></thead><tbody><tr><td>Complete Eye Examination</td><td>1</td><td>₱500.00</td><td>₱500.00</td></tr></tbody></table>`;
+      if (el.type === 'customer') return '<strong>Bill To</strong><br>Juan Dela Cruz<br>45 Mabini Street, Manila<br>+63 917 555 0101';
+      if (el.type === 'total') return '<div class="invoice-totals"><span>Subtotal <b>₱500.00</b></span><span>Amount paid <b>₱300.00</b></span><strong>Total <b>₱500.00</b></strong><strong>Balance <b>₱200.00</b></strong></div>';
+      if (el.type === 'payment') return '<strong>Payment</strong><br>GCash · GC-20260829<br>August 29, 2026';
+      if (el.type === 'divider' || el.type === 'line') return `<hr style="border: 0; border-top: 2px solid ${el.style?.color || '#e2e8f0'};">`;
+      if (el.type === 'image') {
+        return el.text ? `<img src="${escapeHtml(el.text)}" class="invoice-logo-img" alt="Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" /><div class="invoice-logo-placeholder" style="display:none;">LOGO</div>` : '<div class="invoice-logo-placeholder">LOGO</div>';
+      }
+      if (el.type === 'signature') return '<div class="signature-line">Authorized signature</div>';
+      return escapeHtml(value).replace(/\{\{([\w_]+)\}\}/g, (_, key) => `<span class="dynamic-token">{{${key}}}</span>`).replaceAll('\n', '<br>');
+    };
+
+    const render = () => { 
+      canvas.innerHTML = ''; 
+      elements.forEach(el => { 
+        const box = document.createElement('article'); 
+        const s = el.style || {}; 
+        box.className = `invoice-element`; 
+        box.style.cssText = `left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;font-family:${s.font || 'Arial'};font-size:${s.size || 12}px;font-weight:${s.bold ? '700':'400'};font-style:${s.italic ? 'italic':'normal'};text-decoration:${s.underline ? 'underline':'none'};color:${s.color || '#1f2937'};text-align:${s.align || 'left'};`; 
+        box.innerHTML = `<div class="invoice-element-content">${elementHtml(el)}</div>`; 
+        canvas.append(box); 
+      }); 
+    };
+
+    const syncFormToElements = () => {
+      const logoVal = document.getElementById('generator-logo').value.trim();
+      const titleVal = document.getElementById('generator-title').value.trim();
+      const footerVal = document.getElementById('generator-footer').value.trim();
+      const colorVal = document.getElementById('generator-color').value;
+
+      // 1. Update logo element
+      let logoEl = elements.find(el => el.type === 'image');
+      if (!logoEl) {
+        logoEl = normalize({ id: makeId(), type: 'image', x: 48, y: 42, w: 120, h: 70 });
+        elements.push(logoEl);
+      }
+      logoEl.text = logoVal;
+      
+      // 2. Update title element
+      let titleEl = elements.find(el => el.type === 'heading' && !el.field);
+      if (!titleEl) {
+        titleEl = normalize({ id: makeId(), type: 'heading', x: 500, y: 42, w: 240, h: 36, style: { size: 26, bold: true, align: 'right' } });
+        elements.push(titleEl);
+      }
+      titleEl.text = titleVal;
+      
+      // 3. Update footer element
+      let footerEl = elements.find(el => el.type === 'footer');
+      if (!footerEl) {
+        footerEl = normalize({ id: makeId(), type: 'footer', x: 48, y: 1015, w: 682, h: 28, style: { size: 10, align: 'center' } });
+        elements.push(footerEl);
+      }
+      footerEl.text = footerVal;
+      
+      // 4. Update colors for headings, tables, totals, dividers
+      elements.forEach(el => {
+        if (!el.style) el.style = {};
+        if (el.type === 'heading' || el.type === 'items-table' || el.type === 'total' || el.type === 'divider' || el.type === 'line') {
+          el.style.color = colorVal;
+        }
+      });
+      
+      render();
+    };
+
+    // Attach listeners for settings inputs
+    ['generator-logo', 'generator-title', 'generator-footer', 'generator-color'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        if (id === 'generator-color') {
+          document.getElementById('generator-color-text').value = document.getElementById(id).value;
+        }
+        syncFormToElements();
+      });
+    });
+    
+    document.getElementById('generator-color-text').addEventListener('input', e => {
+      const val = e.target.value.trim();
+      if (/^#[0-9A-F]{6}$/i.test(val)) {
+        document.getElementById('generator-color').value = val;
+        syncFormToElements();
+      }
+    });
+
+    ['template-paper', 'template-orientation'].forEach(id => {
+      document.getElementById(id).addEventListener('change', render);
+    });
+
+    const templatePayload = () => ({ 
+      name: document.getElementById('template-name').value.trim() || 'Default Invoice Template', 
+      paperSize: document.getElementById('template-paper').value, 
+      orientation: document.getElementById('template-orientation').value, 
+      templateData: { version: 1, elements } 
+    });
+
+    const list = async () => {
+      const response = await fetch(`${api}/api/invoice-templates`, { headers });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load templates.');
+      const templates = result.templates || [];
+      
+      if (templates.length > 0) {
+        const t = templates[0];
+        templateId = t._id;
+        elements = (t.templateData?.elements || []).map(normalize);
+        document.getElementById('template-name').value = t.name || 'Default Invoice Template';
+        document.getElementById('template-paper').value = t.paperSize || 'A4';
+        document.getElementById('template-orientation').value = t.orientation || 'portrait';
+        
+        // Sync values to generator form inputs:
+        const logoEl = elements.find(el => el.type === 'image');
+        const titleEl = elements.find(el => el.type === 'heading' && !el.field);
+        const footerEl = elements.find(el => el.type === 'footer');
+        const colorEl = elements.find(el => el.type === 'heading' && el.field === 'business_name');
+        
+        document.getElementById('generator-logo').value = logoEl ? (logoEl.text || '') : '';
+        document.getElementById('generator-title').value = titleEl ? (titleEl.text || 'INVOICE') : 'INVOICE';
+        document.getElementById('generator-footer').value = footerEl ? (footerEl.text || '') : '';
+        
+        const primaryColor = colorEl?.style?.color || '#0d9488';
+        document.getElementById('generator-color').value = primaryColor;
+        document.getElementById('generator-color-text').value = primaryColor;
+        
+        render();
+      } else {
+        elements = defaultElements().map(normalize);
+        document.getElementById('template-name').value = 'Default Invoice Template';
+        document.getElementById('template-paper').value = 'A4';
+        document.getElementById('template-orientation').value = 'portrait';
+        
+        // Sync defaults
+        document.getElementById('generator-logo').value = '';
+        document.getElementById('generator-title').value = 'INVOICE';
+        document.getElementById('generator-footer').value = 'Thank you for trusting us with your vision.';
+        document.getElementById('generator-color').value = '#0d9488';
+        document.getElementById('generator-color-text').value = '#0d9488';
+        
+        render();
+      }
+    };
+
+    document.getElementById('template-save').onclick = async () => {
+      try {
+        status.classList.remove('error');
+        status.textContent = 'Saving…';
+        const response = await fetch(`${api}/api/invoice-templates${templateId ? `/${templateId}` : ''}`, {
+          method: templateId ? 'PATCH' : 'POST',
+          headers,
+          body: JSON.stringify(templatePayload())
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message);
+        templateId = result.template._id;
+        status.textContent = result.message;
+      } catch (e) {
+        status.textContent = e.message;
+        status.classList.add('error');
+      }
+    };
+
+    const preview = () => { 
+      const content = document.getElementById('template-preview-content'); 
+      content.innerHTML = `<div class="invoice-preview-sheet">${elements.map(el => `<div style="position:absolute;left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;font-family:${el.style?.font || 'Arial'};font-size:${el.style?.size || 12}px;text-align:${el.style?.align || 'left'};font-weight:${el.style?.bold ? 700:400};color:${el.style?.color || '#1f2937'};">${elementHtml(el).replace(/\{\{([\w_]+)\}\}/g, (_, key) => fields[key] || '')}</div>`).join('')}</div>`; 
+      document.getElementById('template-preview-dialog').showModal(); 
+    };
+
+    document.getElementById('template-preview').onclick = preview; 
+    document.getElementById('template-preview-close').onclick = () => document.getElementById('template-preview-dialog').close(); 
+    
+    document.getElementById('template-print').onclick = () => { 
+      const w = window.open('', '_blank'); 
+      w.document.write(`<html><head><style>body { margin:0; } .invoice-preview-sheet { position:relative; width:794px; height:1123px; background:white; } .invoice-logo-placeholder { border: 1px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; } .invoice-items-preview { border-collapse:collapse; width:100%; } .invoice-items-preview th, .invoice-items-preview td { border:1px solid #94a3b8; padding:6px; } .invoice-totals { display:grid; gap:4px; } .invoice-totals span, .invoice-totals strong { display:flex; justify-content:space-between; } .signature-line { border-top:1px solid #334155; margin-top:22px; padding-top:4px; }</style></head><body>${document.getElementById('template-preview-content').innerHTML}</body></html>`); 
+      w.print(); 
+    };
+
+    list().catch(e => { status.textContent = e.message; status.classList.add('error'); });
+  }
+</script>

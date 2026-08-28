@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import SidebarIcon from '../../../components/SidebarIcon.astro';
+import InvoiceTemplateBuilder from '../../../components/InvoiceTemplateBuilder.astro';
 
 const { role, section } = Astro.params;
 const iconPaths = {
@@ -63,12 +64,27 @@ const navigation = {
     'clinical-records': 'Clinical Records',
     prescriptions: 'Prescriptions',
     'follow-ups': 'Follow-ups',
-    'manage-team': 'Manage Team',
+    'manage-team': "User's Management",
     'manage-users': 'Manage Users',
     'roles-permissions': 'Roles & Permissions',
     'audit-logs': 'Audit Logs',
     reports: 'Reports',
     'clinic-settings': 'Clinic Settings',
+    suppliers: 'Suppliers',
+    'purchase-orders': 'Purchase Orders',
+    receiving: 'Receiving',
+    'purchase-history': 'Purchase History',
+    inventory: 'Inventory',
+    'stock-movements': 'Stock Movements',
+    'stock-in': 'Stock In',
+    'stock-out': 'Stock Out',
+    'stock-adjustment': 'Stock Adjustment',
+    'inventory-history': 'Inventory History',
+    'billing-invoices': 'Billing / Invoices',
+    'invoice-templates': 'Invoice Templates',
+    'customer-payments': 'Customer Payments',
+    'payment-history': 'Payment History',
+    'outstanding-balances': 'Outstanding Balances',
   },
 };
 
@@ -76,7 +92,7 @@ const sidebarGroups = {
   patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions']], ['Account', ['notifications', 'profile']]],
   optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']]],
   'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'billing']]],
-  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'manage-users', 'roles-permissions']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']]],
+  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'stock-movements', 'stock-adjustment', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']]],
 };
 const groupIcons = {
   Overview: 'overview',
@@ -86,6 +102,10 @@ const groupIcons = {
   Operations: 'operations',
   Management: 'management',
   'Monitoring & Settings': 'monitoring-settings',
+  'Supplier Transactions': 'supplier-transactions',
+  Inventory: 'inventory',
+  'Stock Movements': 'inventory',
+  Billing: 'billing',
 };
 
 const roleNavigation = navigation[role] || {};
@@ -96,7 +116,7 @@ const routePairs = [
   ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'],
   ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'clinical-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
   ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'],
-  ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'clinical-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
+  ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'clinical-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
 ];
 
 export function getStaticPaths() {
@@ -104,7 +124,7 @@ export function getStaticPaths() {
     ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'],
     ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'clinical-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
     ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'],
-    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'clinical-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
+    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'clinical-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
   ].map(([routeRole, routeSection]) => ({ params: { role: routeRole, section: routeSection } }));
 }
 
@@ -125,12 +145,28 @@ const pageCopy = {
   'clinic-queue': 'Monitor the live queue and update each patient\'s operational status.',
   'patient-records': 'Search registration and contact information without exposing restricted clinical data.',
   billing: 'Review charges, payment status, invoices, and transaction history.',
-  'manage-team': 'Create and manage optometrist and eye care assistant accounts from one protected workspace.',
+  'manage-team': 'Create staff accounts, review users, and manage access from one protected workspace.',
   'manage-users': 'Search accounts, filter by role and status, and manage user access.',
   'roles-permissions': 'Review which modules each role can access and adjust permissions.',
   'audit-logs': 'Review administrative, access, appointment, and record activity.',
   reports: 'Review appointment, patient, consultation, and billing summaries.',
   'clinic-settings': 'Configure clinic identity, hours, services, schedules, and closed dates.',
+  suppliers: 'Manage clinic suppliers and supplier contact information.',
+  'purchase-orders': 'Prepare and review purchase orders for clinic supplies.',
+  receiving: 'Record incoming products and supplies received from suppliers.',
+  'purchase-history': 'Review completed supplier purchases and receiving history.',
+  inventory: 'Review current product and supply inventory levels.',
+  'stock-movements': 'Record and review stock added to or removed from inventory.',
+  'stock-in': 'Record products and supplies added to inventory.',
+  'stock-out': 'Record products and supplies issued or removed from inventory.',
+  'stock-movements': 'Record products and supplies added to or removed from inventory.',
+  'stock-adjustment': 'Record corrections to inventory quantities and reasons.',
+  'inventory-history': 'Review inventory movements and adjustment history.',
+  'billing-invoices': 'Review patient and customer bills, invoices, services, and products.',
+  'invoice-templates': 'Design reusable invoice documents with dynamic customer, invoice, and payment data.',
+  'customer-payments': 'Record payments against patient or customer invoices.',
+  'payment-history': 'Review payment dates, methods, amounts, and related invoices.',
+  'outstanding-balances': 'Review unpaid invoices and remaining patient or customer balances.',
 };
 
 const copy = pageCopy[section] || 'This workspace is ready for your clinic workflow.';
@@ -140,7 +176,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
   <main class="dashboard-page dashboard-layout">
     <button class="mobile-sidebar-toggle" type="button" id="mobile-sidebar-toggle" aria-label="Open dashboard navigation" aria-expanded="false" title="Open dashboard navigation"><SidebarIcon name="panel-left" /></button>
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
-    <aside class="dashboard-sidebar">
+    <aside class={`dashboard-sidebar ${role === 'owner' ? 'owner-sidebar' : ''}`}>
       <div class="sidebar-header">
         <a class="sidebar-brand" href={`/dashboard/${role}/dashboard`}>HM VisionSync</a>
         <button class="sidebar-collapse-toggle" type="button" id="sidebar-collapse-toggle" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar"><SidebarIcon name="panel-left" /></button>
@@ -179,7 +215,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       <a class="sidebar-home" href="/"><SidebarIcon name="home" /><span>Back to clinic site</span></a>
     </aside>
 
-    <div class="dashboard-main">
+    <div class={`dashboard-main ${role === 'owner' && section === 'dashboard' ? 'owner-dashboard-main' : ''}`}>
       <section class="dashboard-header container">
         <div>
           <span class="eyebrow">{role} workspace</span>
@@ -198,16 +234,23 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       {isValidRoute && (
         section === 'dashboard' ? (
           <>
-            <section class="container dashboard-grid" style="margin-top: 2rem;">
-              <div class="dashboard-summary card">
-                <p>{copy}</p>
+            <section class={`container dashboard-bento ${role === 'owner' ? 'owner-dashboard-bento' : ''}`} id="dashboard-bento" data-role={role}>
+              <div class="bento-heading">
+                <div>
+                  <span class="eyebrow">Live overview</span>
+                  <h2>{role === 'owner' ? 'Clinic overview' : copy}</h2>
+                </div>
+                <button class="btn btn-secondary" type="button" id="dashboard-retry" hidden>Try again</button>
+              </div>
+              <div id="dashboard-bento-content" class={`bento-grid ${role === 'owner' ? 'owner-bento-grid' : ''}`} aria-live="polite">
+                <div class="bento-loading" aria-label="Loading dashboard analytics"><span></span><span></span><span></span><span></span></div>
               </div>
             </section>
 
+            {role !== 'owner' && (
             <section class="container dashboard-appointments card" id="appointment-panel" hidden style="margin-top: 2rem;">
               <div class="section-header split">
                 <div>
-                  <span class="eyebrow">Appointment workflow</span>
                   <h2 id="appointment-heading">Appointments</h2>
                 </div>
               </div>
@@ -219,52 +262,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <div id="appointment-list" class="appointment-list"></div>
               <div id="overview-appointment-pagination" class="pagination" aria-label="Appointment pages"></div>
             </section>
-
-            {role === 'owner' && (
-              <section class="container admin-panel card" id="admin-panel" hidden style="margin-top: 2rem;">
-                <div class="section-header">
-                  <span class="eyebrow">Account administration</span>
-                  <h2>Create an optometrist or eye care assistant account</h2>
-                </div>
-                <form id="admin-user-form" class="admin-user-form">
-                  <div class="field-row">
-                    <div class="field-group">
-                      <label for="admin-name">Full name</label>
-                      <input id="admin-name" name="name" type="text" required />
-                    </div>
-                    <div class="field-group">
-                      <label for="admin-role">Account type</label>
-                      <select id="admin-role" name="role" required>
-                        <option value="optometrist">Optometrist</option>
-                        <option value="eye-care-assistant">Eye Care Assistant</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-group">
-                      <label for="admin-email">Email</label>
-                      <input id="admin-email" name="email" type="email" required />
-                    </div>
-                    <div class="field-group">
-                      <label for="admin-password">Temporary password</label>
-                      <input id="admin-password" name="password" type="password" required />
-                    </div>
-                  </div>
-                  <div class="field-row">
-                    <div class="field-group">
-                      <label for="admin-phone">Phone</label>
-                      <input id="admin-phone" name="phone" type="tel" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" />
-                    </div>
-                    <div class="field-group">
-                      <label for="admin-specialty">Specialty / Department</label>
-                      <input id="admin-specialty" name="specialty" type="text" />
-                    </div>
-                  </div>
-                  <button type="submit" class="btn btn-primary">Create account</button>
-                  <p id="admin-status" class="form-status" aria-live="polite"></p>
-                </form>
-                <div id="managed-users" class="managed-users"></div>
-              </section>
             )}
           </>
         ) : (
@@ -274,6 +271,131 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <span class="loading-dot"></span>
               Loading workspace data...
             </div>
+
+            {role === 'owner' && ['suppliers', 'purchase-orders', 'receiving', 'purchase-history', 'inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history'].includes(section) && (
+              <div class="operation-workspace">
+                {['stock-movements', 'stock-in', 'stock-out'].includes(section) && <nav class="stock-movement-tabs" aria-label="Stock movement type"><a class={section !== 'stock-out' ? 'is-current' : ''} href={`/dashboard/${role}/stock-movements`}>Stock In</a><a class={section === 'stock-out' ? 'is-current' : ''} href={`/dashboard/${role}/stock-out`}>Stock Out</a></nav>}
+                {!['purchase-history', 'inventory-history', 'payment-history', 'outstanding-balances'].includes(section) && (
+                  <form id="operation-form" class="workflow-form">
+                    {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-name">Supplier name</label><input id="operation-name" name="name" required /></div><div class="field-group"><label for="operation-contact">Contact person</label><input id="operation-contact" name="contactPerson" /></div></div>}
+                    {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-phone">Contact number</label><input id="operation-phone" name="phone" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" /></div><div class="field-group"><label for="operation-email">Email</label><input id="operation-email" name="email" type="email" /></div></div>}
+                    {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-address">Address</label><input id="operation-address" name="address" /></div><div class="field-group"><label for="operation-status">Status</label><select id="operation-status" name="status"><option>active</option><option>inactive</option></select></div></div>}
+                    {section === 'suppliers' && <div class="field-group"><label for="operation-products">Products supplied</label><textarea id="operation-products" name="products" rows="3"></textarea></div>}
+                    {section === 'purchase-orders' && <div class="field-row"><div class="field-group"><label for="operation-supplier">Supplier name or ID</label><input id="operation-supplier" name="supplierName" required /></div><div class="field-group"><label for="operation-order-number">Purchase order number</label><input id="operation-order-number" name="orderNumber" required /></div></div>}
+                    {section === 'purchase-orders' && <div class="field-row"><div class="field-group"><label for="operation-order-date">Order date</label><input id="operation-order-date" name="orderDate" type="date" required /></div><div class="field-group"><label for="operation-order-status">Order status</label><select id="operation-order-status" name="status"><option>draft</option><option>ordered</option><option>partially-received</option><option>received</option><option>cancelled</option></select></div></div>}
+                    {['purchase-orders', 'receiving', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section) && <div class="operation-items-editor"><div class="section-header split"><div><h3>Items</h3><p>Add each item and quantity for this transaction.</p></div><button type="button" class="btn btn-primary operation-add-item" id="add-operation-item">Add item</button></div><div class="appointment-table-wrap"><table class="appointment-table operation-items-table"><thead><tr><th scope="col">SKU</th><th scope="col">Quantity</th><th scope="col">Action</th></tr></thead><tbody id="operation-items-body"><tr><td><input name="itemSku" aria-label="Item SKU" placeholder="ITEM-001" required /></td><td><input name="itemQuantity" type="number" min="1" step="1" aria-label="Item quantity" required /></td><td><button type="button" class="btn btn-secondary remove-operation-item" aria-label="Remove item">Remove</button></td></tr></tbody></table></div></div>}
+                    {section === 'receiving' && <div class="field-row"><div class="field-group"><label for="operation-reference">Receiving reference</label><input id="operation-reference" name="reference" required /></div><div class="field-group"><label for="operation-received-date">Receiving date</label><input id="operation-received-date" name="receivedDate" type="date" /></div></div>}
+                    {section === 'receiving' && <div class="field-group"><label for="operation-purchase-order">Purchase order ID</label><input id="operation-purchase-order" name="purchaseOrderId" /></div>}
+                    {section === 'inventory' && <div class="field-row"><div class="field-group"><label for="operation-name">Item name</label><input id="operation-name" name="name" required /></div><div class="field-group"><label for="operation-sku">SKU</label><input id="operation-sku" name="sku" required /></div></div>}
+                    {section === 'inventory' && <div class="field-row"><div class="field-group"><label for="operation-quantity">Current quantity</label><input id="operation-quantity" name="quantity" type="number" min="0" required /></div><div class="field-group"><label for="operation-unit">Unit</label><input id="operation-unit" name="unit" placeholder="box, bottle, piece" /></div></div>}
+                    {section === 'inventory' && <div class="field-row"><div class="field-group"><label for="operation-minimum">Minimum stock level</label><input id="operation-minimum" name="minimumStock" type="number" min="0" /></div><div class="field-group"><label for="operation-reorder">Reorder level</label><input id="operation-reorder" name="reorderLevel" type="number" min="0" /></div></div>}
+                    {section === 'inventory' && <div class="field-row"><div class="field-group"><label for="operation-category">Category</label><input id="operation-category" name="category" /></div><div class="field-group"><label for="operation-cost">Cost</label><input id="operation-cost" name="cost" type="number" min="0" step="0.01" /></div></div>}
+                    {section === 'inventory' && <div class="field-group"><label for="operation-selling-price">Selling price</label><input id="operation-selling-price" name="sellingPrice" type="number" min="0" step="0.01" /></div>}
+                    {['stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section) && <div class="field-row"><div class="field-group"><label for="operation-movement-type">Movement type</label><select id="operation-movement-type" name="movementType"><option value="stock-in">Stock In</option><option value="stock-out">Stock Out</option></select></div><div class="field-group"><label for="operation-reason">Reason</label><input id="operation-reason" name="reason" required /></div><div class="field-group"><label for="operation-reference">Reference</label><input id="operation-reference" name="reference" /></div></div>}
+                    <button type="submit" class="btn btn-primary">Save {pageTitle}</button>
+                    <p id="operation-status" class="form-status" aria-live="polite"></p>
+                  </form>
+                )}
+                <div id="operation-list" class="record-list"><p class="empty-appointments">Loading records...</p></div>
+              </div>
+            )}
+
+            {role === 'owner' && ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances'].includes(section) && (
+              <div class="billing-workspace">
+                {(section === 'billing-invoices' || section === 'invoice-templates') && (
+                  <div class="billing-tabs-nav">
+                    <button type="button" class={`billing-tab-btn ${section === 'billing-invoices' ? 'active' : ''}`} data-tab="invoices">Invoices & Billing</button>
+                    <button type="button" class={`billing-tab-btn ${section === 'invoice-templates' ? 'active' : ''}`} data-tab="template">Template Design</button>
+                  </div>
+                )}
+
+                <div id="billing-invoices-tab-content" style={(section === 'invoice-templates') ? 'display: none;' : 'display: block;'}>
+                  {(section === 'billing-invoices' || section === 'invoice-templates') && (
+                  <form id="billing-invoice-form" class="workflow-form">
+                    <div class="field-row">
+                      <div class="field-group"><label for="billing-customer">Customer</label><select id="billing-customer" name="customer" required><option value="">Select a customer</option></select></div>
+                      <div class="field-group"><label for="billing-invoice-number">Invoice number</label><input id="billing-invoice-number" name="invoiceNumber" readonly placeholder="Assigned automatically" /></div>
+                    </div>
+                    <input type="hidden" id="billing-template" name="templateId" value="" />
+                    <div class="field-group"><small>Customize the template in <a href={`/dashboard/${role}/invoice-templates`} class="billing-tab-link" data-tab="template">Invoice Template Builder</a>.</small></div>
+                    <div class="field-row">
+                      <div class="field-group"><label for="billing-invoice-date">Invoice date</label><input id="billing-invoice-date" name="invoiceDate" type="date" required /></div>
+                      <div class="field-group"><label for="billing-due-date">Due date</label><input id="billing-due-date" name="dueDate" type="date" required /></div>
+                    </div>
+                    <div class="field-row">
+                      <div class="field-group"><label for="billing-customer-phone">Customer phone</label><input id="billing-customer-phone" name="customerPhone" readonly /></div>
+                      <div class="field-group"><label for="billing-customer-email">Customer email</label><input id="billing-customer-email" name="customerEmail" readonly /></div>
+                    </div>
+                    <div class="operation-items-editor">
+                      <div class="section-header split"><div><h3>Services and items</h3><p>Quantity, unit price, discount, and tax are used to calculate the total.</p></div><button type="button" class="btn btn-primary" id="billing-add-item">Add item</button></div>
+                      <div class="appointment-table-wrap"><table class="appointment-table billing-items-table"><thead><tr><th scope="col">Description</th><th scope="col">Qty</th><th scope="col">Unit price</th><th scope="col">Discount</th><th scope="col">Tax</th><th scope="col">Line total</th><th scope="col">Action</th></tr></thead><tbody id="billing-items-body"></tbody></table></div>
+                    </div>
+                    <p class="billing-total">Invoice total <strong id="billing-invoice-total">₱0</strong></p>
+                    <button type="submit" class="btn btn-primary">Create invoice</button>
+                    <p id="billing-invoice-status" class="form-status" aria-live="polite"></p>
+                  </form>
+                )}
+                {['customer-payments', 'outstanding-balances'].includes(section) && (
+                  <form id="billing-payment-form" class="workflow-form">
+                    <div class="field-row">
+                      <div class="field-group"><label for="billing-payment-customer">Customer</label><select id="billing-payment-customer" required><option value="">Select a customer</option></select></div>
+                      <div class="field-group"><label for="billing-payment-invoice">Invoice</label><select id="billing-payment-invoice" required><option value="">Select an invoice</option></select></div>
+                    </div>
+                    <div class="billing-balance-row" id="billing-invoice-snapshot"><span>Invoice total <strong>₱0</strong></span><span>Outstanding <strong>₱0</strong></span></div>
+                    <div class="field-row">
+                      <div class="field-group"><label for="billing-payment-amount">Payment amount</label><input id="billing-payment-amount" name="amount" type="number" min="0.01" step="0.01" required /></div>
+                      <div class="field-group"><label for="billing-payment-method">Payment method</label><select id="billing-payment-method" name="method" required><option>Cash</option><option>GCash</option><option>Bank Transfer</option><option>Credit/Debit Card</option><option>Other</option></select></div>
+                    </div>
+                    <div class="field-row">
+                      <div class="field-group"><label for="billing-payment-reference">Reference / transaction number</label><input id="billing-payment-reference" name="reference" /></div>
+                      <div class="field-group"><label for="billing-payment-date">Payment date</label><input id="billing-payment-date" name="paymentDate" type="date" required /></div>
+                    </div>
+                    <div class="field-group"><label for="billing-payment-notes">Notes</label><textarea id="billing-payment-notes" name="notes" rows="2"></textarea></div>
+                    <button type="submit" class="btn btn-primary">Record payment</button>
+                    <p id="billing-payment-status" class="form-status" aria-live="polite"></p>
+                  </form>
+                )}
+                <div class="list-toolbar billing-toolbar">
+                  <input id="billing-search" type="search" placeholder={(section === 'billing-invoices' || section === 'invoice-templates') ? 'Search invoice number or customer' : section === 'outstanding-balances' ? 'Search customer or invoice number' : 'Search payment, customer, or invoice'} />
+                  {(section === 'billing-invoices' || section === 'invoice-templates') && (
+                    <>
+                      <select id="billing-status-filter"><option value="">All statuses</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option><option value="partially-paid">Partially Paid</option><option value="overdue">Overdue</option><option value="cancelled">Cancelled</option></select>
+                      <input id="billing-date-filter" type="date" aria-label="Filter invoices by date" />
+                    </>
+                  )}
+                  {section === 'payment-history' && (
+                    <>
+                      <select id="billing-customer-filter"><option value="">All customers</option></select>
+                      <select id="billing-method-filter"><option value="">All methods</option><option>Cash</option><option>GCash</option><option>Bank Transfer</option><option>Credit/Debit Card</option><option>Other</option></select>
+                      <select id="billing-payment-status-filter"><option value="">All statuses</option><option value="recorded">Recorded</option><option value="reversed">Reversed</option></select>
+                      <input id="billing-date-from" type="date" aria-label="Payment date from" />
+                      <input id="billing-date-to" type="date" aria-label="Payment date to" />
+                      <button type="button" class="btn btn-secondary" id="billing-export">Export CSV</button>
+                    </>
+                  )}
+                  {section === 'outstanding-balances' && (
+                    <>
+                      <select id="billing-status-filter"><option value="">All outstanding</option><option value="unpaid">Unpaid</option><option value="partially-paid">Partially Paid</option><option value="overdue">Overdue</option></select>
+                      <select id="billing-sort"><option value="dueDate">Sort by due date</option><option value="balance">Sort by outstanding amount</option></select>
+                    </>
+                  )}
+                </div>
+                <div id="billing-list" class="record-list"><p class="empty-appointments">Loading billing records...</p></div>
+                <dialog id="billing-detail-modal" class="audit-detail-modal billing-detail-modal">
+                  <div class="audit-detail-modal-header"><h2 id="billing-detail-title">Details</h2><div class="billing-modal-actions"><button type="button" class="btn btn-secondary" id="billing-print">Print</button><button type="button" class="btn btn-secondary" id="billing-detail-close">Close</button></div></div>
+                  <div id="billing-detail-content"></div>
+                </dialog>
+                </div>
+
+                {(section === 'billing-invoices' || section === 'invoice-templates') && (
+                  <div id="invoice-templates-tab-content" style={section === 'invoice-templates' ? 'display: block;' : 'display: none;'}>
+                    <InvoiceTemplateBuilder />
+                  </div>
+                )}
+              </div>
+            )}
+
+
 
           {section === 'book-exam' && (
             <form id="booking-workflow" class="workflow-form">
@@ -338,22 +460,25 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             </div>
           )}
 
-          {section === 'manage-users' && (
-            <div class="workflow-list">
-              <div class="list-toolbar"><input id="user-search" type="search" placeholder="Search users" /><select id="user-role-filter"><option value="">All roles</option><option value="patient">Patients</option><option value="optometrist">Optometrists</option><option value="eye-care-assistant">Eye Care Assistants</option></select><select id="user-status-filter"><option value="">All account statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
-              <div id="managed-users" class="managed-users"><p class="empty-appointments">Loading users...</p></div>
-              <div id="user-pagination" class="pagination" aria-label="User pages"></div>
-            </div>
-          )}
-
           {section === 'manage-team' && (
-            <form id="admin-user-form" class="workflow-form">
-              <div class="field-row"><div class="field-group"><label for="admin-name">Full name</label><input id="admin-name" name="name" required /></div><div class="field-group"><label for="admin-role">Account type</label><select id="admin-role" name="role"><option value="optometrist">Optometrist</option><option value="eye-care-assistant">Eye Care Assistant</option></select></div></div>
-              <div class="field-row"><div class="field-group"><label for="admin-email">Email</label><input id="admin-email" name="email" type="email" required /></div><div class="field-group"><label for="admin-password">Temporary password</label><input id="admin-password" name="password" type="password" required /></div></div>
-              <div class="field-row"><div class="field-group"><label for="admin-phone">Contact</label><input id="admin-phone" name="phone" type="tel" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" /></div><div class="field-group"><label for="admin-specialty">Specialty / Department</label><input id="admin-specialty" name="specialty" /></div></div>
-              <button type="submit" class="btn btn-primary">Create account</button>
-              <p id="admin-status" class="form-status" aria-live="polite"></p>
-            </form>
+            <div class="team-management-layout">
+              <div class="team-management-create">
+                <h2>Create Clinic Staff Account</h2>
+                <form id="admin-user-form" class="workflow-form">
+                  <div class="field-row"><div class="field-group"><label for="admin-name">Full name</label><input id="admin-name" name="name" required /></div><div class="field-group"><label for="admin-role">Account type</label><select id="admin-role" name="role"><option value="optometrist">Optometrist</option><option value="eye-care-assistant">Eye Care Assistant</option></select></div></div>
+                  <div class="field-row"><div class="field-group"><label for="admin-email">Email</label><input id="admin-email" name="email" type="email" required /></div><div class="field-group"><label for="admin-password">Temporary password</label><input id="admin-password" name="password" type="password" required /></div></div>
+                  <div class="field-row"><div class="field-group"><label for="admin-phone">Contact</label><input id="admin-phone" name="phone" type="tel" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" /></div><div class="field-group"><label for="admin-specialty">Specialty / Department</label><input id="admin-specialty" name="specialty" /></div></div>
+                  <button type="submit" class="btn btn-primary">Create account</button>
+                  <p id="admin-status" class="form-status" aria-live="polite"></p>
+                </form>
+              </div>
+              <div class="team-management-users">
+                <div class="section-header split"><div><h2>All clinic users</h2></div><span class="team-management-note">Manage account access</span></div>
+                <div class="list-toolbar"><input id="user-search" type="search" placeholder="Search users" /><select id="user-role-filter"><option value="">All roles</option><option value="patient">Patients</option><option value="optometrist">Optometrists</option><option value="eye-care-assistant">Eye Care Assistants</option></select><select id="user-status-filter"><option value="">All account statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                <div id="managed-users" class="managed-users"><p class="empty-appointments">Loading users...</p></div>
+                <div id="user-pagination" class="pagination" aria-label="User pages"></div>
+              </div>
+            </div>
           )}
 
           {section === 'profile' && role === 'patient' && (
@@ -384,8 +509,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           {section === 'audit-logs' && role === 'owner' && (
             <div class="workflow-list">
               <div class="list-toolbar"><input id="audit-search" type="search" placeholder="Search Performed By, action, or patient" /><select id="audit-module-filter"><option value="">All modules</option><option value="appointments">Appointment Management</option><option value="administration">Clinic Administration</option></select><input id="audit-date-filter" type="date" aria-label="Filter audit logs by date" /></div>
+              <div class="audit-legend" aria-label="Audit action colors"><span><i class="audit-legend-dot audit-positive"></i>Created</span><span><i class="audit-legend-dot audit-warning"></i>Changed</span><span><i class="audit-legend-dot audit-danger"></i>Removed</span></div>
               <div id="audit-log-list" class="record-list"><p class="empty-appointments">Loading audit logs...</p></div>
               <div id="audit-pagination" class="pagination" aria-label="Audit log pages"></div>
+              <dialog id="audit-detail-modal" class="audit-detail-modal"><div class="audit-detail-modal-header"><h2 id="audit-detail-title">Audit details</h2><button type="button" class="btn btn-secondary audit-detail-close-button" id="audit-detail-close" aria-label="Close audit details" title="Close">X</button></div><div id="audit-detail-content"></div></dialog>
             </div>
           )}
 
@@ -393,10 +520,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             <form id="clinic-settings-form" class="workflow-form"><div class="field-group"><label for="clinic-name">Clinic name</label><input id="clinic-name" name="name" required /></div><div class="field-row"><div class="field-group"><label for="clinic-phone">Phone</label><input id="clinic-phone" name="phone" /></div><div class="field-group"><label for="clinic-email">Email</label><input id="clinic-email" name="email" type="email" /></div></div><div class="field-group"><label for="clinic-address">Address</label><input id="clinic-address" name="address" /></div><div class="field-group"><label for="clinic-hours">Hours</label><input id="clinic-hours" name="hours" /></div><button type="submit" class="btn btn-primary">Save clinic settings</button><p id="settings-status" class="form-status" aria-live="polite"></p></form>
           )}
 
-          {section !== 'dashboard' && section !== 'book-exam' && section !== 'appointments' && section !== 'today-patients' && section !== 'follow-ups' && section !== 'profile' && !['medical-records', 'prescriptions', 'clinical-records', 'consultations', 'roles-permissions', 'audit-logs', 'clinic-settings'].includes(section) && (
+          {section !== 'dashboard' && section !== 'book-exam' && section !== 'appointments' && section !== 'today-patients' && section !== 'follow-ups' && section !== 'profile' && !['medical-records', 'prescriptions', 'clinical-records', 'consultations', 'manage-team', 'manage-users', 'roles-permissions', 'audit-logs', 'clinic-settings', 'suppliers', 'purchase-orders', 'receiving', 'purchase-history', 'inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history', 'billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances'].includes(section) && (
             <div class="task-grid">
-              <article class="task-summary-card"><span>Access scope</span><strong>{role === 'patient' ? 'Personal records only' : role === 'optometrist' ? 'Authorized clinical care' : role === 'eye-care-assistant' ? 'Clinic operations' : 'Clinic administration and clinical care'}</strong><small>Protected by role permissions</small></article>
-              <article class="task-summary-card"><span>Current state</span><strong>Ready to review</strong><small>Use this workspace for {pageTitle.toLowerCase()}</small></article>
+              {role !== 'owner' && <><article class="task-summary-card"><span>Access scope</span><strong>{role === 'patient' ? 'Personal records only' : role === 'optometrist' ? 'Authorized clinical care' : role === 'eye-care-assistant' ? 'Clinic operations' : 'Clinic administration and clinical care'}</strong><small>Protected by role permissions</small></article><article class="task-summary-card"><span>Current state</span><strong>Ready to review</strong><small>Use this workspace for {pageTitle.toLowerCase()}</small></article></>}
               <div class="empty-state task-empty"><h2>No records loaded yet</h2><p>Connect this workspace to clinic records as activity becomes available.</p></div>
             </div>
           )}
@@ -413,6 +539,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const token = localStorage.getItem('hmVisionToken');
     const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+
+    if (role === 'owner' && section === 'manage-users') window.location.replace('/dashboard/owner/manage-team');
 
     const sidebarUserId = document.getElementById('sidebar-user-id');
     if (sidebarUserId) sidebarUserId.textContent = user?.patientId || (user?.role === 'patient' ? 'Unavailable' : user?.id || user?._id || 'Unavailable');
@@ -517,6 +645,135 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
 
     const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]);
+    const dashboardBento = document.getElementById('dashboard-bento-content');
+    const dashboardRetry = document.getElementById('dashboard-retry');
+    const dashboardValue = (value) => value === 0 ? '0' : value || 'No data available';
+    const dashboardDate = (value) => value ? new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Date to be confirmed';
+    const formatPeso = (value) => `₱${Number(value || 0).toLocaleString('en-PH', { maximumFractionDigits: 0 })}`;
+    const formatWhen = (value) => value ? new Date(value).toLocaleString(undefined, { month: 'short', day: 'numeric' }) : '';
+    const renderOwnerDashboard = (summary) => {
+      const metrics = summary.metrics || {};
+      const owner = summary.ownerMetrics || {};
+      const trend = summary.trend || [];
+      const maximum = Math.max(...trend.map((item) => item.count), 1);
+      const trendBars = trend.length
+        ? trend.map((item) => `<div class="trend-bar" title="${item._id}: ${item.count} appointment${item.count === 1 ? '' : 's'}"><span style="height: ${(item.count / maximum) * 100}%"></span><small>${dashboardDate(item._id)}</small></div>`).join('')
+        : '<p class="bento-empty">No appointment data for this period.</p>';
+      const upcomingRows = (summary.upcomingAppointments || []).slice(0, 4).map((appointment) => `<li><span><strong>${escapeHtml(appointment.preferredTime || 'TBD')}</strong><small>${escapeHtml(appointment.name || appointment.service)}</small></span><time>${dashboardDate(appointment.preferredDate)}</time></li>`).join('');
+      const alertRows = (owner.inventoryAlerts || []).map((item) => `<li><span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.sku || 'No SKU')}</small></span><strong>${item.quantity}</strong></li>`).join('');
+      const transactionRows = (owner.recentTransactions || []).map((item) => `<li><span><strong>${escapeHtml(item.method || 'Payment')}</strong><small>${formatWhen(item.createdAt)}</small></span><strong>${formatPeso(item.amount)}</strong></li>`).join('');
+      const activityRows = (owner.recentActivity || []).map((item) => `<li><span><strong>${escapeHtml(item.action)}</strong><small>${escapeHtml(item.actor)}</small></span><time>${formatWhen(item.createdAt)}</time></li>`).join('');
+      const billing = owner.billing || {};
+      dashboardBento.innerHTML = `
+        <a class="bento-card bento-kpi" href="/dashboard/owner/manage-team"><span class="bento-label">Total Patients</span><strong class="bento-number">${dashboardValue(metrics.totalPatients)}</strong><span class="bento-meta">Registered</span></a>
+        <a class="bento-card bento-kpi" href="/dashboard/owner/today-patients"><span class="bento-label">Today's Appointments</span><strong class="bento-number">${dashboardValue(owner.todayTotal ?? metrics.todayAppointments)}</strong><span class="bento-meta">Today</span></a>
+        <a class="bento-card bento-kpi" href="/dashboard/owner/payment-history"><span class="bento-label">Today's Revenue</span><strong class="bento-number">${formatPeso(owner.todayRevenue)}</strong><span class="bento-meta">Today</span></a>
+        <a class="bento-card bento-kpi" href="/dashboard/owner/inventory"><span class="bento-label">Low Stock Items</span><strong class="bento-number">${dashboardValue(owner.lowStockCount)}</strong><span class="bento-meta">Need attention</span></a>
+        <section class="bento-card bento-card-billing">
+          <div class="bento-card-heading"><span class="bento-label">Billing summary</span><a href="/dashboard/owner/billing-invoices">View invoices →</a></div>
+          <div class="bento-billing-stats">
+            <a href="/dashboard/owner/billing-invoices"><span>Total invoiced</span><strong>${formatPeso(billing.totalInvoiced)}</strong></a>
+            <a href="/dashboard/owner/payment-history"><span>Payments collected</span><strong>${formatPeso(billing.totalCollected)}</strong></a>
+            <a href="/dashboard/owner/outstanding-balances"><span>Outstanding</span><strong>${formatPeso(billing.outstanding)}</strong></a>
+            <a href="/dashboard/owner/outstanding-balances"><span>Overdue</span><strong>${formatPeso(billing.overdueAmount)}</strong></a>
+            <a href="/dashboard/owner/billing-invoices"><span>Paid invoices</span><strong>${dashboardValue(billing.paidInvoices)}</strong></a>
+            <a href="/dashboard/owner/outstanding-balances"><span>Unpaid invoices</span><strong>${dashboardValue(billing.unpaidInvoices)}</strong></a>
+          </div>
+        </section>
+        <section class="bento-card bento-card-appointments">
+          <div class="bento-card-heading"><span class="bento-label">Today's Appointments</span><a href="/dashboard/owner/appointments">View all →</a></div>
+          <strong class="bento-summary-total">${dashboardValue(owner.todayTotal ?? metrics.todayAppointments)} <span>total</span></strong>
+          <ul class="bento-breakdown">
+            <li><span>Completed</span><strong>${dashboardValue(metrics.completedToday)}</strong></li>
+            <li><span>Pending</span><strong>${dashboardValue(owner.pendingToday)}</strong></li>
+            <li><span>Cancelled</span><strong>${dashboardValue(owner.cancelledToday)}</strong></li>
+          </ul>
+          ${metrics.followUpsDue ? `<p class="bento-meta">${dashboardValue(metrics.followUpsDue)} follow-ups due</p>` : ''}
+          ${upcomingRows ? `<ul class="bento-list">${upcomingRows}</ul>` : '<p class="bento-empty">No upcoming appointments.</p>'}
+        </section>
+        <section class="bento-card bento-card-alerts">
+          <div class="bento-card-heading"><span class="bento-label">Inventory Alerts</span><a href="/dashboard/owner/inventory">View details →</a></div>
+          <strong class="bento-summary-total">${dashboardValue(owner.lowStockCount)} <span>items</span></strong>
+          <p class="bento-meta">Need attention</p>
+          ${alertRows ? `<ul class="bento-list">${alertRows}</ul>` : '<p class="bento-empty">Stock levels look healthy.</p>'}
+        </section>
+        <section class="bento-card bento-card-chart">
+          <div class="bento-card-heading"><span class="bento-label">Appointment Activity</span><a href="/dashboard/owner/reports">View reports →</a></div>
+          <div class="trend-chart trend-chart-compact" role="img" aria-label="Appointment volume for the last seven days">${trendBars}</div>
+        </section>
+        <section class="bento-card bento-card-preview">
+          <div class="bento-card-heading"><span class="bento-label">Recent Transactions</span><a href="/dashboard/owner/payment-history">View all →</a></div>
+          <p class="bento-meta">Outstanding ${formatPeso(owner.outstandingBalance)}</p>
+          ${transactionRows ? `<ul class="bento-list">${transactionRows}</ul>` : '<p class="bento-empty">No recent payments.</p>'}
+        </section>
+        <a class="bento-card bento-card-medium" href="/dashboard/owner/purchase-orders">
+          <span class="bento-label">Supplier Activity</span>
+          <strong class="bento-number">${dashboardValue(owner.pendingPurchaseOrders)}</strong>
+          <span class="bento-meta">${dashboardValue(owner.activeSuppliers)} active suppliers</span>
+        </a>
+        <a class="bento-card bento-card-medium" href="/dashboard/owner/manage-team">
+          <span class="bento-label">Staff Activity</span>
+          <strong class="bento-number">${dashboardValue(owner.activeStaff)}</strong>
+          <span class="bento-meta">Active clinic staff</span>
+        </a>
+        <section class="bento-card bento-card-preview bento-card-activity">
+          <div class="bento-card-heading"><span class="bento-label">Recent Activity</span><a href="/dashboard/owner/audit-logs">View details →</a></div>
+          ${activityRows ? `<ul class="bento-list">${activityRows}</ul>` : '<p class="bento-empty">No recent admin activity.</p>'}
+        </section>`;
+    };
+    const renderDashboard = (summary) => {
+      if (!dashboardBento) return;
+      const metrics = summary.metrics || {};
+      const isPatient = summary.role === 'patient';
+      const appointmentRows = (summary.upcomingAppointments || []).map((appointment) => `<li><span><strong>${escapeHtml(appointment.preferredTime || 'Time pending')}</strong><small>${escapeHtml(appointment.service)}</small></span><time datetime="${escapeHtml(appointment.preferredDate)}">${dashboardDate(appointment.preferredDate)}</time></li>`).join('');
+      if (isPatient) {
+        dashboardBento.innerHTML = `
+          <a class="bento-card bento-card-wide" href="/dashboard/${role}/appointments"><span class="bento-label">Upcoming appointment</span><strong class="bento-number">${appointmentRows ? escapeHtml(summary.upcomingAppointments[0].service) : 'No data available'}</strong><span class="bento-meta">${appointmentRows ? `${dashboardDate(summary.upcomingAppointments[0].preferredDate)} · ${escapeHtml(summary.upcomingAppointments[0].preferredTime || 'Time pending')}` : 'Book a visit when you are ready.'}</span></a>
+          <a class="bento-card" href="/dashboard/${role}/appointments"><span class="bento-label">Appointments</span><strong class="bento-number">${dashboardValue(metrics.appointments)}</strong><span class="bento-meta">${dashboardValue(metrics.upcomingAppointments)} upcoming</span></a>
+          <a class="bento-card" href="/dashboard/${role}/medical-records"><span class="bento-label">Clinical records</span><strong class="bento-number">${dashboardValue(metrics.clinicalRecords)}</strong><span class="bento-meta">Your care history</span></a>
+          <a class="bento-card" href="/dashboard/${role}/follow-ups"><span class="bento-label">Follow-ups</span><strong class="bento-number">${dashboardValue(metrics.followUps)}</strong><span class="bento-meta">Open requests</span></a>
+          <section class="bento-card bento-card-large"><div class="bento-card-heading"><span class="bento-label">Your next visits</span><a href="/dashboard/${role}/appointments">View all</a></div>${appointmentRows ? `<ul class="bento-list">${appointmentRows}</ul>` : '<p class="bento-empty">No upcoming appointments.</p>'}</section>
+          <a class="bento-action" href="/dashboard/${role}/book-exam">Book an appointment <span aria-hidden="true">+</span></a>`;
+        return;
+      }
+      if (role === 'owner') {
+        renderOwnerDashboard(summary);
+        return;
+      }
+      const trend = summary.trend || [];
+      const maximum = Math.max(...trend.map((item) => item.count), 1);
+      const trendBars = trend.length ? trend.map((item) => `<div class="trend-bar" title="${item._id}: ${item.count} appointment${item.count === 1 ? '' : 's'}"><span style="height: ${(item.count / maximum) * 100}%"></span><small>${dashboardDate(item._id)}</small></div>`).join('') : '<p class="bento-empty">No appointment data for this period.</p>';
+      const operationsHref = role === 'eye-care-assistant' ? 'clinic-queue' : 'today-patients';
+      const patientsHref = role === 'eye-care-assistant' ? 'patient-records' : 'today-patients';
+      const statusCounts = (summary.statusCounts || []).map((item) => `<li><span>${escapeHtml(item._id)}</span><strong>${item.count}</strong></li>`).join('');
+      const clinicalCards = role === 'optometrist' ? `<a class="bento-card" href="/dashboard/${role}/clinical-records"><span class="bento-label">Clinical records</span><strong class="bento-number">${dashboardValue(metrics.clinicalRecords)}</strong><span class="bento-meta">Records across the clinic</span></a>` : '';
+      const followUpsDue = role === 'optometrist' ? `<div class="bento-stat-row"><strong>${dashboardValue(metrics.followUpsDue)}</strong><span>follow-ups due</span></div>` : '';
+      dashboardBento.innerHTML = `
+        <a class="bento-card" href="/dashboard/${role}/${operationsHref}"><span class="bento-label">Today\'s appointments</span><strong class="bento-number">${dashboardValue(metrics.todayAppointments)}</strong><span class="bento-meta">${dashboardValue(metrics.completedToday)} completed</span></a>
+        <a class="bento-card" href="/dashboard/${role}/appointments"><span class="bento-label">Pending requests</span><strong class="bento-number">${dashboardValue(metrics.pendingAppointments)}</strong><span class="bento-meta">Review appointment status</span></a>
+        <a class="bento-card" href="/dashboard/${role}/${patientsHref}"><span class="bento-label">Total patients</span><strong class="bento-number">${dashboardValue(metrics.totalPatients)}</strong><span class="bento-meta">Registered patient accounts</span></a>
+        ${clinicalCards}
+        <section class="bento-card bento-card-large"><div class="bento-card-heading"><span class="bento-label">Appointment activity</span><span class="bento-meta">Last 7 days</span></div><div class="trend-chart" role="img" aria-label="Appointment volume for the last seven days">${trendBars}</div></section>
+        <section class="bento-card"><div class="bento-card-heading"><span class="bento-label">Appointment status</span><a href="/dashboard/${role}/appointments">Details</a></div>${statusCounts ? `<ul class="bento-status-list">${statusCounts}</ul>` : '<p class="bento-empty">No data available.</p>'}</section>
+        <section class="bento-card"><div class="bento-card-heading"><span class="bento-label">Today\'s operations</span><a href="/dashboard/${role}/${operationsHref}">Open</a></div><div class="bento-stat-row"><strong>${dashboardValue(metrics.todayAppointments)}</strong><span>active appointments</span></div><div class="bento-stat-row"><strong>${dashboardValue(metrics.completedToday)}</strong><span>completed today</span></div>${followUpsDue}</section>
+        <section class="bento-card bento-card-upcoming"><div class="bento-card-heading"><span class="bento-label">Upcoming appointments</span><a href="/dashboard/${role}/appointments">View all</a></div>${appointmentRows ? `<ul class="bento-list">${appointmentRows}</ul>` : '<p class="bento-empty">No upcoming appointments.</p>'}</section>`;
+    };
+    const loadDashboard = async () => {
+      if (!dashboardBento || section !== 'dashboard') return;
+      dashboardRetry.hidden = true;
+      dashboardBento.innerHTML = '<div class="bento-loading" aria-label="Loading dashboard analytics"><span></span><span></span><span></span><span></span></div>';
+      try {
+        const response = await fetch(`${api}/api/workspace/dashboard-summary`, { headers: { Authorization: `Bearer ${token}` } });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to load analytics.');
+        renderDashboard(result);
+      } catch {
+        dashboardBento.innerHTML = '<div class="bento-error"><strong>Unable to load analytics.</strong><span>Try again to refresh this overview.</span></div>';
+        dashboardRetry.hidden = false;
+      }
+    };
+    dashboardRetry?.addEventListener('click', loadDashboard);
+    loadDashboard();
     const appointmentList = document.getElementById('appointment-list') || document.getElementById('today-patient-list');
     const appointmentSearch = document.getElementById('appointment-search') || document.getElementById('today-patient-search');
     const appointmentStatusFilter = document.getElementById('appointment-status-filter') || document.getElementById('today-patient-status');
@@ -837,8 +1094,34 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const renderSimpleList = (items, target, formatter) => { if (target) target.innerHTML = items.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Role</th><th scope="col">Access</th></tr></thead><tbody>${items.map(formatter).join('')}</tbody></table></div>` : '<p class="empty-appointments">No data available.</p>'; };
     if (permissionsList) fetch(`${api}/api/workspace/permissions`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => renderSimpleList(result.permissions || [], permissionsList, (item) => `<tr><td data-label="Role"><strong>${escapeHtml(item.role)}</strong></td><td data-label="Access">${escapeHtml(item.access)}</td></tr>`));
     const formatAuditData = (data) => data ? Object.entries(data).map(([key, value]) => `${key}: ${value}`).join(' · ') : 'Previous data unavailable for this historical record.';
-    const auditModule = (item) => item.target.startsWith('Appointment for ') ? 'Appointment Management' : 'Clinic Administration';
-    const auditSubject = (item) => item.target.startsWith('Appointment for ') ? item.target.replace('Appointment for ', '') : item.target;
+    const formatAuditDataMarkup = (data) => data ? Object.entries(data).map(([key, value]) => `<span><strong>${escapeHtml(key.replace(/([A-Z])/g, ' $1'))}</strong><span>${escapeHtml(Array.isArray(value) ? value.map((item) => typeof item === 'object' ? JSON.stringify(item) : item).join(', ') : value)}</span></span>`).join('') : '<span>Previous data unavailable for this historical record.</span>';
+    const auditTarget = (item) => String(item?.target || '');
+    const auditModule = (item) => auditTarget(item).startsWith('Appointment for ') ? 'Appointment Management' : 'Clinic Administration';
+    const auditSubject = (item) => {
+      const target = auditTarget(item);
+      return target.startsWith('Appointment for ') ? target.replace('Appointment for ', '') : (target || '—');
+    };
+    const auditStamp = (value) => {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return { day: '—', time: '', iso: '' };
+      return {
+        day: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }),
+        iso: date.toISOString().slice(0, 10),
+      };
+    };
+    const auditActionLabel = (action) => {
+      const value = String(action || 'Activity');
+      if (/^appointment status/i.test(value)) return 'Appointment status: Changed';
+      const match = value.match(/^(Created|Updated|Removed|Deleted|Reversed|Cancelled|Sent)\s+(.+)$/i);
+      return match ? `${match[2].replace(/-/g, ' ')}: ${match[1][0].toUpperCase()}${match[1].slice(1).toLowerCase()}` : value;
+    };
+    const auditActionClass = (action) => {
+      const value = String(action || '').toLowerCase();
+      if (value.includes('removed') || value.includes('deleted') || value.includes('reversed') || value.includes('cancelled')) return 'audit-danger';
+      if (value.includes('updated') || value.includes('changed') || value.includes('status')) return 'audit-warning';
+      return 'audit-positive';
+    };
     let auditLogs = [];
     let auditPage = 1;
     const renderAuditLogs = () => {
@@ -846,17 +1129,40 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const query = (auditSearch?.value || '').toLowerCase().trim();
       const module = auditModuleFilter?.value || '';
       const date = auditDateFilter?.value || '';
-      const filtered = auditLogs.filter((item) => (!module || (module === 'appointments' ? auditModule(item) === 'Appointment Management' : auditModule(item) === 'Clinic Administration')) && (!date || item.createdAt.slice(0, 10) === date) && (!query || `${item.action} ${item.target} ${item.details || ''} ${item.actorId?.name || ''} ${item.actorId?.role || ''} ${item.actorId?.email || ''}`.toLowerCase().includes(query)));
+      const filtered = auditLogs.filter((item) => {
+        const stamp = auditStamp(item.createdAt);
+        const haystack = `${item.action || ''} ${item.target || ''} ${item.details || ''} ${item.actorId?.name || ''} ${item.actorId?.role || ''} ${item.actorId?.email || ''}`.toLowerCase();
+        return (!module || (module === 'appointments' ? auditModule(item) === 'Appointment Management' : auditModule(item) === 'Clinic Administration')) && (!date || stamp.iso === date) && (!query || haystack.includes(query));
+      });
       const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
       auditPage = Math.min(auditPage, pages);
       const visible = filtered.slice((auditPage - 1) * pageSize, auditPage * pageSize);
-      auditLogList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Date</th><th scope="col">Performed By</th><th scope="col">Action</th><th scope="col">Module</th><th scope="col">Target</th><th scope="col">Status</th><th scope="col">Details</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Date">${new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}<small>${new Date(item.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</small></td><td data-label="Performed By">${item.actorId ? `${escapeHtml(item.actorId.name)} (${escapeHtml(item.actorId.role)})<small>${escapeHtml(item.actorId.email)}</small>` : 'Historical appointment status record'}</td><td data-label="Action">${escapeHtml(item.action)}</td><td data-label="Module">${auditModule(item)}</td><td data-label="Target">${escapeHtml(auditSubject(item))}</td><td data-label="Status"><span class="audit-success">Successful</span></td><td data-label="Details"><strong>Previous:</strong> ${escapeHtml(formatAuditData(item.previousData))}<br /><strong>New:</strong> ${escapeHtml(formatAuditData(item.newData))}${item.details ? `<small>${escapeHtml(item.details)}</small>` : ''}</td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No audit logs match these filters.</p>';
+      auditLogList.innerHTML = visible.length ? `<div class="appointment-table-wrap audit-table-wrap"><table class="appointment-table audit-log-table"><thead><tr><th scope="col">Date</th><th scope="col">Performed By</th><th scope="col">Action</th><th scope="col">Module</th><th scope="col">Target</th><th scope="col">Status</th><th scope="col">Details</th></tr></thead><tbody>${visible.map((item) => {
+        const stamp = auditStamp(item.createdAt);
+        const actor = item.actorId ? `<strong>${escapeHtml(item.actorId.name || 'Unknown')}</strong><small>${escapeHtml(item.actorId.role || '')}${item.actorId.email ? ` · ${escapeHtml(item.actorId.email)}` : ''}</small>` : '<strong>System</strong><small>Historical appointment record</small>';
+        return `<tr><td data-label="Date"><strong>${stamp.day}</strong><small>${stamp.time}</small></td><td data-label="Performed By">${actor}</td><td data-label="Action"><span class="audit-action ${auditActionClass(item.action)}">${escapeHtml(auditActionLabel(item.action))}</span></td><td data-label="Module">${escapeHtml(auditModule(item))}</td><td data-label="Target">${escapeHtml(auditSubject(item))}</td><td data-label="Status"><span class="audit-success">Successful</span></td><td data-label="Details"><button type="button" class="btn btn-secondary audit-details-button" data-audit-id="${escapeHtml(item._id)}">View</button></td></tr>`;
+      }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No audit logs match these filters.</p>';
       auditPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${auditPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${auditPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${auditPage === pages ? 'disabled' : ''}>Next</button>` : '';
       auditPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { auditPage -= 1; renderAuditLogs(); });
       auditPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { auditPage += 1; renderAuditLogs(); });
     };
     if (auditLogList) fetch(`${api}/api/workspace/audit-logs`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => { auditLogs = result.logs || []; renderAuditLogs(); });
     [auditSearch, auditModuleFilter, auditDateFilter].forEach((control) => control?.addEventListener('input', () => { auditPage = 1; renderAuditLogs(); }));
+    const auditDetailModal = document.getElementById('audit-detail-modal');
+    const auditDetailTitle = document.getElementById('audit-detail-title');
+    const auditDetailContent = document.getElementById('audit-detail-content');
+    const closeAuditDetails = () => auditDetailModal?.close();
+    document.getElementById('audit-detail-close')?.addEventListener('click', closeAuditDetails);
+    auditDetailModal?.addEventListener('click', (event) => { if (event.target === auditDetailModal) closeAuditDetails(); });
+    auditLogList?.addEventListener('click', (event) => {
+      const button = event.target.closest('.audit-details-button');
+      if (!button) return;
+      const item = auditLogs.find((log) => String(log._id) === button.dataset.auditId);
+      if (!item || !auditDetailModal || !auditDetailContent) return;
+      auditDetailTitle.textContent = auditActionLabel(item.action);
+      auditDetailContent.innerHTML = `<div class="audit-modal-summary"><span><strong>Module</strong>${escapeHtml(auditModule(item))}</span><span><strong>Target</strong>${escapeHtml(auditSubject(item))}</span><span><strong>Status</strong><em class="audit-success">Successful</em></span></div><div class="audit-modal-section"><h3>Previous</h3><div class="audit-detail-block">${formatAuditDataMarkup(item.previousData)}</div></div><div class="audit-modal-section"><h3>New</h3><div class="audit-detail-block">${formatAuditDataMarkup(item.newData)}</div></div>${item.details ? `<p class="audit-detail-note">${escapeHtml(item.details)}</p>` : ''}`;
+      auditDetailModal.showModal();
+    });
     const loadSettings = async () => {
       if (!settingsForm) return;
       const response = await fetch(`${api}/api/workspace/clinic-settings`, { headers: { Authorization: `Bearer ${token}` } });
@@ -927,8 +1233,699 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     userRoleFilter?.addEventListener('change', () => { userPage = 1; renderUsers(); });
     userStatusFilter?.addEventListener('change', () => { userPage = 1; renderUsers(); });
     loadUsers().catch((error) => { if (managedUsers) managedUsers.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
+    const operationList = document.getElementById('operation-list');
+    const operationForm = document.getElementById('operation-form');
+    const operationStatus = document.getElementById('operation-status');
+    const operationTypeBySection = {
+      suppliers: 'supplier',
+      'purchase-orders': 'purchase-order',
+      receiving: 'receiving',
+      'purchase-history': 'purchase-order',
+      inventory: 'inventory-item',
+      'stock-movements': 'stock-in',
+      'stock-in': 'stock-in',
+      'stock-out': 'stock-out',
+      'stock-adjustment': 'stock-adjustment',
+      'inventory-history': null,
+      'billing-invoices': 'invoice',
+      'customer-payments': 'payment',
+      'payment-history': 'payment',
+      'outstanding-balances': 'invoice',
+    };
+    const operationTypesForSection = {
+      'stock-movements': ['stock-in', 'stock-out'],
+      'inventory-history': ['receiving', 'stock-in', 'stock-out', 'stock-adjustment'],
+    };
+    const operationType = operationTypeBySection[section];
+    const operationTypesForPage = operationTypesForSection[section] || (operationType ? [operationType] : []);
+    let editingOperationId = '';
+    const operationPhone = document.getElementById('operation-phone');
+    operationPhone?.addEventListener('input', () => {
+      const digits = operationPhone.value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
+      operationPhone.value = `+63 ${[digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean).join('-')}`;
+    });
+    const editableOperationTypes = ['supplier', 'purchase-order', 'inventory-item', 'invoice', 'payment'];
+    const operationActionCell = (record) => `<td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary operation-edit action-edit" data-operation-id="${record._id}" ${editableOperationTypes.includes(record.recordType) ? '' : 'disabled'}>Edit</button><button type="button" class="btn btn-secondary operation-remove action-delete" data-operation-id="${record._id}">Remove</button></div></td>`;
+    const operationValue = (record, key) => record?.data?.[key] ?? record?.[key] ?? '';
+    const operationLabel = (record) => {
+      const data = record.data || {};
+      return data.name || data.invoiceNumber || data.orderNumber || data.reference || data.sku || record.recordType;
+    };
+    const renderOperations = (records) => {
+      if (!operationList) return;
+      if (section === 'suppliers') {
+        const rows = records.map((record) => {
+          const data = record.data || {};
+          return `<tr><td data-label="Supplier Name"><strong>${escapeHtml(data.name)}</strong></td><td data-label="Contact Person">${escapeHtml(data.contactPerson)}</td><td data-label="Contact Number">${escapeHtml(data.phone)}</td><td data-label="Email">${escapeHtml(data.email)}</td><td data-label="Address">${escapeHtml(data.address)}</td><td data-label="Status"><span class="appointment-status ${data.status === 'inactive' ? 'status-cancelled' : 'status-confirmed'}">${escapeHtml(data.status || 'active')}</span></td><td data-label="Products Supplied">${escapeHtml(data.products)}</td>${operationActionCell(record)}</tr>`;
+        }).join('');
+        operationList.innerHTML = rows ? `<div class="appointment-table-wrap"><table class="appointment-table operation-records-table"><thead><tr><th scope="col">Supplier Name</th><th scope="col">Contact Person</th><th scope="col">Contact Number</th><th scope="col">Email</th><th scope="col">Address</th><th scope="col">Status</th><th scope="col">Products Supplied</th><th scope="col">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-appointments">No suppliers found.</p>';
+        bindOperationActions(records);
+        return;
+      }
+      if (section === 'inventory') {
+        const rows = records.map((record) => {
+          const data = record.data || {};
+          const quantity = Number(data.quantity || 0);
+          const minimum = Number(data.minimumStock || 0);
+          const reorderLevel = Number(data.reorderLevel || 0);
+          const stockThreshold = reorderLevel || minimum;
+          const status = quantity <= 0 ? 'Out of stock' : quantity <= stockThreshold ? 'Low stock' : 'In stock';
+          const statusClass = quantity <= 0 ? 'inventory-stock-out' : quantity <= stockThreshold ? 'inventory-stock-low' : 'inventory-stock-in';
+          return `<tr><td data-label="Item"><strong>${escapeHtml(data.name)}</strong><small>${escapeHtml(data.sku)}</small></td><td data-label="Category">${escapeHtml(data.category)}</td><td data-label="Current Stock" class="table-number">${quantity} ${escapeHtml(data.unit || '')}</td><td data-label="Minimum Level" class="table-number">${minimum}</td><td data-label="Reorder Level" class="table-number">${reorderLevel}</td><td data-label="Cost" class="table-number">${Number(data.cost || 0).toFixed(2)}</td><td data-label="Selling Price" class="table-number">${Number(data.sellingPrice || 0).toFixed(2)}</td><td data-label="Status"><span class="inventory-stock-status ${statusClass}">${status}</span></td>${operationActionCell(record)}</tr>`;
+        }).join('');
+        operationList.innerHTML = rows ? `<div class="appointment-table-wrap"><table class="appointment-table operation-records-table inventory-table"><thead><tr><th scope="col">Item</th><th scope="col">Category</th><th scope="col">Current Stock</th><th scope="col">Minimum Level</th><th scope="col">Reorder Level</th><th scope="col">Cost</th><th scope="col">Selling Price</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-appointments">No inventory items found.</p>';
+        bindOperationActions(records);
+        return;
+      }
+      const rows = records.map((record) => {
+        const data = record.data || {};
+        const details = Object.entries(data).filter(([key]) => !['items', 'products'].includes(key)).map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`).join(' | ');
+        return `<tr><td data-label="Record"><strong>${escapeHtml(operationLabel(record))}</strong><small>${escapeHtml(record.recordType)}</small></td><td data-label="Details">${escapeHtml(details || 'No additional details')}</td><td data-label="Created">${escapeHtml(new Date(record.createdAt).toLocaleDateString())}</td>${operationActionCell(record)}</tr>`;
+      }).join('');
+      operationList.innerHTML = rows ? `<div class="appointment-table-wrap"><table class="appointment-table operation-records-table"><thead><tr><th scope="col">Record</th><th scope="col">Details</th><th scope="col">Created</th><th scope="col">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-appointments">No records found.</p>';
+      bindOperationActions(records);
+    };
+    const bindOperationActions = (records) => {
+      operationList?.querySelectorAll('.operation-remove').forEach((button) => button.addEventListener('click', async () => {
+        if (!window.confirm('Remove this record?')) return;
+        const response = await fetch(`${api}/api/clinic-operations/${button.dataset.operationId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+        const result = await response.json();
+        if (!response.ok) { if (operationStatus) operationStatus.textContent = result.message || 'Unable to remove record.'; operationStatus?.classList.add('error'); return; }
+        await loadOperations();
+      }));
+      operationList?.querySelectorAll('.operation-edit:not(:disabled)').forEach((button) => button.addEventListener('click', () => {
+        const record = records.find((item) => item._id === button.dataset.operationId);
+        if (!record || !operationForm) return;
+        editingOperationId = record._id;
+        Object.entries(record.data || {}).forEach(([key, value]) => { const input = operationForm.elements.namedItem(key); if (input && !Array.isArray(value)) input.value = value; });
+        if (Array.isArray(record.data?.items) && operationItemsBody) {
+          operationItemsBody.innerHTML = record.data.items.map((item) => `<tr><td><input name="itemSku" aria-label="Item SKU" value="${escapeHtml(item.sku || '')}" required /></td><td><input name="itemQuantity" type="number" min="1" step="1" aria-label="Item quantity" value="${Number(item.quantity) || 1}" required /></td><td><button type="button" class="btn btn-secondary remove-operation-item" aria-label="Remove item">Remove</button></td></tr>`).join('');
+        }
+        const submit = operationForm.querySelector('button[type="submit"]');
+        if (submit) submit.textContent = `Update ${pageTitle}`;
+        operationForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }));
+    };
+    const loadOperations = async () => {
+      if (!operationList || role !== 'owner') return;
+      const query = operationTypesForPage.length === 1 ? `?type=${operationTypesForPage[0]}` : '';
+      const response = await fetch(`${api}/api/clinic-operations${query}`, { headers: { Authorization: `Bearer ${token}` } });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load clinic records.');
+      const records = (result.records || []).filter((record) => operationTypesForPage.includes(record.recordType));
+      renderOperations(records);
+      if (operationStatus) operationStatus.textContent = `${records.length} record${records.length === 1 ? '' : 's'} found.`;
+    };
+    operationForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const raw = Object.fromEntries(new FormData(operationForm).entries());
+      const data = Object.fromEntries(Object.entries(raw).filter(([, value]) => value !== ''));
+      if (operationPhone?.value && !/^\+63 \d{3}-\d{3}-\d{4}$/.test(operationPhone.value)) {
+        operationStatus.textContent = 'Contact number must use +63 000-000-0000 format.';
+        operationStatus.classList.add('error');
+        return;
+      }
+      if (['purchase-orders', 'receiving', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section)) {
+        data.items = [...document.querySelectorAll('#operation-items-body tr')].map((row) => ({
+          sku: row.querySelector('[name="itemSku"]')?.value.trim(),
+          quantity: Number(row.querySelector('[name="itemQuantity"]')?.value),
+        }));
+        if (!data.items.length || data.items.some((item) => !item.sku || !item.quantity || item.quantity < 1)) {
+          operationStatus.textContent = 'Add an item SKU and a quantity of at least 1.';
+          operationStatus.classList.add('error');
+          return;
+        }
+      }
+      if (section === 'stock-movements') {
+        operationTypeBySection[section] = data.movementType || 'stock-in';
+        delete data.movementType;
+      }
+      ['quantity', 'minimumStock', 'reorderLevel', 'cost', 'sellingPrice', 'total', 'amount'].forEach((field) => { if (data[field] !== undefined) data[field] = Number(data[field]); });
+      operationStatus.textContent = 'Saving record...';
+      operationStatus.classList.remove('error');
+      try {
+        const endpoint = editingOperationId ? `${api}/api/clinic-operations/${editingOperationId}` : `${api}/api/clinic-operations/${operationTypeBySection[section]}`;
+        const response = await fetch(endpoint, { method: editingOperationId ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to save record.');
+        operationForm.reset();
+        editingOperationId = '';
+        const submit = operationForm.querySelector('button[type="submit"]');
+        if (submit) submit.textContent = `Save ${pageTitle}`;
+        operationStatus.textContent = `${pageTitle} ${response.status === 200 ? 'updated' : 'saved'}.`;
+        await loadOperations();
+      } catch (error) { operationStatus.textContent = error.message; operationStatus.classList.add('error'); }
+    });
+    const operationItemsBody = document.getElementById('operation-items-body');
+    document.getElementById('add-operation-item')?.addEventListener('click', () => {
+      operationItemsBody?.insertAdjacentHTML('beforeend', '<tr><td><input name="itemSku" aria-label="Item SKU" placeholder="ITEM-001" required /></td><td><input name="itemQuantity" type="number" min="1" step="1" aria-label="Item quantity" required /></td><td><button type="button" class="btn btn-secondary remove-operation-item" aria-label="Remove item">Remove</button></td></tr>');
+    });
+    operationItemsBody?.addEventListener('click', (event) => {
+      if (event.target.closest('.remove-operation-item') && operationItemsBody.rows.length > 1) event.target.closest('tr').remove();
+    });
+    loadOperations().catch((error) => { if (operationList) operationList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
+
+    const billingList = document.getElementById('billing-list');
+    if (billingList && role === 'owner') {
+      const billingHeaders = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+      const peso = (value) => `₱${Number(value || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const todayIso = () => new Date().toISOString().slice(0, 10);
+      const statusLabel = (status) => ({ paid: 'Paid', unpaid: 'Unpaid', 'partially-paid': 'Partially Paid', overdue: 'Overdue', cancelled: 'Cancelled', recorded: 'Recorded', reversed: 'Reversed' }[status] || status || 'Unpaid');
+      const statusClass = (status) => `billing-status status-${String(status || 'unpaid').replace(/[^a-z-]/g, '')}`;
+      const lineAmount = (row) => Math.max((Number(row.querySelector('[name="itemQuantity"]')?.value) || 0) * (Number(row.querySelector('[name="itemUnitPrice"]')?.value) || 0) - (Number(row.querySelector('[name="itemDiscount"]')?.value) || 0) + (Number(row.querySelector('[name="itemTax"]')?.value) || 0), 0);
+      let billingInvoices = [];
+      let billingPayments = [];
+      let billingCustomers = [];
+      let editingInvoiceId = '';
+      let billingTemplates = [];
+      const invoiceForm = document.getElementById('billing-invoice-form');
+      const paymentForm = document.getElementById('billing-payment-form');
+      const invoiceStatus = document.getElementById('billing-invoice-status');
+      const paymentStatus = document.getElementById('billing-payment-status');
+      const itemsBody = document.getElementById('billing-items-body');
+      const detailModal = document.getElementById('billing-detail-modal');
+      const detailTitle = document.getElementById('billing-detail-title');
+      const detailContent = document.getElementById('billing-detail-content');
+      const itemRowMarkup = (item = {}) => `<tr><td><input name="itemDescription" value="${escapeHtml(item.description || '')}" required placeholder="Service or product" /></td><td><input name="itemQuantity" type="number" min="1" step="1" value="${item.quantity || 1}" required /></td><td><input name="itemUnitPrice" type="number" min="0" step="0.01" value="${item.unitPrice || ''}" required /></td><td><input name="itemDiscount" type="number" min="0" step="0.01" value="${item.discount || 0}" /></td><td><input name="itemTax" type="number" min="0" step="0.01" value="${item.tax || 0}" /></td><td class="table-number billing-line-total">${peso(item.lineTotal || 0)}</td><td><button type="button" class="btn btn-secondary billing-remove-item">Remove</button></td></tr>`;
+      const collectItems = () => [...(itemsBody?.querySelectorAll('tr') || [])].map((row) => ({
+        description: row.querySelector('[name="itemDescription"]')?.value.trim(),
+        quantity: Number(row.querySelector('[name="itemQuantity"]')?.value),
+        unitPrice: Number(row.querySelector('[name="itemUnitPrice"]')?.value),
+        discount: Number(row.querySelector('[name="itemDiscount"]')?.value || 0),
+        tax: Number(row.querySelector('[name="itemTax"]')?.value || 0),
+      }));
+      const refreshInvoiceTotal = () => {
+        if (!itemsBody) return;
+        let total = 0;
+        itemsBody.querySelectorAll('tr').forEach((row) => {
+          const amount = lineAmount(row);
+          total += amount;
+          const cell = row.querySelector('.billing-line-total');
+          if (cell) cell.textContent = peso(amount);
+        });
+        const totalEl = document.getElementById('billing-invoice-total');
+        if (totalEl) totalEl.textContent = peso(total);
+      };
+      const customerOptions = (selected = '') => `<option value="">Select a customer</option>${billingCustomers.map((customer) => `<option value="${escapeHtml(customer._id)}" data-patient-id="${escapeHtml(customer.patientId || '')}" data-name="${escapeHtml(customer.name)}" data-phone="${escapeHtml(customer.phone || '')}" data-email="${escapeHtml(customer.email || '')}" ${selected === customer._id ? 'selected' : ''}>${escapeHtml(customer.name)} ${customer.patientId ? `(${escapeHtml(customer.patientId)})` : ''}</option>`).join('')}`;
+      const fillCustomerSelects = () => {
+        const invoiceCustomer = document.getElementById('billing-customer');
+        const paymentCustomer = document.getElementById('billing-payment-customer');
+        const historyCustomer = document.getElementById('billing-customer-filter');
+        if (invoiceCustomer) invoiceCustomer.innerHTML = customerOptions(invoiceCustomer.value);
+        if (paymentCustomer) paymentCustomer.innerHTML = customerOptions(paymentCustomer.value);
+        if (historyCustomer) historyCustomer.innerHTML = `<option value="">All customers</option>${billingCustomers.map((customer) => `<option value="${escapeHtml(customer.name)}">${escapeHtml(customer.name)}</option>`).join('')}`;
+      };
+      const applyCustomerDetails = (selectId) => {
+        const select = document.getElementById(selectId);
+        const option = select?.selectedOptions[0];
+        if (!option) return {};
+        const phone = document.getElementById('billing-customer-phone');
+        const email = document.getElementById('billing-customer-email');
+        if (phone) phone.value = option.dataset.phone || '';
+        if (email) email.value = option.dataset.email || '';
+        return { patientId: option.dataset.patientId || option.value, patientName: option.dataset.name || option.textContent, customerPhone: option.dataset.phone || '', customerEmail: option.dataset.email || '' };
+      };
+      const openPrint = (title, html) => {
+        const popup = window.open('', '_blank', 'noopener,noreferrer,width=820,height=900');
+        if (!popup) return;
+        popup.document.write(`<!DOCTYPE html><html><head><title>${escapeHtml(title)}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: white; }
+          .invoice-canvas-wrapper { padding: 0; background: transparent; }
+          .invoice-canvas { box-shadow: none !important; border: none !important; margin: 0 !important; }
+          .invoice-element { position: absolute; box-sizing: border-box; padding: 2px; overflow: hidden; }
+          .invoice-element-content { height: 100%; overflow: hidden; line-height: 1.35; }
+          .invoice-items-preview { border-collapse: collapse; width: 100%; font-size: inherit; }
+          .invoice-items-preview th, .invoice-items-preview td { border: 1px solid #94a3b8; padding: 6px; }
+          .invoice-totals { display: grid; gap: 4px; }
+          .invoice-totals span, .invoice-totals strong { display: flex; justify-content: space-between; }
+          .invoice-totals strong { border-top: 1px solid #64748b; padding-top: 3px; }
+          .invoice-logo-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+          .signature-line { border-top: 1px solid #334155; margin-top: 22px; padding-top: 4px; font-size: 0.8em; }
+          .billing-document { font-family: Segoe UI, sans-serif; padding: 28px; color: #123; }
+          .billing-document h1, .billing-document h3 { font-size: 1.2rem; margin: 0 0 8px; }
+          .billing-document table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+          .billing-document th, .billing-document td { border-bottom: 1px solid #d7e3e2; padding: 8px; text-align: left; }
+          .billing-document th { font-size: .75rem; text-transform: uppercase; color: #5b7372; }
+          .billing-doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0; font-size: .9rem; }
+          .billing-total { font-size: 1.1rem; font-weight: 700; }
+          @media print {
+            body { margin: 0; padding: 0; }
+            .invoice-canvas-wrapper { padding: 0; }
+            .invoice-canvas { border: none !important; box-shadow: none !important; page-break-after: avoid; }
+          }
+        </style></head><body>${html}</body></html>`);
+        popup.document.close();
+        popup.focus();
+        popup.print();
+      };
+      const dummyOpenPrint = () => {
+        const popup = window.open('', '_blank', 'noopener,noreferrer,width=720,height=900');
+        if (!popup) return;
+        popup.document.write(`<!DOCTYPE html><html><head><title>${escapeHtml(title)}</title><style>body{font-family:Segoe UI,sans-serif;padding:28px;color:#123}h1{font-size:1.2rem;margin:0 0 8px}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border-bottom:1px solid #d7e3e2;padding:8px;text-align:left}th{font-size:.75rem;text-transform:uppercase;color:#5b7372}.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0;font-size:.9rem}.total{font-size:1.1rem;font-weight:700}</style></head><body>${html}</body></html>`);
+        popup.document.close();
+        popup.focus();
+        popup.print();
+      };
+      const invoiceMarkup = (invoice) => {
+        const data = invoice.data || {};
+        const items = Array.isArray(data.items) ? data.items : [];
+        
+        // Find template
+        const template = billingTemplates.find(t => t._id === (invoice.templateId || invoice.data?.templateId)) 
+          || billingTemplates.find(t => t.isDefault) 
+          || billingTemplates[0];
+
+        // Fallback elements if no template is loaded
+        const elements = template?.templateData?.elements || [
+          { type: 'image', x: 48, y: 42, w: 120, h: 70 },
+          { type: 'heading', text: '{{business_name}}', field: 'business_name', x: 180, y: 42, w: 310, h: 38, style: { size: 20, bold: true } },
+          { type: 'text', text: '{{business_address}}', field: 'business_address', x: 180, y: 80, w: 310, h: 36, style: { size: 10 } },
+          { type: 'heading', text: 'INVOICE', x: 500, y: 42, w: 240, h: 36, style: { size: 26, bold: true, align: 'right' } },
+          { type: 'text', text: 'Invoice #: {{invoice_number}}\nDate: {{invoice_date}}\nDue: {{due_date}}', x: 500, y: 80, w: 240, h: 66, style: { size: 10, align: 'right' } },
+          { type: 'customer', x: 48, y: 188, w: 330, h: 105, style: { size: 12 } },
+          { type: 'items-table', x: 48, y: 330, w: 682, h: 160, style: { size: 11 } },
+          { type: 'total', x: 450, y: 525, w: 280, h: 118, style: { size: 12 } },
+          { type: 'footer', text: 'Thank you for trusting us with your vision.', x: 48, y: 1015, w: 682, h: 28, style: { size: 10, align: 'center' } },
+        ];
+
+        // Prepare token values
+        const discountTotal = items.reduce((acc, item) => acc + Number(item.discount || 0), 0);
+        const taxTotal = items.reduce((acc, item) => acc + Number(item.tax || 0), 0);
+        const subtotal = Number(data.total || 0) + discountTotal - taxTotal;
+
+        const values = {
+          business_name: 'Hernandez Mercado Eye Clinic',
+          business_address: '123 Vision Avenue, Manila',
+          business_contact: '+63 912 345 6789',
+          invoice_number: data.invoiceNumber || '—',
+          invoice_date: data.invoiceDate || '—',
+          due_date: data.dueDate || '—',
+          customer_name: data.patientName || '—',
+          customer_address: data.patientAddress || '—',
+          customer_phone: data.customerPhone || '—',
+          customer_email: data.customerEmail || '—',
+          subtotal: peso(subtotal),
+          discount: peso(discountTotal),
+          tax: peso(taxTotal),
+          total_amount: peso(data.total),
+          amount_paid: peso(data.paid),
+          outstanding_balance: peso(data.balance),
+          payment_method: data.paymentMethod || '—',
+          payment_reference: data.paymentReference || '—',
+          payment_date: data.paymentDate || '—'
+        };
+
+        const replaceTokens = (text = '') => {
+          return text.replace(/\{\{([\w_]+)\}\}/g, (match, key) => {
+            return values[key] !== undefined ? values[key] : match;
+          });
+        };
+
+        const elementHtml = (el) => {
+          if (el.type === 'items-table') {
+            return `
+              <table class="invoice-items-preview">
+                <thead>
+                  <tr style="background:${el.style?.color || '#0d9488'};color:#ffffff;">
+                    <th>Service / Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Discount</th>
+                    <th>Tax</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${items.map(item => `
+                    <tr>
+                      <td>${escapeHtml(item.description || '')}</td>
+                      <td>${item.quantity || 0}</td>
+                      <td>${peso(item.unitPrice)}</td>
+                      <td>${peso(item.discount)}</td>
+                      <td>${peso(item.tax)}</td>
+                      <td>${peso(item.lineTotal)}</td>
+                    </tr>
+                  `).join('') || '<tr><td colspan="6">No line items</td></tr>'}
+                </tbody>
+              </table>
+            `;
+          }
+          if (el.type === 'customer') {
+            return `
+              <strong>Bill To</strong><br>
+              ${escapeHtml(data.patientName || '—')}<br>
+              ${data.customerPhone ? `${escapeHtml(data.customerPhone)}<br>` : ''}
+              ${data.customerEmail ? `${escapeHtml(data.customerEmail)}` : ''}
+            `;
+          }
+          if (el.type === 'total') {
+            return `
+              <div class="invoice-totals">
+                <span>Subtotal <b>${peso(subtotal)}</b></span>
+                ${discountTotal > 0 ? `<span>Discount <b>-${peso(discountTotal)}</b></span>` : ''}
+                ${taxTotal > 0 ? `<span>Tax <b>${peso(taxTotal)}</b></span>` : ''}
+                <strong>Total <b>${peso(data.total)}</b></strong>
+                <span>Amount Paid <b>${peso(data.paid)}</b></span>
+                <strong>Outstanding Balance <b>${peso(data.balance)}</b></strong>
+              </div>
+            `;
+          }
+          if (el.type === 'payment') {
+            return `
+              <strong>Payment</strong><br>
+              ${escapeHtml(data.paymentMethod || '—')} · ${escapeHtml(data.paymentReference || '—')}<br>
+              ${escapeHtml(data.paymentDate || '—')}
+            `;
+          }
+          if (el.type === 'divider' || el.type === 'line') {
+            return `<hr style="border: 0; border-top: 2px solid ${el.style?.color || '#e2e8f0'};">`;
+          }
+          if (el.type === 'image') {
+            return el.text ? `<img src="${escapeHtml(el.text)}" class="invoice-logo-img" alt="Logo" onerror="this.style.display='none';" />` : '';
+          }
+          if (el.type === 'signature') {
+            return `<div class="signature-line">Authorized signature</div>`;
+          }
+          const rawText = el.field ? `{{${el.field}}}` : el.text;
+          return replaceTokens(rawText).replaceAll('\n', '<br>');
+        };
+
+        const renderElements = elements.map(el => {
+          const s = el.style || {};
+          const cssText = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;font-family:${s.font || 'Arial'};font-size:${s.size || 12}px;font-weight:${s.bold ? '700':'400'};font-style:${s.italic ? 'italic':'normal'};text-decoration:${s.underline ? 'underline':'none'};color:${s.color || '#1f2937'};text-align:${s.align || 'left'};overflow:hidden;line-height:1.35;`;
+          return `<article class="invoice-element" style="${cssText}"><div class="invoice-element-content">${elementHtml(el)}</div></article>`;
+        }).join('');
+
+        return `
+          <div class="invoice-canvas-wrapper">
+            <div class="invoice-canvas" style="position:relative;width:794px;height:1123px;background:white;color:#1f2937;box-shadow:none;border:1px solid #cbd5e1;margin:0 auto;">
+              ${renderElements}
+            </div>
+          </div>
+        `;
+      };
+      const dummyInvoiceMarkup = (invoice) => {
+        const data = invoice.data || {};
+        const items = Array.isArray(data.items) ? data.items : [];
+        return `<div class="billing-document"><h3>${escapeHtml(data.invoiceNumber || 'Invoice')}</h3><div class="billing-doc-grid"><span><strong>Customer</strong>${escapeHtml(data.patientName || '—')}</span><span><strong>Contact</strong>${escapeHtml(data.customerPhone || '—')} · ${escapeHtml(data.customerEmail || '—')}</span><span><strong>Invoice date</strong>${escapeHtml(data.invoiceDate || '—')}</span><span><strong>Due date</strong>${escapeHtml(data.dueDate || '—')}</span><span><strong>Status</strong>${escapeHtml(statusLabel(data.status))}</span></div><table class="appointment-table"><thead><tr><th>Item</th><th>Qty</th><th>Unit</th><th>Discount</th><th>Tax</th><th>Total</th></tr></thead><tbody>${items.map((item) => `<tr><td>${escapeHtml(item.description || '')}</td><td>${item.quantity || 0}</td><td>${peso(item.unitPrice)}</td><td>${peso(item.discount)}</td><td>${peso(item.tax)}</td><td>${peso(item.lineTotal)}</td></tr>`).join('') || '<tr><td colspan="6">No line items</td></tr>'}</tbody></table><p>Total ${peso(data.total)} · Paid ${peso(data.paid)} · Balance ${peso(data.balance)}</p></div>`;
+      };
+      const receiptMarkup = (payment) => {
+        const data = payment.data || {};
+        return `<div class="billing-document"><h3>Payment receipt ${escapeHtml(data.receiptNumber || '')}</h3><div class="billing-doc-grid"><span><strong>Customer</strong>${escapeHtml(data.patientName || '—')}</span><span><strong>Invoice</strong>${escapeHtml(data.invoiceNumber || '—')}</span><span><strong>Date</strong>${escapeHtml(data.paymentDate || '—')}</span><span><strong>Method</strong>${escapeHtml(data.method || '—')}</span><span><strong>Reference</strong>${escapeHtml(data.reference || '—')}</span><span><strong>Status</strong>${escapeHtml(statusLabel(data.status))}</span></div><p class="billing-total">Amount paid <strong>${peso(data.amount)}</strong></p>${data.notes ? `<p>${escapeHtml(data.notes)}</p>` : ''}</div>`;
+      };
+      const outstandingInvoices = () => billingInvoices.filter((invoice) => !['paid', 'cancelled'].includes(invoice.data?.status) && Number(invoice.data?.balance || 0) > 0);
+      const fillPaymentInvoices = () => {
+        const customerSelect = document.getElementById('billing-payment-customer');
+        const invoiceSelect = document.getElementById('billing-payment-invoice');
+        if (!invoiceSelect) return;
+        const selectedCustomer = customerSelect?.selectedOptions[0];
+        const customerName = selectedCustomer?.dataset.name || '';
+        const invoices = outstandingInvoices().filter((invoice) => !customerName || invoice.data?.patientName === customerName);
+        const current = invoiceSelect.value;
+        invoiceSelect.innerHTML = `<option value="">Select an invoice</option>${invoices.map((invoice) => `<option value="${invoice._id}" ${invoice._id === current ? 'selected' : ''}>${escapeHtml(invoice.data.invoiceNumber)} · ${peso(invoice.data.balance)}</option>`).join('')}`;
+        updatePaymentSnapshot();
+      };
+      const updatePaymentSnapshot = () => {
+        const invoice = billingInvoices.find((item) => item._id === document.getElementById('billing-payment-invoice')?.value);
+        const snapshot = document.getElementById('billing-invoice-snapshot');
+        if (!snapshot) return;
+        snapshot.innerHTML = `<span>Invoice total <strong>${peso(invoice?.data?.total)}</strong></span><span>Outstanding <strong>${peso(invoice?.data?.balance)}</strong></span>`;
+        const amount = document.getElementById('billing-payment-amount');
+        if (amount && invoice) amount.max = invoice.data.balance;
+      };
+      const renderBilling = () => {
+        const query = (document.getElementById('billing-search')?.value || '').toLowerCase().trim();
+        const status = document.getElementById('billing-status-filter')?.value || '';
+        if (section === 'billing-invoices' || section === 'invoice-templates') {
+          const date = document.getElementById('billing-date-filter')?.value || '';
+          const rows = billingInvoices.filter((invoice) => {
+            const data = invoice.data || {};
+            return (!status || data.status === status) && (!date || data.invoiceDate === date) && (!query || `${data.invoiceNumber} ${data.patientName}`.toLowerCase().includes(query));
+          });
+          billingList.innerHTML = rows.length ? `<div class="appointment-table-wrap"><table class="appointment-table billing-table"><thead><tr><th>Invoice</th><th>Customer</th><th>Date</th><th>Due</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows.map((invoice) => {
+            const data = invoice.data || {};
+            const locked = Number(data.paid || 0) > 0 || data.status === 'cancelled';
+            return `<tr class="${data.status === 'overdue' ? 'is-overdue' : ''}"><td data-label="Invoice"><strong>${escapeHtml(data.invoiceNumber)}</strong></td><td data-label="Customer">${escapeHtml(data.patientName)}<small>${escapeHtml(data.customerEmail || data.customerPhone || '')}</small></td><td data-label="Date">${escapeHtml(data.invoiceDate || '—')}</td><td data-label="Due">${escapeHtml(data.dueDate || '—')}</td><td data-label="Total" class="table-number">${peso(data.total)}</td><td data-label="Paid" class="table-number">${peso(data.paid)}</td><td data-label="Balance" class="table-number">${peso(data.balance)}</td><td data-label="Status"><span class="${statusClass(data.status)}">${statusLabel(data.status)}</span></td><td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary" data-billing-view="invoice" data-id="${invoice._id}">View</button><button type="button" class="btn btn-secondary action-edit" data-billing-edit="${invoice._id}" ${locked ? 'disabled' : ''}>Edit</button><button type="button" class="btn btn-secondary action-delete" data-billing-cancel="${invoice._id}" ${locked ? 'disabled' : ''}>Cancel</button></div></td></tr>`;
+          }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No invoices match these filters.</p>';
+          return;
+        }
+        if (section === 'outstanding-balances') {
+          const sort = document.getElementById('billing-sort')?.value || 'dueDate';
+          const rows = outstandingInvoices().filter((invoice) => {
+            const data = invoice.data || {};
+            return (!status || data.status === status) && (!query || `${data.invoiceNumber} ${data.patientName}`.toLowerCase().includes(query));
+          }).sort((first, second) => sort === 'balance' ? Number(second.data.balance) - Number(first.data.balance) : String(first.data.dueDate || '').localeCompare(String(second.data.dueDate || '')));
+          billingList.innerHTML = rows.length ? `<div class="appointment-table-wrap"><table class="appointment-table billing-table"><thead><tr><th>Customer</th><th>Invoice</th><th>Invoice date</th><th>Due date</th><th>Total</th><th>Paid</th><th>Outstanding</th><th>Status</th><th>Days overdue</th><th>Actions</th></tr></thead><tbody>${rows.map((invoice) => {
+            const data = invoice.data || {};
+            return `<tr class="${data.status === 'overdue' ? 'is-overdue' : ''}"><td data-label="Customer">${escapeHtml(data.patientName)}</td><td data-label="Invoice">${escapeHtml(data.invoiceNumber)}</td><td data-label="Invoice date">${escapeHtml(data.invoiceDate || '—')}</td><td data-label="Due date">${escapeHtml(data.dueDate || '—')}</td><td data-label="Total" class="table-number">${peso(data.total)}</td><td data-label="Paid" class="table-number">${peso(data.paid)}</td><td data-label="Outstanding" class="table-number">${peso(data.balance)}</td><td data-label="Status"><span class="${statusClass(data.status)}">${statusLabel(data.status)}</span></td><td data-label="Days overdue">${invoice.daysOverdue || 0}</td><td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary" data-billing-view="invoice" data-id="${invoice._id}">View</button><button type="button" class="btn btn-primary" data-billing-pay="${invoice._id}">Record payment</button><button type="button" class="btn btn-secondary" data-billing-remind="${invoice._id}">Remind</button></div></td></tr>`;
+          }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No outstanding balances.</p>';
+          return;
+        }
+        const customer = document.getElementById('billing-customer-filter')?.value || '';
+        const method = document.getElementById('billing-method-filter')?.value || '';
+        const paymentStatusFilter = document.getElementById('billing-payment-status-filter')?.value || '';
+        const from = document.getElementById('billing-date-from')?.value || '';
+        const to = document.getElementById('billing-date-to')?.value || '';
+        const rows = billingPayments.filter((payment) => {
+          const data = payment.data || {};
+          const date = data.paymentDate || String(payment.createdAt || '').slice(0, 10);
+          return (!customer || data.patientName === customer) && (!method || data.method === method) && (!paymentStatusFilter || data.status === paymentStatusFilter) && (!from || date >= from) && (!to || date <= to) && (!query || `${data.receiptNumber} ${data.patientName} ${data.invoiceNumber} ${data.reference}`.toLowerCase().includes(query));
+        });
+        billingList.innerHTML = rows.length ? `<div class="appointment-table-wrap"><table class="appointment-table billing-table"><thead><tr><th>Payment ID</th><th>Receipt</th><th>Customer</th><th>Invoice</th><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th><th>Recorded by</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows.map((payment) => {
+          const data = payment.data || {};
+          const reversed = data.status === 'reversed';
+          return `<tr><td data-label="Payment ID"><small>${escapeHtml(payment._id)}</small></td><td data-label="Receipt">${escapeHtml(data.receiptNumber || '—')}</td><td data-label="Customer">${escapeHtml(data.patientName || '—')}</td><td data-label="Invoice">${escapeHtml(data.invoiceNumber || '—')}</td><td data-label="Date">${escapeHtml(data.paymentDate || '—')}</td><td data-label="Amount" class="table-number">${peso(data.amount)}</td><td data-label="Method">${escapeHtml(data.method || '—')}</td><td data-label="Reference">${escapeHtml(data.reference || '—')}</td><td data-label="Recorded by">${escapeHtml(payment.createdBy?.name || data.recordedBy || '—')}</td><td data-label="Status"><span class="${statusClass(data.status)}">${statusLabel(data.status)}</span></td><td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary" data-billing-view="payment" data-id="${payment._id}">View</button>${reversed ? '' : `<button type="button" class="btn btn-secondary action-delete" data-billing-reverse="${payment._id}">Reverse</button>`}</div></td></tr>`;
+        }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No payments match these filters.</p>';
+      };
+      const loadBilling = async () => {
+        const [invoiceResponse, paymentResponse, userResponse, templateResponse] = await Promise.all([
+          fetch(`${api}/api/clinic-operations?type=invoice`, { headers: billingHeaders }),
+          fetch(`${api}/api/clinic-operations?type=payment`, { headers: billingHeaders }),
+          fetch(`${api}/api/admin/users`, { headers: billingHeaders }),
+          fetch(`${api}/api/invoice-templates`, { headers: billingHeaders }),
+        ]);
+        const invoices = await invoiceResponse.json();
+        const payments = await paymentResponse.json();
+        const users = await userResponse.json();
+        const templateResult = await templateResponse.json();
+        if (!invoiceResponse.ok) throw new Error(invoices.message || 'Unable to load invoices.');
+        if (!paymentResponse.ok) throw new Error(payments.message || 'Unable to load payments.');
+        billingInvoices = invoices.records || [];
+        billingPayments = payments.records || [];
+        billingTemplates = templateResult.templates || [];
+        billingCustomers = (users.users || []).filter((item) => item.role === 'patient');
+        const templateSelect = document.getElementById('billing-template');
+        if (templateSelect && templateResponse.ok) {
+          const defaultTemplate = (templateResult.templates || []).find((template) => template.isDefault) || templateResult.templates?.[0];
+          if (defaultTemplate) {
+            templateSelect.value = defaultTemplate._id;
+          }
+        }
+        fillCustomerSelects();
+        fillPaymentInvoices();
+        renderBilling();
+      };
+      if (itemsBody && !itemsBody.children.length) itemsBody.innerHTML = itemRowMarkup();
+      const invoiceDate = document.getElementById('billing-invoice-date');
+      const dueDate = document.getElementById('billing-due-date');
+      const paymentDate = document.getElementById('billing-payment-date');
+      if (invoiceDate && !invoiceDate.value) invoiceDate.value = todayIso();
+      if (dueDate && !dueDate.value) dueDate.value = todayIso();
+      if (paymentDate && !paymentDate.value) paymentDate.value = todayIso();
+      document.getElementById('billing-add-item')?.addEventListener('click', () => { itemsBody.insertAdjacentHTML('beforeend', itemRowMarkup()); refreshInvoiceTotal(); });
+      itemsBody?.addEventListener('input', refreshInvoiceTotal);
+      itemsBody?.addEventListener('click', (event) => {
+        if (event.target.closest('.billing-remove-item') && itemsBody.rows.length > 1) {
+          event.target.closest('tr').remove();
+          refreshInvoiceTotal();
+        }
+      });
+      document.getElementById('billing-customer')?.addEventListener('change', () => applyCustomerDetails('billing-customer'));
+      document.getElementById('billing-payment-customer')?.addEventListener('change', fillPaymentInvoices);
+      document.getElementById('billing-payment-invoice')?.addEventListener('change', updatePaymentSnapshot);
+      ['billing-search', 'billing-status-filter', 'billing-date-filter', 'billing-customer-filter', 'billing-method-filter', 'billing-payment-status-filter', 'billing-date-from', 'billing-date-to', 'billing-sort'].forEach((id) => {
+        document.getElementById(id)?.addEventListener('input', renderBilling);
+        document.getElementById(id)?.addEventListener('change', renderBilling);
+      });
+      invoiceForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const customer = applyCustomerDetails('billing-customer');
+        if (!customer.patientName) { invoiceStatus.textContent = 'Select a customer.'; invoiceStatus.classList.add('error'); return; }
+        if (!window.confirm(editingInvoiceId ? 'Update this invoice?' : 'Create this invoice?')) return;
+        const payload = {
+          ...customer,
+          invoiceDate: invoiceDate.value,
+          dueDate: dueDate.value,
+          templateId: document.getElementById('billing-template')?.value || undefined,
+          items: collectItems(),
+        };
+        invoiceStatus.textContent = 'Saving invoice...';
+        invoiceStatus.classList.remove('error');
+        try {
+          const response = await fetch(editingInvoiceId ? `${api}/api/clinic-operations/${editingInvoiceId}` : `${api}/api/clinic-operations/invoice`, { method: editingInvoiceId ? 'PATCH' : 'POST', headers: billingHeaders, body: JSON.stringify(payload) });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || 'Unable to save invoice.');
+          invoiceForm.reset();
+          editingInvoiceId = '';
+          itemsBody.innerHTML = itemRowMarkup();
+          if (invoiceDate) invoiceDate.value = todayIso();
+          if (dueDate) dueDate.value = todayIso();
+          invoiceForm.querySelector('button[type="submit"]').textContent = 'Create invoice';
+          invoiceStatus.textContent = result.record?.data?.invoiceNumber ? `Invoice ${result.record.data.invoiceNumber} saved.` : 'Invoice saved.';
+          await loadBilling();
+        } catch (error) { invoiceStatus.textContent = error.message; invoiceStatus.classList.add('error'); }
+      });
+      paymentForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const invoiceId = document.getElementById('billing-payment-invoice')?.value;
+        const invoice = billingInvoices.find((item) => item._id === invoiceId);
+        const amount = Number(document.getElementById('billing-payment-amount')?.value);
+        if (!invoice) { paymentStatus.textContent = 'Select an invoice.'; paymentStatus.classList.add('error'); return; }
+        if (amount > Number(invoice.data.balance || 0)) { paymentStatus.textContent = 'Payment cannot exceed the remaining balance.'; paymentStatus.classList.add('error'); return; }
+        if (!window.confirm('Record this payment?')) return;
+        paymentStatus.textContent = 'Recording payment...';
+        paymentStatus.classList.remove('error');
+        try {
+          const response = await fetch(`${api}/api/clinic-operations/payment`, { method: 'POST', headers: billingHeaders, body: JSON.stringify({
+            invoiceId,
+            amount,
+            method: document.getElementById('billing-payment-method')?.value,
+            reference: document.getElementById('billing-payment-reference')?.value,
+            paymentDate: document.getElementById('billing-payment-date')?.value,
+            notes: document.getElementById('billing-payment-notes')?.value,
+            patientName: invoice.data.patientName,
+            patientId: invoice.data.patientId,
+          }) });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || 'Unable to record payment.');
+          paymentForm.reset();
+          if (paymentDate) paymentDate.value = todayIso();
+          paymentStatus.textContent = result.record?.data?.receiptNumber ? `Receipt ${result.record.data.receiptNumber} recorded.` : 'Payment recorded.';
+          await loadBilling();
+          detailTitle.textContent = 'Payment receipt';
+          detailContent.innerHTML = receiptMarkup(result.record);
+          detailModal?.showModal();
+        } catch (error) { paymentStatus.textContent = error.message; paymentStatus.classList.add('error'); }
+      });
+      billingList.addEventListener('click', async (event) => {
+        const view = event.target.closest('[data-billing-view]');
+        const edit = event.target.closest('[data-billing-edit]');
+        const cancel = event.target.closest('[data-billing-cancel]');
+        const reverse = event.target.closest('[data-billing-reverse]');
+        const pay = event.target.closest('[data-billing-pay]');
+        const remind = event.target.closest('[data-billing-remind]');
+        if (view) {
+          const kind = view.dataset.billingView;
+          const record = kind === 'invoice' ? billingInvoices.find((item) => item._id === view.dataset.id) : billingPayments.find((item) => item._id === view.dataset.id);
+          if (!record) return;
+          detailTitle.textContent = kind === 'invoice' ? record.data.invoiceNumber : record.data.receiptNumber;
+          detailContent.innerHTML = kind === 'invoice' ? invoiceMarkup(record) : receiptMarkup(record);
+          detailModal?.showModal();
+        }
+        if (edit) {
+          const invoice = billingInvoices.find((item) => item._id === edit.dataset.billingEdit);
+          if (!invoice || !invoiceForm) return;
+          editingInvoiceId = invoice._id;
+          const customer = billingCustomers.find((item) => item.patientId === invoice.data.patientId || item.name === invoice.data.patientName);
+          if (customer) document.getElementById('billing-customer').value = customer._id;
+          applyCustomerDetails('billing-customer');
+          document.getElementById('billing-invoice-number').value = invoice.data.invoiceNumber || '';
+          invoiceDate.value = invoice.data.invoiceDate || todayIso();
+          dueDate.value = invoice.data.dueDate || todayIso();
+          itemsBody.innerHTML = (invoice.data.items || []).map((item) => itemRowMarkup(item)).join('') || itemRowMarkup();
+          refreshInvoiceTotal();
+          invoiceForm.querySelector('button[type="submit"]').textContent = 'Update invoice';
+          invoiceForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        if (cancel) {
+          if (!window.confirm('Cancel this invoice? This cannot be undone unless no payments were recorded.')) return;
+          const response = await fetch(`${api}/api/clinic-operations/invoice/${cancel.dataset.billingCancel}/cancel`, { method: 'POST', headers: billingHeaders });
+          const result = await response.json();
+          if (!response.ok) { alert(result.message || 'Unable to cancel invoice.'); return; }
+          await loadBilling();
+        }
+        if (reverse) {
+          if (!window.confirm('Reverse this payment? The invoice balance will be restored.')) return;
+          const response = await fetch(`${api}/api/clinic-operations/payment/${reverse.dataset.billingReverse}/reverse`, { method: 'POST', headers: billingHeaders, body: JSON.stringify({ reason: 'Owner reversal' }) });
+          const result = await response.json();
+          if (!response.ok) { alert(result.message || 'Unable to reverse payment.'); return; }
+          await loadBilling();
+        }
+        if (pay) {
+          const invoice = billingInvoices.find((item) => item._id === pay.dataset.billingPay);
+          const customer = billingCustomers.find((item) => item.patientId === invoice?.data?.patientId || item.name === invoice?.data?.patientName);
+          if (customer) document.getElementById('billing-payment-customer').value = customer._id;
+          fillPaymentInvoices();
+          document.getElementById('billing-payment-invoice').value = invoice._id;
+          updatePaymentSnapshot();
+          paymentForm?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        if (remind) {
+          const response = await fetch(`${api}/api/clinic-operations/invoice/${remind.dataset.billingRemind}/reminder`, { method: 'POST', headers: billingHeaders });
+          const result = await response.json();
+          alert(result.message || 'Reminder processed.');
+        }
+      });
+      document.getElementById('billing-detail-close')?.addEventListener('click', () => detailModal?.close());
+      document.getElementById('billing-print')?.addEventListener('click', () => openPrint(detailTitle?.textContent || 'Document', detailContent?.innerHTML || ''));
+      document.getElementById('billing-export')?.addEventListener('click', () => {
+        const rows = [['Payment ID', 'Receipt', 'Customer', 'Invoice', 'Date', 'Amount', 'Method', 'Reference', 'Recorded By', 'Status']];
+        billingPayments.forEach((payment) => {
+          const data = payment.data || {};
+          rows.push([payment._id, data.receiptNumber, data.patientName, data.invoiceNumber, data.paymentDate, data.amount, data.method, data.reference, payment.createdBy?.name || data.recordedBy, data.status]);
+        });
+        const csv = rows.map((row) => row.map((value) => `"${String(value || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+        link.download = 'payment-history.csv';
+        link.click();
+      });
+      loadBilling().catch((error) => { billingList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
+
+      // Tab switching logic for Billing / Invoices and Invoice Templates
+      const switchBillingTab = (tab) => {
+        const invoicesBtn = document.querySelector('.billing-tab-btn[data-tab="invoices"]');
+        const templateBtn = document.querySelector('.billing-tab-btn[data-tab="template"]');
+        const invoicesTab = document.getElementById('billing-invoices-tab-content');
+        const templateTab = document.getElementById('invoice-templates-tab-content');
+        const headerTitle = document.querySelector('.dashboard-header h1');
+
+        if (tab === 'invoices') {
+          invoicesBtn?.classList.add('active');
+          templateBtn?.classList.remove('active');
+          if (invoicesTab) invoicesTab.style.display = 'block';
+          if (templateTab) templateTab.style.display = 'none';
+          if (headerTitle) headerTitle.textContent = 'Billing / Invoices';
+          window.history.pushState({}, '', `/dashboard/${role}/billing-invoices`);
+          renderBilling();
+        } else if (tab === 'template') {
+          invoicesBtn?.classList.remove('active');
+          templateBtn?.classList.add('active');
+          if (invoicesTab) invoicesTab.style.display = 'none';
+          if (templateTab) templateTab.style.display = 'block';
+          if (headerTitle) headerTitle.textContent = 'Invoice Templates';
+          window.history.pushState({}, '', `/dashboard/${role}/invoice-templates`);
+          // Dispatch a custom event to notify template builder that it is visible
+          window.dispatchEvent(new CustomEvent('invoice-template-tab-active'));
+        }
+      };
+
+      document.querySelectorAll('.billing-tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => switchBillingTab(btn.dataset.tab));
+      });
+
+      // Handle template customization link click
+      document.querySelectorAll('.billing-tab-link').forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          switchBillingTab(link.dataset.tab);
+        });
+      });
+    }
+
     // Overview Dashboard Logic (when section === 'dashboard')
-    if (section === 'dashboard') {
+    if (section === 'dashboard' && role !== 'owner') {
       const appointmentPanel = document.getElementById('appointment-panel');
       const appointmentList = document.getElementById('appointment-list');
       const appointmentSearch = document.getElementById('overview-appointment-search');

@@ -40,3 +40,19 @@ export const sendAppointmentNotifications = async (appointment) => {
     }),
   ]);
 };
+
+export const sendPaymentReminder = async ({ name, email, invoiceNumber, balance, dueDate }) => {
+  if (!transporter) {
+    return { sent: false, message: 'Email notifications are not configured. A clinic reminder was logged instead.' };
+  }
+  if (!email) {
+    return { sent: false, message: 'This customer does not have an email address on file.' };
+  }
+  await transporter.sendMail({
+    from: process.env.MAIL_FROM || process.env.SMTP_USER,
+    to: email,
+    subject: `Payment reminder for invoice ${invoiceNumber}`,
+    text: `Hello ${name || 'valued customer'},\n\nThis is a reminder that invoice ${invoiceNumber} has an outstanding balance of ${balance}. Due date: ${dueDate || 'not specified'}.\n\nPlease contact Hernandez Mercado Eye Clinic to complete payment.\n`,
+  });
+  return { sent: true, message: `Payment reminder sent to ${email}.` };
+};

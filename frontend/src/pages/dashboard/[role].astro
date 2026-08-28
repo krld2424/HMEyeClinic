@@ -72,7 +72,10 @@ const sidebarGroups = {
   owner: [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: 'Reports', slug: 'reports' }] },
     { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Clinical Records', slug: 'clinical-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
-    { label: 'Management', links: [{ label: 'Manage Team', slug: 'manage-team' }, { label: 'Manage Users', slug: 'manage-users' }, { label: 'Roles & Permissions', slug: 'roles-permissions' }] },
+    { label: 'Management', links: [{ label: "User's Management", slug: 'manage-team' }, { label: 'Roles & Permissions', slug: 'roles-permissions' }] },
+    { label: 'Supplier Transactions', links: [{ label: 'Suppliers', slug: 'suppliers' }, { label: 'Purchase Orders', slug: 'purchase-orders' }, { label: 'Receiving', slug: 'receiving' }, { label: 'Purchase History', slug: 'purchase-history' }] },
+    { label: 'Inventory', links: [{ label: 'Inventory', slug: 'inventory' }, { label: 'Stock Movements', slug: 'stock-movements' }, { label: 'Stock Adjustment', slug: 'stock-adjustment' }, { label: 'Inventory History', slug: 'inventory-history' }] },
+    { label: 'Billing', links: [{ label: 'Billing / Invoices', slug: 'billing-invoices' }, { label: 'Invoice Templates', slug: 'invoice-templates' }, { label: 'Customer Payments', slug: 'customer-payments' }, { label: 'Payment History', slug: 'payment-history' }, { label: 'Outstanding Balances', slug: 'outstanding-balances' }] },
     { label: 'Monitoring & Settings', links: [{ label: 'Audit Logs', slug: 'audit-logs' }, { label: 'Clinic Settings', slug: 'clinic-settings' }] },
   ],
 };
@@ -84,6 +87,9 @@ const groupIcons = {
   Operations: 'operations',
   Management: 'management',
   'Monitoring & Settings': 'monitoring-settings',
+  'Supplier Transactions': 'supplier-transactions',
+  Inventory: 'inventory',
+  Billing: 'billing',
 };
 ---
 
@@ -91,7 +97,7 @@ const groupIcons = {
   <main class="dashboard-page dashboard-layout">
     <button class="mobile-sidebar-toggle" type="button" id="mobile-sidebar-toggle" aria-label="Open dashboard navigation" aria-expanded="false" title="Open dashboard navigation"><SidebarIcon name="panel-left" /></button>
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
-    <aside class="dashboard-sidebar">
+    <aside class={`dashboard-sidebar ${role === 'owner' ? 'owner-sidebar' : ''}`}>
       <div class="sidebar-header">
         <a class="sidebar-brand" href="/">HM VisionSync</a>
         <button class="sidebar-collapse-toggle" type="button" id="sidebar-collapse-toggle" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar"><SidebarIcon name="panel-left" /></button>
@@ -162,7 +168,6 @@ const groupIcons = {
     <section class="container dashboard-appointments card" id="appointment-panel" hidden>
       <div class="section-header split">
         <div>
-          <span class="eyebrow">Appointment workflow</span>
           <h2 id="appointment-heading">Appointments</h2>
         </div>
       </div>
@@ -177,7 +182,6 @@ const groupIcons = {
 
     <section class="container admin-panel card" id="admin-panel" hidden>
       <div class="section-header">
-        <span class="eyebrow">Account administration</span>
         <h2>Create an optometrist or eye care assistant account</h2>
       </div>
       <form id="admin-user-form" class="admin-user-form">

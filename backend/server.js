@@ -9,6 +9,8 @@ import workspaceRoutes from './routes/workspaceRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import clinicOperationRoutes from './routes/clinicOperationRoutes.js';
+import invoiceTemplateRoutes from './routes/invoiceTemplateRoutes.js';
 import { ensureSuperAdmin } from './config/superAdmin.js';
 import { generalApiLimiter } from './middleware/rateLimit.js';
 
@@ -61,6 +63,8 @@ app.use('/api/clinical-records', clinicalRoutes);
 app.use('/api/workspace', workspaceRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/clinic-operations', clinicOperationRoutes);
+app.use('/api/invoice-templates', invoiceTemplateRoutes);
 
 const startServer = async () => {
   const databaseConnected = await connectDB();
