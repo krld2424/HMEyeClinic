@@ -1,5 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import TrustedPatients from '../components/TrustedPatients.astro';
+import Partners from '../components/Partners.astro';
+
 
 const navItems = ['Home', 'About', 'Services', 'Eyewear', 'Why Choose Us', 'Contact'];
 
@@ -162,6 +165,7 @@ const reasons = [
 ];
 
 const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
+const instagramLink = "https://www.instagram.com/hernandezmercadoeyeclinic";
 ---
 
 <Layout>
@@ -218,7 +222,7 @@ const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
         <div class="hero-visual reveal" aria-label="Optical care patient experience">
           <div class="visual-card">
             <img
-              src="https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=1200&q=80"
+              src="https://scontent.fcrk2-1.fna.fbcdn.net/v/t39.30808-6/542679580_122134947944820523_6495000686571925256_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1350&ctp=s1080x1350&_nc_cat=109&ccb=1-7&_nc_sid=f727a1&_nc_ohc=0PPXoN9ENAwQ7kNvwHHOigO&_nc_oc=Adok6sJrMstEYB2h6kHRqjj4izmIVr0cIwxsOkrmvhqwIq2s1GZodi52_c2SzngNXX8&_nc_zt=23&_nc_ht=scontent.fcrk2-1.fna&_nc_gid=xOGeyxLw08T8P6eQInEbZw&_nc_ss=7b2a8&oh=00_AQKWwct1d7VkRwjoQoWVCaYhpq8pSsU1OnZdxWZk3ss6mw&oe=6A9874DC"
               alt="Optometrist examining a patient during an eye consultation"
             />
           </div>
@@ -455,6 +459,10 @@ const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
       </div>
     </section>
 
+    <TrustedPatients />
+
+    <Partners />
+
     <section id="contact" class="contact container reveal">
       <div class="contact-copy">
         <span class="eyebrow">Contact</span>
@@ -462,11 +470,16 @@ const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
         <ul class="contact-list">
           <li>
             <strong>Location</strong>
-            <span>Santa Rosa, Nueva Ecija, Philippines</span>
+            <span>Along Maharlika Highway Brgy. Valenzuela Sta Rosa, Nueva Ecija( In front of Rose of Sharon Christian School), Philippines</span>
           </li>
           <li>
             <strong>Clinic Hours</strong>
-            <span>Clinic hours — Contact us for the latest schedule</span>
+            <strong>MON-FRI</strong>
+            <span>9:00 AM TO 6:00 PM</span>
+            <strong>SATURDAY</strong>
+            <span>8:30 AM TO 5:30 PM</span>
+            <strong>SUNDAY</strong>
+            <span>BY APPOINTMENT</span>
           </li>
           <li>
             <strong>Contact</strong>
@@ -474,7 +487,47 @@ const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
           </li>
           <li>
             <strong>Social Media</strong>
-            <a href={socialLink} target="_blank" rel="noreferrer">Facebook</a>
+            <div class="contact-social-links">
+              <a
+                href={socialLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit us on Facebook"
+                title="Facebook"
+                class="facebook-link"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  class="facebook-icon"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.019 4.388 11.006 10.125 11.925v-8.437H7.078v-3.488h3.047V9.41c0-3.017 1.792-4.688 4.533-4.688 1.312 0 2.686.236 2.686.236v2.973h-1.515c-1.491 0-1.955.93-1.955 1.886v2.256h3.328l-.532 3.488h-2.796v8.437C19.612 23.079 24 18.092 24 12.073Z"
+                  />
+                </svg>
+              </a>
+              <a
+                href={instagramLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit us on Instagram"
+                title="Instagram"
+                class="social-link instagram"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6Zm8.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"
+                  />
+                </svg>
+              </a>
+            </div>
           </li>
         </ul>
       </div>
@@ -487,17 +540,30 @@ const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
       </div>
     </section>
 
-    <section class="map-area reveal">
-      <div class="container map-card">
-        <div class="map-header">
-          <span class="eyebrow">Location</span>
-          <h3>Santa Rosa, Nueva Ecija, Philippines</h3>
-        </div>
-        <div class="map-placeholder" aria-label="Map placeholder for Santa Rosa, Nueva Ecija">
-          <span>Location placeholder</span>
-        </div>
+    
+<section class="map-area reveal">
+  <div class="container map-card">
+    <div class="map-header">
+      <span class="eyebrow">Location</span>
+      <h3>Santa Rosa, Nueva Ecija, Philippines</h3>
+    </div>
+
+    <a
+      href="https://maps.app.goo.gl/J9Eqji7ePpNgNxQPA"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="map-placeholder"
+      aria-label="Open Hernandez Mercado Eye Clinic location in Google Maps"
+    >
+      <div class="map-overlay">
+        <span class="map-icon">📍</span>
+        <span>View on Google Maps</span>
       </div>
-    </section>
+    </a>
+  </div>
+</section>
+
+
   </main>
 
   <footer class="site-footer">
@@ -518,16 +584,149 @@ const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
       </div>
       <div>
         <h4>Social</h4>
-        <a href={socialLink} target="_blank" rel="noreferrer">Facebook</a>
+        <div class="footer-social-links">
+          <a href={socialLink} target="_blank" rel="noopener noreferrer" aria-label="Follow Hernandez Mercado Eye Clinic on Facebook" title="Facebook">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+          <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Follow Hernandez Mercado Eye Clinic on Instagram" title="Instagram">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.117.6c-.798.272-1.459.646-2.11 1.295-.646.651-1.023 1.312-1.295 2.11-.267.788-.468 1.659-.527 2.937C.05 8.333.035 8.74 0 12c0 3.26.015 3.667.072 4.947.06 1.277.261 2.148.528 2.936.272.798.646 1.459 1.295 2.11.651.646 1.311 1.023 2.11 1.295.788.267 1.659.468 2.936.527C8.333 23.95 8.74 23.965 12 23.965c3.26 0 3.667-.015 4.947-.072 1.277-.06 2.148-.261 2.936-.528.798-.272 1.459-.646 2.11-1.295.646-.651 1.023-1.311 1.295-2.11.267-.788.468-1.659.527-2.936.048-1.28.063-1.687.063-4.947 0-3.26-.015-3.667-.072-4.947-.06-1.277-.261-2.148-.528-2.936-.272-.798-.646-1.459-1.295-2.11-.651-.646-1.311-1.023-2.11-1.295-.788-.267-1.659-.468-2.936-.527C15.667.048 15.26.035 12 .035zm0 2.163c3.203 0 3.585.009 4.849.070 1.171.054 1.805.244 2.227.407.562.217.96.477 1.382.896.419.42.679.819.896 1.381.163.422.353 1.056.407 2.227.061 1.264.07 1.646.07 4.849 0 3.203-.009 3.585-.07 4.849-.054 1.171-.244 1.805-.407 2.227-.217.562-.477.96-.896 1.382-.42.419-.819.679-1.381.896-.422.163-1.056.353-2.227.407-1.264.061-1.646.07-4.849.07-3.203 0-3.585-.009-4.849-.07-1.171-.054-1.805-.244-2.227-.407-.562-.217-.96-.477-1.382-.896-.419-.42-.679-.819-.896-1.381-.163-.422-.353-1.056-.407-2.227-.061-1.264-.07-1.646-.07-4.849 0-3.203.009-3.585.07-4.849.054-1.171.244-1.805.407-2.227.217-.562.477-.96.896-1.382.42-.419.819-.679 1.381-.896.422-.163 1.056-.353 2.227-.407 1.264-.061 1.646-.07 4.849-.07z"/>
+              <circle cx="12" cy="12" r="3.307"/>
+              <path d="M12 6.465c-2.988 0-5.303 2.315-5.303 5.303 0 2.988 2.315 5.303 5.303 5.303 2.988 0 5.303-2.315 5.303-5.303 0-2.988-2.315-5.303-5.303-5.303z"/>
+              <circle cx="18.53" cy="5.307" r="1.24"/>
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
+
+    <div class="container footer-partners">
+      <div class="footer-partners-header">
+        <h4>Our Partners</h4>
+      </div>
+<div class="footer-partners-logos">
+  <!-- Hernandez Mercado Eye Clinic -->
+  <a
+    href="https://www.facebook.com/profile.php?id=61574615712787"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Visit Hernandez Mercado Eye Clinic on Facebook"
+    class="footer-partner-link"
+  >
+    <img
+      src="/assets/partners/hernandez-mercado-eye-clinic.jpg"
+      alt="Hernandez Mercado Eye Clinic logo"
+      loading="lazy"
+    />
+    <div class="footer-partner-info">
+      <span class="footer-partner-name">Hernandez Mercado Eye Clinic</span>
+      <span class="footer-partner-action">Visit their page</span>
+    </div>
+  </a>
+
+  <!-- Novo Eye Care Clinic Inc. -->
+  <a
+    href="https://www.facebook.com/profile.php?id=61558781327877"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Visit Novo Eye Care Clinic Inc. on Facebook"
+    class="footer-partner-link"
+  >
+    <img
+      src="/assets/partners/novo-eye-care-clinic.png"
+      alt="Novo Eye Care Clinic Inc. logo"
+      loading="lazy"
+    />
+    <div class="footer-partner-info">
+      <span class="footer-partner-name">Novo Eye Care Clinic Inc.</span>
+      <span class="footer-partner-action">Visit their page</span>
+    </div>
+  </a>
+
+  <!-- LUCKY TYAN -->
+  <a
+    href="https://www.facebook.com/profile.php?id=61581580439802"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Visit LUCKY TYAN on Facebook"
+    class="footer-partner-link"
+  >
+    <img
+      src="/assets/partners/luck-tyan.jpg"
+      alt="LUCKY TYAN logo"
+      loading="lazy"
+    />
+    <div class="footer-partner-info">
+      <span class="footer-partner-name">LUCKY TYAN</span>
+      <span class="footer-partner-action">Visit their page</span>
+    </div>
+  </a>
+
+  <!-- Hernandez-Dedace Maternity Clinic -->
+  <a
+    href="https://www.facebook.com/profile.php?id=61583827108159"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Visit Hernandez-Dedace Maternity Clinic on Facebook"
+    class="footer-partner-link"
+  >
+    <img
+      src="/assets/partners/hernandez-dedace-maternity-clinic.jpg"
+      alt="Hernandez-Dedace Maternity Clinic logo"
+      loading="lazy"
+    />
+    <div class="footer-partner-info">
+      <span class="footer-partner-name">Hernandez-Dedace Maternity Clinic</span>
+      <span class="footer-partner-action">Visit their page</span>
+    </div>
+  </a>
+
+  <!-- Bijoux Bella -->
+  <a
+    href="https://www.facebook.com/profile.php?id=61550968936207"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Visit Bijoux Bella on Facebook"
+    class="footer-partner-link"
+  >
+    <img
+      src="/assets/partners/bijioux-bella.png"
+      alt="Bijoux Bella logo"
+      loading="lazy"
+    />
+    <div class="footer-partner-info">
+      <span class="footer-partner-name">Bijoux Bella</span>
+      <span class="footer-partner-action">Visit their page</span>
+    </div>
+  </a>
+
+  <!-- Sansait Dental -->
+  <a
+    href="https://www.facebook.com/sansaitdental"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Visit Sansait Dental on Facebook"
+    class="footer-partner-link"
+  >
+    <img
+      src="/assets/partners/sansait-dental.jpg"
+      alt="Sansait Dental logo"
+      loading="lazy"
+    />
+    <div class="footer-partner-info">
+      <span class="footer-partner-name">Sansait Dental</span>
+      <span class="footer-partner-action">Visit their page</span>
+    </div>
+  </a>
+</div>
+
+    </div>
+
     <div class="container footer-bottom">
       <p>© 2026 Hernandez Mercado Eye Clinic. All rights reserved.</p>
       <p class="footer-legal-links"><a href="/privacy-policy">Privacy Policy</a><a href="/terms-and-conditions">Terms &amp; Conditions</a></p>
-      <p>
-        Information presented on this website is for general informational purposes and does not
-        replace professional medical advice.
-      </p>
     </div>
   </footer>
 </Layout>

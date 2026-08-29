@@ -1,0 +1,237 @@
+---
+// Partners Section Component
+// Displays partner organizations in a grid with logos and Facebook links
+
+const partners = [
+  
+  {
+    name: "Novo Eye Care Clinic Inc.",
+    logo: "/assets/partners/novo-eye-care-clinic.png",
+    facebook: "https://www.facebook.com/profile.php?id=61558781327877"
+  },
+  {
+    name: "LUCKY TYAN",
+    logo: "/assets/partners/luck-tyan.jpg",
+    facebook: "https://www.facebook.com/profile.php?id=61581580439802"
+  },
+  {
+    name: "Hernandez-Dedace Maternity Clinic",
+    logo: "/assets/partners/hernandez-dedace-maternity-clinic.jpg",
+    facebook: "https://www.facebook.com/profile.php?id=61583827108159"
+  },
+  {
+    name: "Bijoux Bella",
+    logo: "/assets/partners/bijioux-bella.png",
+    facebook: "https://www.facebook.com/profile.php?id=61550968936207"
+  },
+  {
+    name: "Sansait Dental",
+    logo: "/assets/partners/sansait-dental.jpg",
+    facebook: "https://www.facebook.com/sansaitdental"
+  }
+];
+---
+
+<section id="our-partners" class="our-partners reveal">
+  <div class="container">
+    <div class="section-header center">
+      <span class="eyebrow">Our Partners</span>
+      <h2>Our Partners</h2>
+      <p class="partners-subtitle">
+        We are proud to work with trusted healthcare and service partners in Sta. Rosa City, 
+        providing quality care and services to our community.
+      </p>
+    </div>
+
+    <div class="partners-grid" role="region" aria-label="Partner organizations">
+      {partners.map((partner) => (
+        <article class="partner-card">
+          {partner.facebook ? (
+            <a
+              href={partner.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Visit ${partner.name} on Facebook`}
+              class="partner-link"
+            >
+              <div class="partner-logo-wrapper">
+                <img
+                  src={partner.logo}
+                  alt={`${partner.name} logo`}
+                  class="partner-logo"
+                  loading="lazy"
+                />
+              </div>
+              <h3 class="partner-name">{partner.name}</h3>
+            </a>
+          ) : (
+            <div class="partner-link">
+              <div class="partner-logo-wrapper">
+                <img
+                  src={partner.logo}
+                  alt={`${partner.name} logo`}
+                  class="partner-logo"
+                  loading="lazy"
+                />
+              </div>
+              <h3 class="partner-name">{partner.name}</h3>
+            </div>
+          )}
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .our-partners {
+    padding: 80px 0;
+    background: var(--white);
+  }
+
+  .our-partners .section-header {
+    margin-bottom: 48px;
+  }
+
+  .partners-subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    margin-top: 12px;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .partners-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 48px;
+  }
+
+  .partner-card {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .partner-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--line);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  a.partner-link {
+    cursor: pointer;
+  }
+
+  .partner-link:hover,
+  .partner-link:focus-visible {
+    background: var(--primary-pale);
+    border-color: var(--primary-soft);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(14, 132, 130, 0.12);
+  }
+
+  .partner-link:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  .partner-logo-wrapper {
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--white);
+    border: 1px solid rgba(14, 132, 130, 0.06);
+    overflow: hidden;
+  }
+
+  .partner-logo {
+    max-width: 85%;
+    max-height: 85%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .partner-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  a.partner-link:hover .partner-name {
+    color: var(--primary);
+  }
+
+  /* Tablet responsive */
+  @media (max-width: 768px) {
+    .our-partners {
+      padding: 60px 0;
+    }
+
+    .partners-grid {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .partner-link {
+      padding: 16px 12px;
+    }
+
+    .partner-logo-wrapper {
+      width: 100px;
+      height: 100px;
+    }
+
+    .partner-name {
+      font-size: 13px;
+    }
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 480px) {
+    .our-partners {
+      padding: 48px 0;
+    }
+
+    .partners-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .partner-link {
+      padding: 12px 8px;
+      gap: 8px;
+    }
+
+    .partner-logo-wrapper {
+      width: 80px;
+      height: 80px;
+    }
+
+    .partner-name {
+      font-size: 12px;
+    }
+
+    .partners-subtitle {
+      font-size: 16px;
+    }
+  }
+</style>

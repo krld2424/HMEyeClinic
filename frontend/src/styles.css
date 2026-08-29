@@ -4003,6 +4003,133 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   gap: 16px;
 }
 
+.footer-partners {
+  padding: 28px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.footer-partners-header {
+  margin-bottom: 16px;
+}
+
+.footer-partners-header h4 {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.footer-partners-logos {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.footer-partner-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.footer-partner-link:hover,
+.footer-partner-link:focus-visible {
+  transform: translateY(-4px);
+}
+
+.footer-partner-link:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.footer-partner-link img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  padding: 8px;
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.footer-partner-link:hover img {
+  background: rgba(14, 132, 130, 0.2);
+  border-color: rgba(14, 132, 130, 0.4);
+}
+
+.footer-partner-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.footer-partner-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  display: block;
+  max-width: 70px;
+  line-height: 1.2;
+}
+
+.footer-partner-action {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.6);
+  display: block;
+  transition: color 0.3s ease;
+}
+
+.footer-partner-link:hover .footer-partner-action {
+  color: rgba(14, 132, 130, 1);
+}
+
+.footer-social-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: #ffffff;
+  
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  
+}
+
+.footer-social-links a:hover {
+  background: rgba(14, 132, 130, 0.3);
+  border-color: rgba(14, 132, 130, 0.6);
+  transform: translateY(-2px);
+  color: #0e8482;
+}
+
+.footer-social-links a:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(22px);
@@ -4086,6 +4213,28 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 
   .timeline::before {
     display: none;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .footer-partners-logos {
+    gap: 12px;
+  }
+
+  .footer-partner-link img {
+    width: 45px;
+    height: 45px;
+  }
+
+  .footer-partner-name {
+    font-size: 10px;
+  }
+
+  .footer-partner-action {
+    font-size: 8px;
   }
 }
 
@@ -4441,6 +4590,23 @@ body.sidebar-is-collapsed .sidebar-group-links a {
     padding-left: 16px;
     padding-right: 16px;
   }
+
+  .footer-partners-logos {
+    gap: 8px;
+  }
+
+  .footer-partner-link img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .footer-partner-name {
+    font-size: 9px;
+  }
+
+  .footer-partner-action {
+    font-size: 7px;
+  }
 }
 
 /* Billing Tab Navigation */
@@ -4552,4 +4718,58 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   margin-top: 22px;
   padding-top: 4px;
   font-size: 0.8em;
-}
+}
+
+.contact-social-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.facebook-link,
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #f0f7f7;
+  color: var(--text);
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.facebook-link {
+  color: #1877f2;
+}
+
+.social-link.instagram {
+  color: #111827;
+}
+
+.facebook-icon,
+.social-link svg {
+  width: 22px;
+  height: 22px;
+}
+
+.facebook-link:hover,
+.social-link:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.social-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.facebook {
+  color: #1877f2;
+}
+
+.instagram {
+  color: #e4405f;
+}

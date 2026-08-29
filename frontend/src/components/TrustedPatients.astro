@@ -1,0 +1,281 @@
+---
+import patient1 from '../assets/partners/1.jpg';
+import patient2 from '../assets/partners/2.jpg';
+import patient3 from '../assets/partners/3.jpg';
+import patient4 from '../assets/partners/4.jpg';
+import patient5 from '../assets/partners/5.jpg';
+import patient6 from '../assets/partners/6.jpg';
+import patient7 from '../assets/partners/7.jpg';
+import patient8 from '../assets/partners/8.jpg';
+import patient9 from '../assets/partners/9.jpg';
+import patient10 from '../assets/partners/10.jpg';
+
+const customerImages = [
+  patient1.src,
+  patient2.src,
+  patient3.src,
+  patient4.src,
+  patient5.src,
+  patient6.src,
+  patient7.src,
+  patient8.src,
+  patient9.src,
+  patient10.src,
+];
+
+// Split images into two rows for the carousel
+const row1 = customerImages.slice(0, 5);
+const row2 = customerImages.slice(5, 10);
+
+// Duplicate for seamless loop
+const row1Images = [...row1, ...row1];
+const row2Images = [...row2, ...row2];
+---
+
+<section id="trusted-patients" class="trusted-patients section-surface reveal">
+  <div class="container">
+    <div class="section-header center">
+      <span class="eyebrow">Trusted by Our Patients</span>
+      <h2>Trusted by Our Patients</h2>
+      <p class="trusted-subtitle">
+        Thank you to our valued patients for trusting Hernandez Mercado Eye Clinic with your eye care.
+      </p>
+    </div>
+
+    <div class="carousel-wrapper" role="region" aria-label="Patient photo carousel">
+      <!-- Row 1: Moving left to right -->
+      <div class="carousel-row row-1" data-animate="true">
+        <div class="carousel-track row1-track">
+          {row1Images.map((image, idx) => (
+            <div class="carousel-item">
+              <img
+                src={image}
+                alt="Hernandez Mercado Eye Clinic patient"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Row 2: Moving right to left -->
+      <div class="carousel-row row-2" data-animate="true">
+        <div class="carousel-track row2-track">
+          {row2Images.map((image, idx) => (
+            <div class="carousel-item">
+              <img
+                src={image}
+                alt="Hernandez Mercado Eye Clinic patient"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .trusted-patients {
+    padding: 80px 0;
+  }
+
+  .trusted-patients .section-header {
+    margin-bottom: 48px;
+  }
+
+  .trusted-subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    margin-top: 12px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .carousel-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow: hidden;
+    margin-top: 40px;
+  }
+
+  .carousel-row {
+    overflow: hidden;
+    position: relative;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 16px;
+    animation: none;
+  }
+
+  /* Row 1: Animate left to right */
+  .row1-track {
+    animation: scrollRight 60s linear infinite;
+  }
+
+  /* Row 2: Animate right to left */
+  .row2-track {
+    animation: scrollLeft 60s linear infinite;
+  }
+
+  /* Pause animation on hover */
+  .carousel-row:hover .carousel-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes scrollRight {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes scrollLeft {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .carousel-item {
+    flex: 0 0 220px;
+    min-width: 220px;
+    aspect-ratio: 220 / 160;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(8, 52, 58, 0.08);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .carousel-item:hover {
+    box-shadow: 0 8px 24px rgba(8, 52, 58, 0.16);
+  }
+
+  .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-track {
+      animation: none !important;
+    }
+
+    .carousel-item {
+      flex: 0 0 260px;
+    }
+  }
+
+  /* Tablet responsive */
+  @media (max-width: 768px) {
+    .trusted-patients {
+      padding: 60px 0;
+    }
+
+    .carousel-item {
+      flex: 0 0 180px;
+      min-width: 180px;
+      aspect-ratio: 180 / 130;
+    }
+
+    .carousel-row {
+      padding: 12px;
+    }
+
+    .carousel-track {
+      gap: 12px;
+    }
+
+    .row1-track {
+      animation: scrollRight 45s linear infinite;
+    }
+
+    .row2-track {
+      animation: scrollLeft 45s linear infinite;
+    }
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 480px) {
+    .trusted-patients {
+      padding: 48px 0;
+    }
+
+    .carousel-item {
+      flex: 0 0 140px;
+      min-width: 140px;
+      aspect-ratio: 140 / 100;
+    }
+
+    .carousel-row {
+      padding: 8px;
+    }
+
+    .carousel-track {
+      gap: 8px;
+    }
+
+    .row1-track {
+      animation: scrollRight 35s linear infinite;
+    }
+
+    .row2-track {
+      animation: scrollLeft 35s linear infinite;
+    }
+
+    .trusted-subtitle {
+      font-size: 16px;
+    }
+  }
+</style>
+
+<script>
+  // Add hover pause/resume functionality for better UX
+  document.querySelectorAll('.carousel-row').forEach((row) => {
+    row.addEventListener('mouseenter', () => {
+      const track = row.querySelector('.carousel-track');
+      if (track) {
+        track.style.animationPlayState = 'paused';
+      }
+    });
+
+    row.addEventListener('mouseleave', () => {
+      const track = row.querySelector('.carousel-track');
+      if (track) {
+        track.style.animationPlayState = 'running';
+      }
+    });
+  });
+
+  // Touch support for mobile - pause on touch
+  document.querySelectorAll('.carousel-row').forEach((row) => {
+    row.addEventListener('touchstart', () => {
+      const track = row.querySelector('.carousel-track');
+      if (track) {
+        track.style.animationPlayState = 'paused';
+      }
+    });
+
+    row.addEventListener('touchend', () => {
+      const track = row.querySelector('.carousel-track');
+      if (track) {
+        track.style.animationPlayState = 'running';
+      }
+    });
+  });
+</script>
