@@ -78,6 +78,15 @@ const nextDocumentNumber = async (recordType, prefix) => {
   return `${start}${String(next).padStart(4, '0')}`;
 };
 
+// The billing form can retain a previous hidden template ID after a template
+// has been replaced. There is only one active template, so safely resolve a
+// missing but valid ID to the current default instead of rejecting the invoice.
+const resolveInvoiceTemplate = async (templateId) => {
+  if (templateId && !mongoose.isValidObjectId(templateId)) throw new Error('Invalid invoice template.');
+  return (templateId ? await InvoiceTemplate.findById(templateId) : null)
+    || await InvoiceTemplate.findOne({ isDefault: true });
+};
+
 const refreshInvoice = async (invoiceId) => {
   if (!mongoose.isValidObjectId(invoiceId)) throw new Error('Invalid invoiceId.');
   const invoice = await ClinicOperation.findOne({ _id: invoiceId, recordType: 'invoice' });
@@ -287,6 +296,13 @@ router.patch('/:id', async (req, res) => {
       data.total = invoiceTotalFromItems(data.items) || money(data.total || 0);
       data.invoiceNumber = operation.data.invoiceNumber;
       data.status = 'unpaid';
+      if (data.templateId || await InvoiceTemplate.exists({ isDefault: true })) {
+        const template = await resolveInvoiceTemplate(data.templateId);
+        if (!template) return res.status(400).json({ message: 'Selected invoice template was not found.' });
+        data.templateId = template._id.toString();
+        data.templateName = template.name;
+        data.templateSnapshot = template.templateData;
+      }
     }
     const validationError = validateRecord(operation.recordType, data);
     if (validationError) return res.status(400).json({ message: validationError });
@@ -337,10 +353,7 @@ router.post('/:recordType', async (req, res) => {
       data.balance = data.total;
       data.status = 'unpaid';
       if (data.templateId || await InvoiceTemplate.exists({ isDefault: true })) {
-        if (data.templateId && !mongoose.isValidObjectId(data.templateId)) return res.status(400).json({ message: 'Invalid invoice template.' });
-        const template = data.templateId
-          ? await InvoiceTemplate.findById(data.templateId)
-          : await InvoiceTemplate.findOne({ isDefault: true });
+        const template = await resolveInvoiceTemplate(data.templateId);
         if (!template) return res.status(400).json({ message: 'Selected invoice template was not found.' });
         data.templateId = template._id.toString();
         data.templateName = template.name;

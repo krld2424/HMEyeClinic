@@ -1,0 +1,162 @@
+---
+const { current = '' } = Astro.props;
+const isHome = current === 'home';
+const sectionHref = (id) => (isHome ? `#${id}` : `/#${id}`);
+const navItems = [
+  { id: 'home', label: 'Home', href: isHome ? '#home' : '/' },
+  { id: 'about', label: 'About', href: sectionHref('about') },
+  { id: 'services', label: 'Services', href: sectionHref('services') },
+  { id: 'eyewear', label: 'Eyewear', href: current === 'eyewear' ? '/eyewear' : sectionHref('eyewear') },
+  { id: 'why-choose-us', label: 'Why Choose Us', href: sectionHref('why-choose-us') },
+  { id: 'contact', label: 'Contact', href: sectionHref('contact') },
+];
+---
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main navigation">
+    <a href={isHome ? '#home' : '/'} class="brand" aria-label="Hernandez Mercado Eye Clinic home">
+      <span class="brand-mark">
+        <img src="/assets/partners/hmec-logo.jpg" alt="Hernandez Mercado Eye Clinic logo" />
+      </span>
+      <span>Hernandez Mercado Eye Clinic</span>
+    </a>
+
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="nav-menu">
+      <div class="nav-links">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            data-section={item.id}
+            class={item.id === current ? 'is-current' : undefined}
+          >
+            {item.label}
+          </a>
+        ))}
+      </div>
+      <a href="/login" class="btn btn-primary">Login</a>
+      <a href="/register" class="btn btn-secondary">Sign Up</a>
+    </div>
+  </nav>
+</header>
+
+<script>
+  const token = localStorage.getItem('hmVisionToken');
+  const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+  if (token && user && user.role) {
+    const loginBtn = document.querySelector('.nav-menu .btn-primary[href="/login"]');
+    const signUpBtn = document.querySelector('.nav-menu .btn-secondary[href="/register"]');
+    if (loginBtn) {
+      loginBtn.textContent = 'Dashboard';
+      loginBtn.setAttribute('href', `/dashboard/${user.role}/dashboard`);
+    }
+    if (signUpBtn) {
+      signUpBtn.textContent = 'Sign Out';
+      signUpBtn.setAttribute('href', '#');
+      signUpBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        localStorage.removeItem('hmVisionToken');
+        localStorage.removeItem('hmVisionUser');
+        window.location.reload();
+      });
+    }
+  }
+
+  const navToggle = document.querySelector('.nav-toggle');
+  const navMenu = document.querySelector('.nav-menu');
+  if (navToggle && navMenu) {
+    navToggle.addEventListener('click', () => {
+      const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
+      navToggle.setAttribute('aria-expanded', String(!isExpanded));
+      navMenu.classList.toggle('is-open');
+    });
+    navMenu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        navMenu.classList.remove('is-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  const navLinksRoot = document.querySelector('.nav-links');
+  const indicator = document.querySelector('.nav-indicator');
+  const sectionLinks = [...document.querySelectorAll('.nav-links a[data-section]')];
+  const sections = sectionLinks
+    .map((link) => ({ id: link.dataset.section, el: document.getElementById(link.dataset.section) }))
+    .filter((section) => section.el);
+  let activeSectionId = sectionLinks.find((link) => link.classList.contains('is-current'))?.dataset.section || '';
+  let indicatorReady = false;
+
+  const moveIndicator = (instant = false) => {
+    if (!navLinksRoot || !indicator) return;
+    const active = navLinksRoot.querySelector('a.is-current');
+    const desktop = window.matchMedia('(min-width: 761px)').matches;
+    if (!active || !desktop) {
+      indicator.classList.remove('is-ready');
+      return;
+    }
+    if (instant || !indicatorReady) {
+      indicator.classList.add('is-instant');
+    }
+    indicator.style.transform = `translateX(${active.offsetLeft}px) scaleX(${active.offsetWidth})`;
+    indicator.classList.add('is-ready');
+    if (instant || !indicatorReady) {
+      requestAnimationFrame(() => {
+        indicator.classList.remove('is-instant');
+        indicatorReady = true;
+      });
+    }
+  };
+
+  const setCurrentSection = (id, instant = false) => {
+    if (!id) return;
+    if (id === activeSectionId && indicatorReady && !instant) {
+      return;
+    }
+    activeSectionId = id;
+    sectionLinks.forEach((link) => {
+      link.classList.toggle('is-current', link.dataset.section === id);
+    });
+    moveIndicator(instant);
+  };
+
+  const syncFromScroll = () => {
+    if (!sections.length) return;
+    const offset = 110;
+    let currentId = sections[0].id;
+    for (const section of sections) {
+      if (section.el.getBoundingClientRect().top - offset <= 0) {
+        currentId = section.id;
+      }
+    }
+    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 12;
+    if (atBottom) currentId = sections[sections.length - 1].id;
+    setCurrentSection(currentId);
+  };
+
+  if (sections.length) {
+    sectionLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        if (link.getAttribute('href')?.startsWith('#')) {
+          setCurrentSection(link.dataset.section);
+        }
+      });
+    });
+    syncFromScroll();
+    window.addEventListener('scroll', syncFromScroll, { passive: true });
+    window.addEventListener('resize', () => {
+      moveIndicator(true);
+      syncFromScroll();
+    });
+    window.addEventListener('hashchange', syncFromScroll);
+  } else {
+    requestAnimationFrame(() => moveIndicator(true));
+    window.addEventListener('resize', () => moveIndicator(true));
+  }
+</script>

@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 
 const collections = [
   {
@@ -54,10 +56,10 @@ const collections = [
 ---
 
 <Layout title="Eyewear Collection | Hernandez Mercado Eye Clinic">
+  <SiteHeader current="eyewear" />
   <main class="eyewear-page">
     <section class="eyewear-page-hero section-surface">
       <div class="container">
-        <a class="auth-back-link" href="/">Back to clinic</a>
         <span class="eyebrow">Eyewear Collection</span>
         <h1>Contact lens and glasses for every way you see.</h1>
         <p>Explore practical vision solutions and personal styles selected by Hernandez Mercado Eye Clinic.</p>
@@ -102,6 +104,7 @@ const collections = [
       ))}
     </div>
   </main>
+  <SiteFooter current="eyewear" />
 </Layout>
 
 <script>

@@ -517,7 +517,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           )}
 
           {section === 'clinic-settings' && role === 'owner' && (
-            <form id="clinic-settings-form" class="workflow-form"><div class="field-group"><label for="clinic-name">Clinic name</label><input id="clinic-name" name="name" required /></div><div class="field-row"><div class="field-group"><label for="clinic-phone">Phone</label><input id="clinic-phone" name="phone" /></div><div class="field-group"><label for="clinic-email">Email</label><input id="clinic-email" name="email" type="email" /></div></div><div class="field-group"><label for="clinic-address">Address</label><input id="clinic-address" name="address" /></div><div class="field-group"><label for="clinic-hours">Hours</label><input id="clinic-hours" name="hours" /></div><button type="submit" class="btn btn-primary">Save clinic settings</button><p id="settings-status" class="form-status" aria-live="polite"></p></form>
+            <form id="clinic-settings-form" class="workflow-form"><div class="field-group"><label for="clinic-name">Clinic name</label><input id="clinic-name" name="name" required /></div><div class="field-row"><div class="field-group"><label for="clinic-phone">Phone</label><input id="clinic-phone" name="phone" /></div><div class="field-group"><label for="clinic-email">Email</label><input id="clinic-email" name="email" type="email" /></div></div><div class="field-group"><label for="clinic-address">Address</label><input id="clinic-address" name="address" /></div><div class="field-group"><label for="clinic-hours">Hours</label><input id="clinic-hours" name="hours" /></div><div class="field-group"><label for="clinic-logo">Clinic Logo</label><div style="display: flex; gap: 0.5rem; align-items: center;"><input id="clinic-logo" name="logo" placeholder="URL or uploaded image" style="flex: 1;" /><label for="clinic-logo-upload" class="btn btn-secondary" style="margin: 0; padding: 0.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; height: 38px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></label><input id="clinic-logo-upload" type="file" accept="image/*" style="display: none;" /></div></div><button type="submit" class="btn btn-primary">Save clinic settings</button><p id="settings-status" class="form-status" aria-live="polite"></p></form>
           )}
 
           {section !== 'dashboard' && section !== 'book-exam' && section !== 'appointments' && section !== 'today-patients' && section !== 'follow-ups' && section !== 'profile' && !['medical-records', 'prescriptions', 'clinical-records', 'consultations', 'manage-team', 'manage-users', 'roles-permissions', 'audit-logs', 'clinic-settings', 'suppliers', 'purchase-orders', 'receiving', 'purchase-history', 'inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history', 'billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances'].includes(section) && (
@@ -1168,10 +1168,23 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const response = await fetch(`${api}/api/workspace/clinic-settings`, { headers: { Authorization: `Bearer ${token}` } });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || 'Unable to load clinic settings.');
-      ['name', 'phone', 'email', 'address', 'hours'].forEach((field) => { const input = settingsForm.elements.namedItem(field); if (input) input.value = result.settings[field] || ''; });
+      ['name', 'phone', 'email', 'address', 'hours', 'logo'].forEach((field) => { const input = settingsForm.elements.namedItem(field); if (input) input.value = result.settings[field] || ''; });
     };
     settingsForm?.addEventListener('submit', async (event) => { event.preventDefault(); const response = await fetch(`${api}/api/workspace/clinic-settings`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(Object.fromEntries(new FormData(settingsForm).entries())) }); const result = await response.json(); settingsStatus.textContent = result.message || 'Settings updated.'; });
     loadSettings().catch((error) => { if (settingsStatus) settingsStatus.textContent = error.message; });
+
+    const clinicLogoUpload = document.getElementById('clinic-logo-upload');
+    clinicLogoUpload?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const logoInput = document.getElementById('clinic-logo');
+          if (logoInput) logoInput.value = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
     const adminForm = document.getElementById('admin-user-form');
     const adminStatus = document.getElementById('admin-status');
@@ -1393,6 +1406,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const statusLabel = (status) => ({ paid: 'Paid', unpaid: 'Unpaid', 'partially-paid': 'Partially Paid', overdue: 'Overdue', cancelled: 'Cancelled', recorded: 'Recorded', reversed: 'Reversed' }[status] || status || 'Unpaid');
       const statusClass = (status) => `billing-status status-${String(status || 'unpaid').replace(/[^a-z-]/g, '')}`;
       const lineAmount = (row) => Math.max((Number(row.querySelector('[name="itemQuantity"]')?.value) || 0) * (Number(row.querySelector('[name="itemUnitPrice"]')?.value) || 0) - (Number(row.querySelector('[name="itemDiscount"]')?.value) || 0) + (Number(row.querySelector('[name="itemTax"]')?.value) || 0), 0);
+      let clinicLogoUrl = '/assets/partners/hmec-logo.jpg';
+      let clinicSettings = { name: 'Hernandez Mercado Eye Clinic', address: '123 Vision Avenue, Manila', phone: '+63 912 345 6789', email: '' };
       let billingInvoices = [];
       let billingPayments = [];
       let billingCustomers = [];
@@ -1455,12 +1470,18 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           .invoice-canvas { box-shadow: none !important; border: none !important; margin: 0 !important; }
           .invoice-element { position: absolute; box-sizing: border-box; padding: 2px; overflow: hidden; }
           .invoice-element-content { height: 100%; overflow: hidden; line-height: 1.35; }
-          .invoice-items-preview { border-collapse: collapse; width: 100%; font-size: inherit; }
-          .invoice-items-preview th, .invoice-items-preview td { border: 1px solid #94a3b8; padding: 6px; }
-          .invoice-totals { display: grid; gap: 4px; }
-          .invoice-totals span, .invoice-totals strong { display: flex; justify-content: space-between; }
-          .invoice-totals strong { border-top: 1px solid #64748b; padding-top: 3px; }
+          .invoice-items-preview { border-collapse: collapse; width: 100%; table-layout: fixed; font-size: inherit; }
+          .invoice-items-preview th, .invoice-items-preview td { border: 1px solid #94a3b8; padding: 6px; overflow-wrap: anywhere; }
+          .invoice-items-preview th:first-child, .invoice-items-preview td:first-child { text-align: left; }
+          .invoice-items-preview th:nth-child(2), .invoice-items-preview td:nth-child(2) { text-align: center; }
+          .invoice-items-preview th:nth-child(3), .invoice-items-preview th:nth-child(4), .invoice-items-preview td:nth-child(3), .invoice-items-preview td:nth-child(4) { text-align: right; }
+          .invoice-items-preview tfoot { display: table-footer-group; }
+          .invoice-items-preview .invoice-total-label, .invoice-items-preview .invoice-total-amount { text-align: right; }
+          .invoice-items-preview .invoice-total-first { border-top: 2px solid #64748b; }
+          .invoice-items-preview .invoice-total-emphasis { font-weight: 700; }
+          .invoice-items-preview .invoice-total-last { border-bottom: 2px solid #64748b; background: #ecfdf5; color: #065f46; }
           .invoice-logo-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+          .invoice-logo-placeholder { height: 100%; border: 1px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 0.8rem; background: #f8fafc; }
           .signature-line { border-top: 1px solid #334155; margin-top: 22px; padding-top: 4px; font-size: 0.8em; }
           .billing-document { font-family: Segoe UI, sans-serif; padding: 28px; color: #123; }
           .billing-document h1, .billing-document h3 { font-size: 1.2rem; margin: 0 0 8px; }
@@ -1470,6 +1491,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           .billing-doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0; font-size: .9rem; }
           .billing-total { font-size: 1.1rem; font-weight: 700; }
           @media print {
+            @page { size: A4; margin: 0; }
             body { margin: 0; padding: 0; }
             .invoice-canvas-wrapper { padding: 0; }
             .invoice-canvas { border: none !important; box-shadow: none !important; page-break-after: avoid; }
@@ -1491,33 +1513,40 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const data = invoice.data || {};
         const items = Array.isArray(data.items) ? data.items : [];
         
-        // Find template
-        const template = billingTemplates.find(t => t._id === (invoice.templateId || invoice.data?.templateId)) 
-          || billingTemplates.find(t => t.isDefault) 
-          || billingTemplates[0];
-
-        // Fallback elements if no template is loaded
-        const elements = template?.templateData?.elements || [
-          { type: 'image', x: 48, y: 42, w: 120, h: 70 },
-          { type: 'heading', text: '{{business_name}}', field: 'business_name', x: 180, y: 42, w: 310, h: 38, style: { size: 20, bold: true } },
-          { type: 'text', text: '{{business_address}}', field: 'business_address', x: 180, y: 80, w: 310, h: 36, style: { size: 10 } },
-          { type: 'heading', text: 'INVOICE', x: 500, y: 42, w: 240, h: 36, style: { size: 26, bold: true, align: 'right' } },
-          { type: 'text', text: 'Invoice #: {{invoice_number}}\nDate: {{invoice_date}}\nDue: {{due_date}}', x: 500, y: 80, w: 240, h: 66, style: { size: 10, align: 'right' } },
-          { type: 'customer', x: 48, y: 188, w: 330, h: 105, style: { size: 12 } },
-          { type: 'items-table', x: 48, y: 330, w: 682, h: 160, style: { size: 11 } },
-          { type: 'total', x: 450, y: 525, w: 280, h: 118, style: { size: 12 } },
-          { type: 'footer', text: 'Thank you for trusting us with your vision.', x: 48, y: 1015, w: 682, h: 28, style: { size: 10, align: 'center' } },
-        ];
+        // Prioritize templateSnapshot from the invoice data, fall back to DB templates or default layout
+        const elements = data.templateSnapshot?.elements
+          || (() => {
+            const template = billingTemplates.find(t => t._id === (invoice.templateId || data.templateId))
+              || billingTemplates.find(t => t.isDefault)
+              || billingTemplates[0];
+            return template?.templateData?.elements;
+          })()
+          || [
+            { type: 'image', x: 48, y: 38, w: 72, h: 72 },
+            { type: 'heading', text: '{{business_name}}', field: 'business_name', x: 138, y: 40, w: 330, h: 26, style: { size: 18, bold: true } },
+            { type: 'text', text: '{{business_address}}\n{{business_contact}} · {{business_email}}', x: 138, y: 70, w: 340, h: 42, style: { size: 9 } },
+            { type: 'heading', text: 'INVOICE', x: 510, y: 40, w: 218, h: 30, style: { size: 24, bold: true, align: 'right' } },
+            { type: 'text', text: 'Invoice #: {{invoice_number}}\nInvoice Date: {{invoice_date}}', x: 500, y: 75, w: 228, h: 38, style: { size: 10, align: 'right' } },
+            { type: 'divider', x: 48, y: 132, w: 680, h: 1, style: { color: '#cbd5e1' } },
+            { type: 'heading', text: 'Bill To', x: 48, y: 152, w: 310, h: 16, style: { size: 10, bold: true } },
+            { type: 'customer', x: 48, y: 172, w: 310, h: 50, style: { size: 10 } },
+            { type: 'items-table', x: 48, y: 244, w: 680, h: 250, style: { size: 10 } },
+            { type: 'payment', x: 48, y: 516, w: 680, h: 42, style: { size: 9 } },
+            { type: 'heading', text: 'Terms and Conditions', x: 48, y: 582, w: 680, h: 16, style: { size: 10, bold: true } },
+            { type: 'text', text: 'Please send payment within 30 days', x: 48, y: 604, w: 680, h: 24, style: { size: 10 } },
+          ];
 
         // Prepare token values
         const discountTotal = items.reduce((acc, item) => acc + Number(item.discount || 0), 0);
         const taxTotal = items.reduce((acc, item) => acc + Number(item.tax || 0), 0);
         const subtotal = Number(data.total || 0) + discountTotal - taxTotal;
+        const payment = billingPayments.find((record) => record.data?.invoiceId === invoice._id && record.data?.status === 'recorded')?.data;
 
         const values = {
-          business_name: 'Hernandez Mercado Eye Clinic',
-          business_address: '123 Vision Avenue, Manila',
-          business_contact: '+63 912 345 6789',
+          business_name: clinicSettings.name || 'Hernandez Mercado Eye Clinic',
+          business_address: clinicSettings.address || '123 Vision Avenue, Manila',
+          business_contact: clinicSettings.phone || '+63 912 345 6789',
+          business_email: clinicSettings.email || '',
           invoice_number: data.invoiceNumber || '—',
           invoice_date: data.invoiceDate || '—',
           due_date: data.dueDate || '—',
@@ -1531,9 +1560,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           total_amount: peso(data.total),
           amount_paid: peso(data.paid),
           outstanding_balance: peso(data.balance),
-          payment_method: data.paymentMethod || '—',
-          payment_reference: data.paymentReference || '—',
-          payment_date: data.paymentDate || '—'
+          payment_method: payment?.method || data.paymentMethod || '—',
+          payment_reference: payment?.reference || data.paymentReference || '—',
+          payment_date: payment?.paymentDate || data.paymentDate || '—'
         };
 
         const replaceTokens = (text = '') => {
@@ -1546,14 +1575,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           if (el.type === 'items-table') {
             return `
               <table class="invoice-items-preview">
+                <colgroup>
+                  <col style="width:55%"><col style="width:10%"><col style="width:17.5%"><col style="width:17.5%">
+                </colgroup>
                 <thead>
                   <tr style="background:${el.style?.color || '#0d9488'};color:#ffffff;">
-                    <th>Service / Item</th>
+                    <th>Service / Description</th>
                     <th>Qty</th>
                     <th>Price</th>
-                    <th>Discount</th>
-                    <th>Tax</th>
-                    <th>Total</th>
+                    <th>Amount</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1562,12 +1592,28 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                       <td>${escapeHtml(item.description || '')}</td>
                       <td>${item.quantity || 0}</td>
                       <td>${peso(item.unitPrice)}</td>
-                      <td>${peso(item.discount)}</td>
-                      <td>${peso(item.tax)}</td>
                       <td>${peso(item.lineTotal)}</td>
                     </tr>
-                  `).join('') || '<tr><td colspan="6">No line items</td></tr>'}
+                  `).join('') || '<tr><td colspan="4">No line items</td></tr>'}
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="3" class="invoice-total-label invoice-total-first">Subtotal</td>
+                    <td class="invoice-total-amount invoice-total-first">${peso(subtotal)}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" class="invoice-total-label">Amount Paid</td>
+                    <td class="invoice-total-amount">${peso(data.paid)}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" class="invoice-total-label invoice-total-emphasis">Total</td>
+                    <td class="invoice-total-amount invoice-total-emphasis">${peso(data.total)}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" class="invoice-total-label invoice-total-emphasis invoice-total-last">Balance</td>
+                    <td class="invoice-total-amount invoice-total-emphasis invoice-total-last">${peso(data.balance)}</td>
+                  </tr>
+                </tfoot>
               </table>
             `;
           }
@@ -1593,16 +1639,18 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           }
           if (el.type === 'payment') {
             return `
-              <strong>Payment</strong><br>
-              ${escapeHtml(data.paymentMethod || '—')} · ${escapeHtml(data.paymentReference || '—')}<br>
-              ${escapeHtml(data.paymentDate || '—')}
+              <strong>Payment Information</strong><br>
+              <span>Payment Method: ${escapeHtml(values.payment_method)}</span> &nbsp;
+              <span>Payment Reference: ${escapeHtml(values.payment_reference)}</span> &nbsp;
+              <span>Payment Date: ${escapeHtml(values.payment_date)}</span>
             `;
           }
           if (el.type === 'divider' || el.type === 'line') {
             return `<hr style="border: 0; border-top: 2px solid ${el.style?.color || '#e2e8f0'};">`;
           }
           if (el.type === 'image') {
-            return el.text ? `<img src="${escapeHtml(el.text)}" class="invoice-logo-img" alt="Logo" onerror="this.style.display='none';" />` : '';
+            const logoSrc = el.text || clinicLogoUrl || '/assets/partners/hmec-logo.jpg';
+            return logoSrc ? `<img src="${escapeHtml(logoSrc)}" class="invoice-logo-img" alt="Logo" style="display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" /><div class="invoice-logo-placeholder" style="display:none;width:100%;height:100%;border:1px dashed #cbd5e1;align-items:center;justify-content:center;color:#64748b;font-size:0.8rem;background:#f8fafc;">LOGO</div>` : '<div class="invoice-logo-placeholder" style="width:100%;height:100%;border:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:0.8rem;background:#f8fafc;">LOGO</div>';
           }
           if (el.type === 'signature') {
             return `<div class="signature-line">Authorized signature</div>`;
@@ -1611,10 +1659,40 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           return replaceTokens(rawText).replaceAll('\n', '<br>');
         };
 
-        const renderElements = elements.map(el => {
+        // Old template snapshots can still contain a detached total element.
+        // The item table's <tfoot> is now the only financial summary.
+        // Clone before adjusting legacy layouts so viewing an invoice never
+        // changes its saved template snapshot.
+        const renderableElements = elements
+          .filter(el => el.type !== 'total')
+          .map(el => ({ ...el, style: { ...(el.style || {}) } }));
+        // Templates saved before payment details were introduced still receive a
+        // compact payment block directly below their item-table footer.
+        if (!renderableElements.some(el => el.type === 'payment')) {
+          const table = renderableElements.find(el => el.type === 'items-table');
+          if (table) {
+            const paymentY = Number(table.y) + Number(table.h) + 18;
+            const paymentHeight = 42;
+            const nextContentY = paymentY + paymentHeight + 18;
+            const followingElements = renderableElements.filter((el) => el !== table && Number(el.y) >= Number(table.y) + Number(table.h));
+            const firstFollowingElementY = Math.min(...followingElements.map((el) => Number(el.y)));
+
+            // Legacy templates place terms and the clinic footer immediately
+            // below the original table. Move that trailing content down only
+            // when the generated payment block would occupy the same space.
+            if (Number.isFinite(firstFollowingElementY) && firstFollowingElementY < nextContentY) {
+              const offset = nextContentY - firstFollowingElementY;
+              followingElements.forEach((el) => { el.y = Number(el.y) + offset; });
+            }
+
+            renderableElements.push({ type: 'payment', x: table.x, y: paymentY, w: table.w, h: paymentHeight, style: { size: 9 } });
+          }
+        }
+        const renderElements = renderableElements.map(el => {
           const s = el.style || {};
-          const cssText = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;font-family:${s.font || 'Arial'};font-size:${s.size || 12}px;font-weight:${s.bold ? '700':'400'};font-style:${s.italic ? 'italic':'normal'};text-decoration:${s.underline ? 'underline':'none'};color:${s.color || '#1f2937'};text-align:${s.align || 'left'};overflow:hidden;line-height:1.35;`;
-          return `<article class="invoice-element" style="${cssText}"><div class="invoice-element-content">${elementHtml(el)}</div></article>`;
+          const isImageElement = el.type === 'image';
+          const cssText = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;font-family:${s.font || 'Arial'};font-size:${s.size || 12}px;font-weight:${s.bold ? '700':'400'};font-style:${s.italic ? 'italic':'normal'};text-decoration:${s.underline ? 'underline':'none'};color:${s.color || '#1f2937'};text-align:${s.align || 'left'};overflow:hidden;line-height:1.35;${isImageElement ? 'display:flex;align-items:center;justify-content:center;' : ''}`;
+          return `<article class="invoice-element" style="${cssText}"><div class="invoice-element-content" style="${isImageElement ? 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;' : ''}">${elementHtml(el)}</div></article>`;
         }).join('');
 
         return `
@@ -1699,16 +1777,31 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No payments match these filters.</p>';
       };
       const loadBilling = async () => {
-        const [invoiceResponse, paymentResponse, userResponse, templateResponse] = await Promise.all([
+        const [invoiceResponse, paymentResponse, userResponse, templateResponse, settingsResponse] = await Promise.all([
           fetch(`${api}/api/clinic-operations?type=invoice`, { headers: billingHeaders }),
           fetch(`${api}/api/clinic-operations?type=payment`, { headers: billingHeaders }),
           fetch(`${api}/api/admin/users`, { headers: billingHeaders }),
           fetch(`${api}/api/invoice-templates`, { headers: billingHeaders }),
+          fetch(`${api}/api/workspace/clinic-settings`, { headers: billingHeaders }).catch(() => null),
         ]);
         const invoices = await invoiceResponse.json();
         const payments = await paymentResponse.json();
         const users = await userResponse.json();
         const templateResult = await templateResponse.json();
+        if (settingsResponse && settingsResponse.ok) {
+          const settingsResult = await settingsResponse.json();
+          if (settingsResult?.settings) {
+            clinicSettings = {
+              name: settingsResult.settings.name || clinicSettings.name,
+              address: settingsResult.settings.address || clinicSettings.address,
+              phone: settingsResult.settings.phone || clinicSettings.phone,
+              email: settingsResult.settings.email || clinicSettings.email,
+            };
+            if (settingsResult.settings.logo) {
+              clinicLogoUrl = settingsResult.settings.logo;
+            }
+          }
+        }
         if (!invoiceResponse.ok) throw new Error(invoices.message || 'Unable to load invoices.');
         if (!paymentResponse.ok) throw new Error(payments.message || 'Unable to load payments.');
         billingInvoices = invoices.records || [];
@@ -1757,7 +1850,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           ...customer,
           invoiceDate: invoiceDate.value,
           dueDate: dueDate.value,
-          templateId: document.getElementById('billing-template')?.value || undefined,
+          // Do not submit a stale hidden ID after a template has been replaced.
+          templateId: billingTemplates.some((template) => template._id === document.getElementById('billing-template')?.value)
+            ? document.getElementById('billing-template')?.value
+            : undefined,
           items: collectItems(),
         };
         invoiceStatus.textContent = 'Saving invoice...';

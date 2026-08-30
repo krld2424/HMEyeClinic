@@ -1,0 +1,73 @@
+---
+const { current = '' } = Astro.props;
+const isHome = current === 'home';
+const sectionHref = (id) => (isHome ? `#${id}` : `/#${id}`);
+const socialLink = 'https://www.facebook.com/profile.php?id=61574615712787';
+const partners = [
+  { name: 'Hernandez Mercado Eye Clinic', href: socialLink, image: '/assets/partners/hernandez-mercado-eye-clinic.jpg' },
+  { name: 'Novo Eye Care Clinic Inc.', href: 'https://www.facebook.com/profile.php?id=61558781327877', image: '/assets/partners/novo-eye-care-clinic.png' },
+  { name: 'LUCKY TYAN', href: 'https://www.facebook.com/profile.php?id=61581580439802', image: '/assets/partners/luck-tyan.jpg' },
+  { name: 'Hernandez-Dedace Maternity Clinic', href: 'https://www.facebook.com/profile.php?id=61583827108159', image: '/assets/partners/hernandez-dedace-maternity-clinic.jpg' },
+  { name: 'Bijoux Bella', href: 'https://www.facebook.com/profile.php?id=61550968936207', image: '/assets/partners/bijioux-bella.png' },
+  { name: 'Sansait Dental', href: 'https://www.facebook.com/sansaitdental', image: '/assets/partners/sansait-dental.jpg' },
+];
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <h3>Hernandez Mercado Eye Clinic</h3>
+      <p>Healthy Eyes, Meaningful Lives</p>
+    </div>
+    <div>
+      <h4>Links</h4>
+      <ul>
+        <li><a href={isHome ? '#home' : '/'}>Home</a></li>
+        <li><a href={sectionHref('about')}>About</a></li>
+        <li><a href={sectionHref('services')}>Services</a></li>
+        <li><a href={current === 'eyewear' ? '/eyewear' : sectionHref('eyewear')}>Eyewear</a></li>
+        <li><a href={sectionHref('contact')}>Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Social</h4>
+      <div class="footer-social-links">
+        <a href={socialLink} target="_blank" rel="noopener noreferrer" aria-label="Follow Hernandez Mercado Eye Clinic on Facebook" title="Facebook">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+        </a>
+        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Follow Hernandez Mercado Eye Clinic on Instagram" title="Instagram">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.117.6c-.798.272-1.459.646-2.11 1.295-.646.651-1.023 1.312-1.295 2.11-.267.788-.468 1.659-.527 2.937C.05 8.333.035 8.74 0 12c0 3.26.015 3.667.072 4.947.06 1.277.261 2.148.528 2.936.272.798.646 1.459 1.295 2.11.651.646 1.311 1.023 2.11 1.295.788.267 1.659.468 2.936.527C8.333 23.95 8.74 23.965 12 23.965c3.26 0 3.667-.015 4.947-.072 1.277-.06 2.148-.261 2.936-.528.798-.272 1.459-.646 2.11-1.295.646-.651 1.023-1.311 1.295-2.11.267-.788.468-1.659.527-2.936.048-1.28.063-1.687.063-4.947 0-3.26-.015-3.667-.072-4.947-.06-1.277-.261-2.148-.528-2.936-.272-.798-.646-1.459-1.295-2.11-.651-.646-1.311-1.023-2.11-1.295-.788-.267-1.659-.468-2.936-.527C15.667.048 15.26.035 12 .035zm0 2.163c3.203 0 3.585.009 4.849.070 1.171.054 1.805.244 2.227.407.562.217.96.477 1.382.896.419.42.679.819.896 1.381.163.422.353 1.056.407 2.227.061 1.264.07 1.646.07 4.849 0 3.203-.009 3.585-.07 4.849-.054 1.171-.244 1.805-.407 2.227-.217.562-.477.96-.896 1.382-.42.419-.819.679-1.381.896-.422.163-1.056.353-2.227.407-1.264.061-1.646.07-4.849.07-3.203 0-3.585-.009-4.849-.07-1.171-.054-1.805-.244-2.227-.407-.562-.217-.96-.477-1.382-.896-.419-.42-.679-.819-.896-1.381-.163-.422-.353-1.056-.407-2.227-.061-1.264-.07-1.646-.07-4.849 0-3.203.009-3.585.07-4.849.054-1.171.244-1.805.407-2.227.217-.562.477-.96.896-1.382.42-.419.819.679 1.381-.896.422-.163 1.056.353 2.227-.407 1.264-.061 1.646-.07 4.849-.07z"/>
+            <circle cx="12" cy="12" r="3.307"/>
+            <path d="M12 6.465c-2.988 0-5.303 2.315-5.303 5.303 0 2.988 2.315 5.303 5.303 5.303 2.988 0 5.303-2.315 5.303-5.303 0-2.988-2.315-5.303-5.303-5.303z"/>
+            <circle cx="18.53" cy="5.307" r="1.24"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container footer-partners">
+    <div class="footer-partners-header">
+      <h4>Our Partners</h4>
+    </div>
+    <div class="footer-partners-logos">
+      {partners.map((partner) => (
+        <a href={partner.href} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${partner.name} on Facebook`} class="footer-partner-link">
+          <img src={partner.image} alt={`${partner.name} logo`} loading="lazy" />
+          <div class="footer-partner-info">
+            <span class="footer-partner-name">{partner.name}</span>
+            <span class="footer-partner-action">Visit their page</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© 2026 Hernandez Mercado Eye Clinic. All rights reserved.</p>
+    <p class="footer-legal-links"><a href="/privacy-policy">Privacy Policy</a><a href="/terms-and-conditions">Terms &amp; Conditions</a></p>
+  </div>
+</footer>

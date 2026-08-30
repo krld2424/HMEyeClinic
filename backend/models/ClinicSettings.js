@@ -6,6 +6,7 @@ const clinicSettingsSchema = new mongoose.Schema({
   email: String,
   address: String,
   hours: String,
+  logo: { type: String, default: '/assets/partners/hmec-logo.jpg' },
   services: [String],
 }, { timestamps: true });
 
