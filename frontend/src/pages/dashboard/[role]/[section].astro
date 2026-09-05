@@ -55,6 +55,12 @@ const navigation = {
     'clinic-queue': 'Clinic Queue',
     'patient-records': 'Patient Records',
     billing: 'Billing',
+    inventory: 'Inventory',
+    'stock-movements': 'Stock Movements',
+    'stock-in': 'Stock In',
+    'stock-out': 'Stock Out',
+    'stock-adjustment': 'Stock Adjustment',
+    'inventory-history': 'Inventory History',
   },
   owner: {
     dashboard: 'Owner Dashboard',
@@ -91,7 +97,7 @@ const navigation = {
 const sidebarGroups = {
   patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions']], ['Account', ['notifications', 'profile']]],
   optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']]],
-  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'billing']]],
+  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'billing']], ['Inventory', ['inventory', 'stock-movements', 'stock-adjustment', 'inventory-history']]],
   owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']]],
 };
 const groupIcons = {
@@ -111,11 +117,13 @@ const groupIcons = {
 const roleNavigation = navigation[role] || {};
 const pageTitle = roleNavigation[section] || 'Workspace';
 const isValidRoute = Boolean(roleNavigation[section]);
+const inventorySections = ['inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history'];
+const canAccessInventory = ['owner', 'eye-care-assistant'].includes(role);
 
 const routePairs = [
   ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'],
   ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'clinical-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
-  ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'],
+  ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'],
   ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'clinical-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
 ];
 
@@ -123,7 +131,7 @@ export function getStaticPaths() {
   return [
     ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'],
     ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'clinical-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
-    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'],
+    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'],
     ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'clinical-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
   ].map(([routeRole, routeSection]) => ({ params: { role: routeRole, section: routeSection } }));
 }
@@ -272,7 +280,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               Loading workspace data...
             </div>
 
-            {role === 'owner' && ['suppliers', 'purchase-orders', 'receiving', 'purchase-history', 'inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history'].includes(section) && (
+            {((role === 'owner' && ['suppliers', 'purchase-orders', 'receiving', 'purchase-history'].includes(section)) || (canAccessInventory && inventorySections.includes(section))) && (
               <div class="operation-workspace">
                 {['stock-movements', 'stock-in', 'stock-out'].includes(section) && <nav class="stock-movement-tabs" aria-label="Stock movement type"><a class={section !== 'stock-out' ? 'is-current' : ''} href={`/dashboard/${role}/stock-movements`}>Stock In</a><a class={section === 'stock-out' ? 'is-current' : ''} href={`/dashboard/${role}/stock-out`}>Stock Out</a></nav>}
                 {!['purchase-history', 'inventory-history', 'payment-history', 'outstanding-balances'].includes(section) && (
@@ -1766,7 +1774,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       }));
     };
     const loadOperations = async () => {
-      if (!operationList || role !== 'owner') return;
+      if (!operationList || !['owner', 'eye-care-assistant'].includes(role)) return;
       const query = operationTypesForPage.length === 1 ? `?type=${operationTypesForPage[0]}` : '';
       const response = await fetch(`${api}/api/clinic-operations${query}`, { headers: { Authorization: `Bearer ${token}` } });
       const result = await response.json();

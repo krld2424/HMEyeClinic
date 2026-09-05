@@ -34,8 +34,19 @@ const operationTypes = [
   'payment',
 ];
 const inventoryChangeTypes = ['receiving', 'stock-in', 'stock-out', 'stock-adjustment', 'stock-reservation', 'stock-return', 'stock-transfer'];
+const inventoryRecordTypes = new Set(['inventory-item', ...inventoryChangeTypes]);
 
-router.use(requireAuth, allowRoles('owner'));
+router.use(requireAuth, allowRoles('owner', 'eye-care-assistant'));
+
+const requireOwner = (req, res, next) => {
+  if (req.user.role !== 'owner') return res.status(403).json({ message: 'You do not have permission for this action.' });
+  return next();
+};
+
+const requireInventoryRecordType = (req, res, next) => {
+  if (req.user.role === 'owner' || inventoryRecordTypes.has(req.params.recordType)) return next();
+  return res.status(403).json({ message: 'You do not have permission for this action.' });
+};
 
 const isPositiveNumber = (value) => Number.isFinite(Number(value)) && Number(value) > 0;
 const isNonNegativeNumber = (value) => Number.isFinite(Number(value)) && Number(value) >= 0;
@@ -205,7 +216,12 @@ router.get('/', async (req, res) => {
     if (req.query.type && !operationTypes.includes(req.query.type)) {
       return res.status(400).json({ message: 'Invalid operation type.' });
     }
-    const filter = operationTypes.includes(req.query.type) ? { recordType: req.query.type } : {};
+    if (req.user.role === 'eye-care-assistant' && req.query.type && !inventoryRecordTypes.has(req.query.type)) {
+      return res.status(403).json({ message: 'You do not have permission for this action.' });
+    }
+    const filter = req.user.role === 'eye-care-assistant'
+      ? { recordType: req.query.type || { $in: [...inventoryRecordTypes] } }
+      : operationTypes.includes(req.query.type) ? { recordType: req.query.type } : {};
     const records = await ClinicOperation.find(filter).populate('createdBy', 'name role email').sort({ createdAt: -1 });
     if (req.query.type === 'invoice') {
       await Promise.all(records.map((record) => refreshInvoice(record._id).catch(() => record)));
@@ -218,7 +234,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/billing/summary', async (_req, res) => {
+router.get('/billing/summary', requireOwner, async (_req, res) => {
   try {
     const [invoices, payments] = await Promise.all([
       ClinicOperation.find({ recordType: 'invoice' }),
@@ -247,7 +263,7 @@ router.get('/billing/summary', async (_req, res) => {
   }
 });
 
-router.post('/payment/:id/reverse', async (req, res) => {
+router.post('/payment/:id/reverse', requireOwner, async (req, res) => {
   try {
     const payment = await ClinicOperation.findOne({ _id: req.params.id, recordType: 'payment' });
     if (!payment) return res.status(404).json({ message: 'Payment not found.' });
@@ -282,7 +298,7 @@ router.post('/payment/:id/reverse', async (req, res) => {
   }
 });
 
-router.post('/invoice/:id/cancel', async (req, res) => {
+router.post('/invoice/:id/cancel', requireOwner, async (req, res) => {
   try {
     const invoice = await ClinicOperation.findOne({ _id: req.params.id, recordType: 'invoice' });
     if (!invoice) return res.status(404).json({ message: 'Invoice not found.' });
@@ -306,7 +322,7 @@ router.post('/invoice/:id/cancel', async (req, res) => {
   }
 });
 
-router.post('/invoice/:id/reminder', async (req, res) => {
+router.post('/invoice/:id/reminder', requireOwner, async (req, res) => {
   try {
     const invoice = await refreshInvoice(req.params.id);
     if (['paid', 'cancelled'].includes(invoice.data.status)) {
@@ -339,6 +355,7 @@ router.patch('/:id', async (req, res) => {
   try {
     const operation = await ClinicOperation.findById(req.params.id);
     if (!operation) return res.status(404).json({ message: 'Clinic operation not found.' });
+    if (req.user.role === 'eye-care-assistant' && !inventoryRecordTypes.has(operation.recordType)) return res.status(403).json({ message: 'You do not have permission for this action.' });
     if (inventoryChangeTypes.includes(operation.recordType)) return res.status(400).json({ message: 'Inventory movements cannot be edited. Create a correcting movement instead.' });
     if (operation.recordType === 'payment') {
       return res.status(400).json({ message: 'Payments cannot be edited. Reverse the payment and record a replacement instead.' });
@@ -401,6 +418,7 @@ router.delete('/:id', async (req, res) => {
   try {
     const operation = await ClinicOperation.findById(req.params.id);
     if (!operation) return res.status(404).json({ message: 'Clinic operation not found.' });
+    if (req.user.role === 'eye-care-assistant' && !inventoryRecordTypes.has(operation.recordType)) return res.status(403).json({ message: 'You do not have permission for this action.' });
     if (operation.recordType === 'payment') {
       return res.status(400).json({ message: 'Payments cannot be deleted. Reverse the payment instead.' });
     }
@@ -424,7 +442,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-router.post('/:recordType', async (req, res) => {
+router.post('/:recordType', requireInventoryRecordType, async (req, res) => {
   const { recordType } = req.params;
   const data = req.body || {};
   if (!operationTypes.includes(recordType)) return res.status(400).json({ message: 'Invalid operation type.' });
