@@ -2,8 +2,9 @@ services:
   - type: web
     name: hm-visionsync-api
     runtime: node
-    buildCommand: npm install --prefix backend
-    startCommand: npm --prefix backend start
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
