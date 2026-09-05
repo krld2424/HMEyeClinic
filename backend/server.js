@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import http from 'http';
 import connectDB from './config/db.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import followUpRoutes from './routes/followUpRoutes.js';
@@ -13,10 +14,14 @@ import clinicOperationRoutes from './routes/clinicOperationRoutes.js';
 import invoiceTemplateRoutes from './routes/invoiceTemplateRoutes.js';
 import { ensureSuperAdmin } from './config/superAdmin.js';
 import { generalApiLimiter } from './middleware/rateLimit.js';
+import { setupRealtime } from './config/realtime.js';
+import ClinicOperation from './models/ClinicOperation.js';
+import { normalizeInventoryData } from './config/inventory.js';
 
 dotenv.config();
 
 const app = express();
+const httpServer = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 const configuredOrigins = (process.env.CORS_ORIGIN || '')
   .split(',')
@@ -25,6 +30,9 @@ const configuredOrigins = (process.env.CORS_ORIGIN || '')
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? configuredOrigins
   : [...new Set(['http://localhost:4321', ...configuredOrigins])];
+
+const io = setupRealtime(httpServer, allowedOrigins);
+app.set('io', io);
 
 app.use(
   cors({
@@ -70,10 +78,15 @@ const startServer = async () => {
   const databaseConnected = await connectDB();
 
   if (databaseConnected) {
+    const inventoryRecords = await ClinicOperation.find({ recordType: 'inventory-item' });
+    await Promise.all(inventoryRecords.map(async (record) => {
+      record.data = normalizeInventoryData(record.data || {}, { migrate: true });
+      await record.save();
+    }));
     await ensureSuperAdmin();
   }
 
-  app.listen(PORT, () => {
+  httpServer.listen(PORT, () => {
     console.log(`Backend server listening on port ${PORT}`);
   });
 };

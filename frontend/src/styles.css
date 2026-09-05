@@ -212,11 +212,12 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 0 22px;
+  min-height: 42px;
+  padding: 0 18px;
   border-radius: 999px;
   border: 1px solid transparent;
   font-weight: 700;
+  font-size: 0.86rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   cursor: pointer;
 }
@@ -1063,8 +1064,97 @@ textarea {
   font-weight: 600;
 }
 
+.form-status.success {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #066a4d;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
 .form-status.error {
   color: #b42318;
+}
+
+.confirmation-dialog {
+  border: 1px solid rgba(14, 132, 130, 0.18);
+  border-radius: 20px;
+  padding: 0;
+  width: min(650px, calc(100vw - 32px));
+  background: var(--surface);
+  box-shadow: 0 28px 54px rgba(15, 23, 42, 0.18);
+}
+
+/* Operation forms need room for the SKU, quantity, and action columns. */
+#operation-form-modal {
+  width: min(960px, calc(100vw - 32px));
+}
+
+.dialog-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dialog-header-row .btn-icon {
+  display: inline-grid;
+  flex: 0 0 42px;
+  place-items: center;
+  width: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.confirmation-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.confirmation-dialog__content {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.confirmation-dialog__content h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.2rem;
+}
+
+.confirmation-summary {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(16, 132, 127, 0.04);
+}
+
+.confirmation-summary__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.confirmation-summary__item strong {
+  color: var(--text);
+  text-align: right;
+  font-weight: 700;
+}
+
+.confirmation-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .map-area {
@@ -1445,6 +1535,11 @@ textarea {
   color: var(--text);
   font-weight: 700;
   font-size: 0.92rem;
+}
+
+.field-group > label:has(+ :is(input, select, textarea)[required])::after {
+  content: ' *';
+  color: #b42318;
 }
 
 .field-group input,
@@ -1896,10 +1991,19 @@ textarea {
 .billing-workspace {
   display: grid;
   gap: 22px;
+  width: 100%;
+  max-width: 120%
 }
 
 .billing-toolbar {
+  gap: 16px;
   flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.billing-workspace .team-management-users {
+  max-width: 100%;
+  width: 100%;
 }
 
 .billing-total,
@@ -2666,11 +2770,11 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 
 .dashboard-main {
   min-width: 0;
-  padding-top: 54px;
+  padding-top: 28px;
 }
 
 .task-page-card {
-  width: var(--container);
+  width: min(1300px, 100%);
   margin: 0 auto;
   padding: 28px 24px;
 }
@@ -2690,9 +2794,17 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   border-bottom: 1px solid var(--line);
 }
 
+.team-management-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
 .team-management-create h2,
 .team-management-users h2 {
-  margin: 0 0 18px;
+  margin: 0;
   color: var(--text);
   font-family: 'Manrope', 'Segoe UI', sans-serif;
   font-size: 1.25rem;
@@ -2740,13 +2852,18 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   justify-content: space-between;
   align-items: center;
   gap: 22px;
-  margin-bottom: 28px;
+  margin-bottom: 18px;
+}
+
+.dashboard-header .eyebrow {
+  margin-bottom: 6px;
 }
 
 .dashboard-header h1 {
   margin: 0;
   font-family: 'Manrope', 'Segoe UI', sans-serif;
-  font-size: clamp(2.2rem, 4vw, 3.3rem);
+  font-size: clamp(1.85rem, 2.8vw, 2.55rem);
+  line-height: 1.15;
   letter-spacing: -0.06em;
   color: var(--text);
 }
@@ -2846,7 +2963,7 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 }
 
 .breadcrumb {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   color: var(--muted);
   font-size: 0.88rem;
 }
@@ -2909,6 +3026,19 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 
 .operation-items-table input[type='number'] {
   text-align: right;
+}
+
+.operation-items-table {
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.operation-items-table td:first-child {
+  min-width: 0;
+}
+
+.stock-movement-fields {
+  grid-template-columns: minmax(170px, 0.8fr) minmax(220px, 1.2fr) minmax(170px, 1fr);
 }
 
 .operation-workspace input:invalid:not(:placeholder-shown),
@@ -3102,6 +3232,10 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   min-height: 36px;
   padding: 0 12px;
   font-size: 0.78rem;
+}
+
+.manage-team-mobile-status {
+  display: none;
 }
 
 .managed-user>div {
@@ -3312,6 +3446,91 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   color: #b42318;
 }
 
+.inventory-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.inventory-metric {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.inventory-metric span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.inventory-metric strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 1.15rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inventory-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.inventory-toolbar input,
+.inventory-toolbar select {
+  min-width: 0;
+}
+
+.inventory-toolbar input[type='search'] {
+  flex: 1 1 360px;
+}
+
+.inventory-toolbar select {
+  flex: 0 1 210px;
+}
+
+.inventory-toolbar button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .inventory-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .inventory-toolbar input[type='search'] {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .inventory-toolbar select {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .inventory-toolbar button {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+}
+
+.inventory-category-fields[hidden] {
+  display: none;
+}
+
 .audit-log-table {
   min-width: 720px;
   table-layout: auto;
@@ -3401,7 +3620,7 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 
 .table-actions {
   display: flex;
-  gap: 8px;
+  gap: 14px;
   flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
@@ -3412,6 +3631,17 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   min-height: 34px;
   padding: 0 10px;
   font-size: 0.76rem;
+}
+
+.action-button-icon {
+  display: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
 }
 
 .operation-records-table td:last-child {
@@ -4344,6 +4574,10 @@ body.sidebar-is-collapsed .sidebar-group-links a {
     padding: 0 16px 60px;
   }
 
+  .inventory-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .team-management-layout {
     grid-template-columns: 1fr;
     gap: 28px;
@@ -4609,8 +4843,68 @@ body.sidebar-is-collapsed .sidebar-group-links a {
     border-bottom: 0;
   }
 
+  .manage-team-table .manage-team-name {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .manage-team-table .manage-team-mobile-status {
+    display: inline-flex;
+  }
+
+  .manage-team-table .manage-team-status-cell {
+    display: none;
+  }
+
+  .manage-team-table .manage-team-action-cell {
+    display: block;
+    padding: 14px 0 4px;
+    border-top: 1px solid var(--line);
+  }
+
+  .manage-team-table .manage-team-action-cell::before {
+    display: none;
+  }
+
+  .manage-team-table .user-status-button {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+  }
+
   .appointment-table .appointment-actions {
     min-width: 0;
+  }
+
+  .operation-records-table td:last-child {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    align-items: center;
+    padding-top: 12px;
+  }
+
+  .operation-records-table td:last-child::before {
+    display: block;
+    margin-bottom: 0;
+  }
+
+  .operation-records-table .table-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    min-width: 0;
+    width: auto;
+  }
+
+  .operation-records-table .table-actions .btn {
+    min-height: 40px;
+    min-width: 0;
+    width: auto;
+    padding-inline: 10px;
+    font-size: 0.76rem;
   }
 
   .highlight-grid,
@@ -4673,6 +4967,43 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 
   .footer-partner-action {
     font-size: 7px;
+  }
+}
+
+@media (max-width: 640px) {
+  .billing-table .table-actions {
+    gap: 14px;
+  }
+
+  .billing-table .table-actions .btn {
+    min-width: 44px;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+
+  .operation-records-table .table-actions .btn {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .operation-records-table .action-button-icon {
+    display: block;
+  }
+
+  .inventory-table .action-button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }
 

@@ -92,7 +92,7 @@ const sidebarGroups = {
   patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions']], ['Account', ['notifications', 'profile']]],
   optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']]],
   'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'billing']]],
-  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'stock-movements', 'stock-adjustment', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']]],
+  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']]],
 };
 const groupIcons = {
   Overview: 'overview',
@@ -276,26 +276,51 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <div class="operation-workspace">
                 {['stock-movements', 'stock-in', 'stock-out'].includes(section) && <nav class="stock-movement-tabs" aria-label="Stock movement type"><a class={section !== 'stock-out' ? 'is-current' : ''} href={`/dashboard/${role}/stock-movements`}>Stock In</a><a class={section === 'stock-out' ? 'is-current' : ''} href={`/dashboard/${role}/stock-out`}>Stock Out</a></nav>}
                 {!['purchase-history', 'inventory-history', 'payment-history', 'outstanding-balances'].includes(section) && (
-                  <form id="operation-form" class="workflow-form">
-                    {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-name">Supplier name</label><input id="operation-name" name="name" required /></div><div class="field-group"><label for="operation-contact">Contact person</label><input id="operation-contact" name="contactPerson" /></div></div>}
-                    {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-phone">Contact number</label><input id="operation-phone" name="phone" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" /></div><div class="field-group"><label for="operation-email">Email</label><input id="operation-email" name="email" type="email" /></div></div>}
-                    {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-address">Address</label><input id="operation-address" name="address" /></div><div class="field-group"><label for="operation-status">Status</label><select id="operation-status" name="status"><option>active</option><option>inactive</option></select></div></div>}
-                    {section === 'suppliers' && <div class="field-group"><label for="operation-products">Products supplied</label><textarea id="operation-products" name="products" rows="3"></textarea></div>}
-                    {section === 'purchase-orders' && <div class="field-row"><div class="field-group"><label for="operation-supplier">Supplier name or ID</label><input id="operation-supplier" name="supplierName" required /></div><div class="field-group"><label for="operation-order-number">Purchase order number</label><input id="operation-order-number" name="orderNumber" required /></div></div>}
-                    {section === 'purchase-orders' && <div class="field-row"><div class="field-group"><label for="operation-order-date">Order date</label><input id="operation-order-date" name="orderDate" type="date" required /></div><div class="field-group"><label for="operation-order-status">Order status</label><select id="operation-order-status" name="status"><option>draft</option><option>ordered</option><option>partially-received</option><option>received</option><option>cancelled</option></select></div></div>}
-                    {['purchase-orders', 'receiving', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section) && <div class="operation-items-editor"><div class="section-header split"><div><h3>Items</h3><p>Add each item and quantity for this transaction.</p></div><button type="button" class="btn btn-primary operation-add-item" id="add-operation-item">Add item</button></div><div class="appointment-table-wrap"><table class="appointment-table operation-items-table"><thead><tr><th scope="col">SKU</th><th scope="col">Quantity</th><th scope="col">Action</th></tr></thead><tbody id="operation-items-body"><tr><td><input name="itemSku" aria-label="Item SKU" placeholder="ITEM-001" required /></td><td><input name="itemQuantity" type="number" min="1" step="1" aria-label="Item quantity" required /></td><td><button type="button" class="btn btn-secondary remove-operation-item" aria-label="Remove item">Remove</button></td></tr></tbody></table></div></div>}
-                    {section === 'receiving' && <div class="field-row"><div class="field-group"><label for="operation-reference">Receiving reference</label><input id="operation-reference" name="reference" required /></div><div class="field-group"><label for="operation-received-date">Receiving date</label><input id="operation-received-date" name="receivedDate" type="date" /></div></div>}
-                    {section === 'receiving' && <div class="field-group"><label for="operation-purchase-order">Purchase order ID</label><input id="operation-purchase-order" name="purchaseOrderId" /></div>}
-                    {section === 'inventory' && <div class="field-row"><div class="field-group"><label for="operation-name">Item name</label><input id="operation-name" name="name" required /></div><div class="field-group"><label for="operation-sku">SKU</label><input id="operation-sku" name="sku" required /></div></div>}
-                    {section === 'inventory' && <div class="field-row"><div class="field-group"><label for="operation-quantity">Current quantity</label><input id="operation-quantity" name="quantity" type="number" min="0" required /></div><div class="field-group"><label for="operation-unit">Unit</label><input id="operation-unit" name="unit" placeholder="box, bottle, piece" /></div></div>}
-                    {section === 'inventory' && <div class="field-row"><div class="field-group"><label for="operation-minimum">Minimum stock level</label><input id="operation-minimum" name="minimumStock" type="number" min="0" /></div><div class="field-group"><label for="operation-reorder">Reorder level</label><input id="operation-reorder" name="reorderLevel" type="number" min="0" /></div></div>}
-                    {section === 'inventory' && <div class="field-row"><div class="field-group"><label for="operation-category">Category</label><input id="operation-category" name="category" /></div><div class="field-group"><label for="operation-cost">Cost</label><input id="operation-cost" name="cost" type="number" min="0" step="0.01" /></div></div>}
-                    {section === 'inventory' && <div class="field-group"><label for="operation-selling-price">Selling price</label><input id="operation-selling-price" name="sellingPrice" type="number" min="0" step="0.01" /></div>}
-                    {['stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section) && <div class="field-row"><div class="field-group"><label for="operation-movement-type">Movement type</label><select id="operation-movement-type" name="movementType"><option value="stock-in">Stock In</option><option value="stock-out">Stock Out</option></select></div><div class="field-group"><label for="operation-reason">Reason</label><input id="operation-reason" name="reason" required /></div><div class="field-group"><label for="operation-reference">Reference</label><input id="operation-reference" name="reference" /></div></div>}
-                    <button type="submit" class="btn btn-primary">Save {pageTitle}</button>
-                    <p id="operation-status" class="form-status" aria-live="polite"></p>
-                  </form>
+                  <div class="team-management-create">
+                    <div class="team-management-header">
+                      <h2>{pageTitle}</h2>
+                      <button type="button" class="btn btn-secondary" id="operation-form-toggle" aria-expanded="false">{section === 'inventory' ? 'Add inventory item' : 'Create record'}</button>
+                    </div>
+                    <dialog id="operation-form-modal" class="confirmation-dialog admin-form-dialog">
+                      <div class="confirmation-dialog__content">
+                        <div class="dialog-header-row">
+                          <h3 id="operation-form-title">Create {pageTitle}</h3>
+                          <button type="button" class="btn btn-secondary btn-icon" id="operation-form-close" aria-label="Close form dialog">×</button>
+                        </div>
+                        <form id="operation-form" class="workflow-form">
+                          {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-name">Supplier name</label><input id="operation-name" name="name" required /></div><div class="field-group"><label for="operation-contact">Contact person</label><input id="operation-contact" name="contactPerson" /></div></div>}
+                          {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-phone">Contact number</label><input id="operation-phone" name="phone" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" /></div><div class="field-group"><label for="operation-email">Email</label><input id="operation-email" name="email" type="email" /></div></div>}
+                          {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-address">Address</label><input id="operation-address" name="address" /></div><div class="field-group"><label for="operation-status">Status</label><select id="operation-status" name="status"><option>active</option><option>inactive</option></select></div></div>}
+                          {section === 'suppliers' && <div class="field-group"><label for="operation-products">Products supplied</label><textarea id="operation-products" name="products" rows="3"></textarea></div>}
+                          {section === 'purchase-orders' && <div class="field-row"><div class="field-group"><label for="operation-supplier">Supplier name or ID</label><input id="operation-supplier" name="supplierName" required /></div><div class="field-group"><label for="operation-order-number">Purchase order number</label><input id="operation-order-number" name="orderNumber" required /></div></div>}
+                          {section === 'purchase-orders' && <div class="field-row"><div class="field-group"><label for="operation-order-date">Order date</label><input id="operation-order-date" name="orderDate" type="date" required /></div><div class="field-group"><label for="operation-order-status">Order status</label><select id="operation-order-status" name="status"><option>draft</option><option>ordered</option><option>partially-received</option><option>received</option><option>cancelled</option></select></div></div>}
+                          {['purchase-orders', 'receiving', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section) && <div class="operation-items-editor"><div class="section-header split"><div><h3>Items</h3><p>Add each item and quantity for this transaction.</p></div><button type="button" class="btn btn-primary operation-add-item" id="add-operation-item">Add item</button></div><div class="appointment-table-wrap"><table class="appointment-table operation-items-table"><thead><tr><th scope="col">SKU</th><th scope="col">Quantity</th><th scope="col">Action</th></tr></thead><tbody id="operation-items-body"><tr><td><input name="itemSku" aria-label="Item SKU" placeholder="ITEM-001" required /></td><td><input name="itemQuantity" type="number" min="1" step="1" aria-label="Item quantity" required /></td><td><button type="button" class="btn btn-secondary remove-operation-item" aria-label="Remove item">Remove</button></td></tr></tbody></table></div></div>}
+                          {section === 'receiving' && <div class="field-row"><div class="field-group"><label for="operation-reference">Receiving reference</label><input id="operation-reference" name="reference" required /></div><div class="field-group"><label for="operation-received-date">Receiving date</label><input id="operation-received-date" name="receivedDate" type="date" /></div></div>}
+                          {section === 'receiving' && <div class="field-group"><label for="operation-purchase-order">Purchase order ID</label><input id="operation-purchase-order" name="purchaseOrderId" /></div>}
+                          {section === 'receiving' && <div class="field-row"><div class="field-group"><label for="operation-batch">Batch / lot number</label><input id="operation-batch" name="batchLotNumber" /></div><div class="field-group"><label for="operation-expiration">Expiration date</label><input id="operation-expiration" name="expirationDate" type="date" /></div></div>}
+                          {section === 'inventory' && <><div class="field-row"><div class="field-group"><label for="operation-category">Category</label><select id="operation-category" name="category" required><option value="">Select a category</option><option>Eyeglass Frame</option><option>Lens</option><option>Contact Lens</option><option>Clinic Supply</option></select></div><div class="field-group"><label for="operation-sku">SKU</label><input id="operation-sku" name="sku" placeholder="FR-RB-001" pattern="(FR|LEN|CL|SUP)-[A-Za-z0-9]+(-[A-Za-z0-9]+)*" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-name">Item name</label><input id="operation-name" name="name" required /></div><div class="field-group"><label for="operation-brand">Brand</label><input id="operation-brand" name="brand" /></div></div><div class="field-row"><div class="field-group"><label for="operation-quantity">Quantity</label><input id="operation-quantity" name="quantity" type="number" min="0" required /></div><div class="field-group"><label for="operation-minimum">Minimum stock</label><input id="operation-minimum" name="minimumStock" type="number" min="0" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-cost">Purchase price</label><input id="operation-cost" name="cost" type="number" min="0" step="0.01" required /></div><div class="field-group"><label for="operation-selling-price">Selling price</label><input id="operation-selling-price" name="sellingPrice" type="number" min="0" step="0.01" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-supplier">Supplier</label><input id="operation-supplier" name="supplier" /></div><div class="field-group"><label for="operation-location">Location / rack</label><input id="operation-location" name="location" placeholder="Rack A-03" /></div></div><div class="field-row"><div class="field-group"><label for="operation-status">Status</label><select id="operation-status" name="status"><option value="active">Available</option><option value="inactive">Inactive</option></select></div><div class="field-group"><label for="operation-unit">Unit</label><input id="operation-unit" name="unit" placeholder="piece, box, pair" /></div></div><div class="inventory-category-fields" data-inventory-category="Eyeglass Frame"><div class="field-row"><div class="field-group"><label for="operation-model">Model</label><input id="operation-model" name="model" /></div><div class="field-group"><label for="operation-color">Color</label><input id="operation-color" name="color" /></div></div><div class="field-row"><div class="field-group"><label for="operation-size">Size</label><input id="operation-size" name="size" /></div><div class="field-group"><label for="operation-gender">Gender / category</label><input id="operation-gender" name="gender" /></div></div></div><div class="inventory-category-fields" data-inventory-category="Lens"><div class="field-row"><div class="field-group"><label for="operation-lens-type">Lens type</label><input id="operation-lens-type" name="lensType" /></div><div class="field-group"><label for="operation-material">Material / index</label><input id="operation-material" name="materialIndex" /></div></div><div class="field-row"><div class="field-group"><label for="operation-coating">Coating</label><input id="operation-coating" name="coating" /></div><div class="field-group"><label for="operation-prescription-range">Prescription range</label><input id="operation-prescription-range" name="prescriptionRange" /></div></div></div><div class="inventory-category-fields" data-inventory-category="Contact Lens"><div class="field-row"><div class="field-group"><label for="operation-base-curve">Base curve</label><input id="operation-base-curve" name="baseCurve" /></div><div class="field-group"><label for="operation-diameter">Diameter</label><input id="operation-diameter" name="diameter" /></div></div><div class="field-row"><div class="field-group"><label for="operation-power">Power</label><input id="operation-power" name="power" /></div><div class="field-group"><label for="operation-expiration">Expiration date</label><input id="operation-expiration" name="expirationDate" type="date" /></div></div><div class="field-group"><label for="operation-batch">Batch / lot number</label><input id="operation-batch" name="batchLotNumber" /></div></div><div class="inventory-category-fields" data-inventory-category="Clinic Supply"><div class="field-row"><div class="field-group"><label for="operation-supply-type">Supply type</label><input id="operation-supply-type" name="supplyType" /></div><div class="field-group"><label for="operation-description">Description</label><input id="operation-description" name="description" /></div></div></div></>}
+                          {['stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section) && <div class="field-row stock-movement-fields"><div class="field-group"><label for="operation-movement-type">{section === 'stock-adjustment' ? 'Adjustment type' : 'Movement type'}</label><select id="operation-movement-type" name={section === 'stock-adjustment' ? 'adjustmentType' : 'movementType'}>{section === 'stock-adjustment' ? <><option value="increase">Increase stock</option><option value="decrease">Decrease stock</option><option value="set">Set physical count</option></> : <><option value="stock-in">Stock In</option><option value="stock-out">Stock Out</option></>}</select></div><div class="field-group"><label for="operation-reason">Reason</label><input id="operation-reason" name="reason" required /></div><div class="field-group"><label for="operation-reference">Reference</label><input id="operation-reference" name="reference" /></div></div>}
+                          <div class="confirmation-actions confirmation-actions--stacked">
+                            <button type="button" class="btn btn-secondary" id="operation-form-cancel">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save {pageTitle}</button>
+                          </div>
+                          <p id="operation-status" class="form-status" aria-live="polite"></p>
+                        </form>
+                      </div>
+                    </dialog>
+                    <dialog id="operation-confirm-modal" class="confirmation-dialog">
+                      <div class="confirmation-dialog__content">
+                        <h3>Confirm {pageTitle} details</h3>
+                        <div id="operation-confirm-summary" class="confirmation-summary"></div>
+                        <div class="confirmation-actions">
+                          <button type="button" class="btn btn-secondary" id="operation-confirm-cancel">Cancel</button>
+                          <button type="button" class="btn btn-primary" id="operation-confirm-submit">Save {pageTitle}</button>
+                        </div>
+                      </div>
+                    </dialog>
+                  </div>
                 )}
+                {section === 'inventory' && <><div id="inventory-summary" class="inventory-summary" aria-label="Inventory summary"></div><div class="list-toolbar inventory-toolbar"><input id="inventory-search" type="search" placeholder="Search SKU, product, category, brand, model, supplier, location, or batch" aria-label="Search inventory" /></div></>}
                 <div id="operation-list" class="record-list"><p class="empty-appointments">Loading records...</p></div>
               </div>
             )}
@@ -311,80 +336,122 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
                 <div id="billing-invoices-tab-content" style={(section === 'invoice-templates') ? 'display: none;' : 'display: block;'}>
                   {(section === 'billing-invoices' || section === 'invoice-templates') && (
-                  <form id="billing-invoice-form" class="workflow-form">
-                    <div class="field-row">
-                      <div class="field-group"><label for="billing-customer">Customer</label><select id="billing-customer" name="customer" required><option value="">Select a customer</option></select></div>
-                      <div class="field-group"><label for="billing-invoice-number">Invoice number</label><input id="billing-invoice-number" name="invoiceNumber" readonly placeholder="Assigned automatically" /></div>
+                  <>
+                    <div class="team-management-create">
+                      <div class="team-management-header">
+                        <h2>Create Invoice</h2>
+                        <button type="button" class="btn btn-secondary" id="billing-invoice-form-toggle" aria-expanded="false">Create invoice</button>
+                      </div>
+                      <dialog id="billing-invoice-form-modal" class="confirmation-dialog admin-form-dialog">
+                        <div class="confirmation-dialog__content">
+                          <div class="dialog-header-row">
+                            <h3>Create Invoice</h3>
+                            <button type="button" class="btn btn-secondary btn-icon" id="billing-invoice-form-close" aria-label="Close form dialog">×</button>
+                          </div>
+                    <form id="billing-invoice-form" class="workflow-form">
+                      <div class="field-row">
+                        <div class="field-group"><label for="billing-customer">Customer</label><select id="billing-customer" name="customer" required><option value="">Select a customer</option></select></div>
+                        <div class="field-group"><label for="billing-invoice-number">Invoice number</label><input id="billing-invoice-number" name="invoiceNumber" readonly placeholder="Assigned automatically" /></div>
+                      </div>
+                      <input type="hidden" id="billing-template" name="templateId" value="" />
+                      <div class="field-group"><small>Customize the template in <a href={`/dashboard/${role}/invoice-templates`} class="billing-tab-link" data-tab="template">Invoice Template Builder</a>.</small></div>
+                      <div class="field-row">
+                        <div class="field-group"><label for="billing-invoice-date">Invoice date</label><input id="billing-invoice-date" name="invoiceDate" type="date" required /></div>
+                        <div class="field-group"><label for="billing-due-date">Due date</label><input id="billing-due-date" name="dueDate" type="date" required /></div>
+                      </div>
+                      <div class="field-row">
+                        <div class="field-group"><label for="billing-customer-phone">Customer phone</label><input id="billing-customer-phone" name="customerPhone" readonly /></div>
+                        <div class="field-group"><label for="billing-customer-email">Customer email</label><input id="billing-customer-email" name="customerEmail" readonly /></div>
+                      </div>
+                      <div class="operation-items-editor">
+                        <div class="section-header split"><div><h3>Services and items</h3><p>Quantity, unit price, discount, and tax are used to calculate the total.</p></div><button type="button" class="btn btn-primary" id="billing-add-item">Add item</button></div>
+                        <div class="appointment-table-wrap"><table class="appointment-table billing-items-table"><thead><tr><th scope="col">Description</th><th scope="col">Qty</th><th scope="col">Unit price</th><th scope="col">Discount</th><th scope="col">Tax</th><th scope="col">Line total</th><th scope="col">Action</th></tr></thead><tbody id="billing-items-body"></tbody></table></div>
+                      </div>
+                      <p class="billing-total">Invoice total <strong id="billing-invoice-total">₱0</strong></p>
+                      <div class="confirmation-actions confirmation-actions--stacked">
+                        <button type="button" class="btn btn-secondary" id="billing-invoice-form-cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create invoice</button>
+                      </div>
+                      <p id="billing-invoice-status" class="form-status" aria-live="polite"></p>
+                    </form>
+                        </div>
+                      </dialog>
                     </div>
-                    <input type="hidden" id="billing-template" name="templateId" value="" />
-                    <div class="field-group"><small>Customize the template in <a href={`/dashboard/${role}/invoice-templates`} class="billing-tab-link" data-tab="template">Invoice Template Builder</a>.</small></div>
-                    <div class="field-row">
-                      <div class="field-group"><label for="billing-invoice-date">Invoice date</label><input id="billing-invoice-date" name="invoiceDate" type="date" required /></div>
-                      <div class="field-group"><label for="billing-due-date">Due date</label><input id="billing-due-date" name="dueDate" type="date" required /></div>
-                    </div>
-                    <div class="field-row">
-                      <div class="field-group"><label for="billing-customer-phone">Customer phone</label><input id="billing-customer-phone" name="customerPhone" readonly /></div>
-                      <div class="field-group"><label for="billing-customer-email">Customer email</label><input id="billing-customer-email" name="customerEmail" readonly /></div>
-                    </div>
-                    <div class="operation-items-editor">
-                      <div class="section-header split"><div><h3>Services and items</h3><p>Quantity, unit price, discount, and tax are used to calculate the total.</p></div><button type="button" class="btn btn-primary" id="billing-add-item">Add item</button></div>
-                      <div class="appointment-table-wrap"><table class="appointment-table billing-items-table"><thead><tr><th scope="col">Description</th><th scope="col">Qty</th><th scope="col">Unit price</th><th scope="col">Discount</th><th scope="col">Tax</th><th scope="col">Line total</th><th scope="col">Action</th></tr></thead><tbody id="billing-items-body"></tbody></table></div>
-                    </div>
-                    <p class="billing-total">Invoice total <strong id="billing-invoice-total">₱0</strong></p>
-                    <button type="submit" class="btn btn-primary">Create invoice</button>
-                    <p id="billing-invoice-status" class="form-status" aria-live="polite"></p>
-                  </form>
+                  </>
                 )}
                 {['customer-payments', 'outstanding-balances'].includes(section) && (
-                  <form id="billing-payment-form" class="workflow-form">
-                    <div class="field-row">
-                      <div class="field-group"><label for="billing-payment-customer">Customer</label><select id="billing-payment-customer" required><option value="">Select a customer</option></select></div>
-                      <div class="field-group"><label for="billing-payment-invoice">Invoice</label><select id="billing-payment-invoice" required><option value="">Select an invoice</option></select></div>
+                  <>
+                    <div class="team-management-create">
+                      <div class="team-management-header">
+                        <h2>{section === 'customer-payments' ? 'Record Payment' : 'Process Payment'}</h2>
+                        <button type="button" class="btn btn-secondary" id="billing-payment-form-toggle" aria-expanded="false">{section === 'customer-payments' ? 'Record payment' : 'Process payment'}</button>
+                      </div>
+                      <dialog id="billing-payment-form-modal" class="confirmation-dialog admin-form-dialog">
+                        <div class="confirmation-dialog__content">
+                          <div class="dialog-header-row">
+                            <h3>{section === 'customer-payments' ? 'Record Payment' : 'Process Payment'}</h3>
+                            <button type="button" class="btn btn-secondary btn-icon" id="billing-payment-form-close" aria-label="Close form dialog">×</button>
+                          </div>
+                    <form id="billing-payment-form" class="workflow-form">
+                      <div class="field-row">
+                        <div class="field-group"><label for="billing-payment-customer">Customer</label><select id="billing-payment-customer" required><option value="">Select a customer</option></select></div>
+                        <div class="field-group"><label for="billing-payment-invoice">Invoice</label><select id="billing-payment-invoice" required><option value="">Select an invoice</option></select></div>
+                      </div>
+                      <div class="billing-balance-row" id="billing-invoice-snapshot"><span>Invoice total <strong>₱0</strong></span><span>Outstanding <strong>₱0</strong></span></div>
+                      <div class="field-row">
+                        <div class="field-group"><label for="billing-payment-amount">Payment amount</label><input id="billing-payment-amount" name="amount" type="number" min="0.01" step="0.01" required /></div>
+                        <div class="field-group"><label for="billing-payment-method">Payment method</label><select id="billing-payment-method" name="method" required><option>Cash</option><option>GCash</option><option>Bank Transfer</option><option>Credit/Debit Card</option><option>Other</option></select></div>
+                      </div>
+                      <div class="field-row">
+                        <div class="field-group"><label for="billing-payment-reference">Reference / transaction number</label><input id="billing-payment-reference" name="reference" /></div>
+                        <div class="field-group"><label for="billing-payment-date">Payment date</label><input id="billing-payment-date" name="paymentDate" type="date" required /></div>
+                      </div>
+                      <div class="field-group"><label for="billing-payment-notes">Notes</label><textarea id="billing-payment-notes" name="notes" rows="2"></textarea></div>
+                      <div class="confirmation-actions confirmation-actions--stacked">
+                        <button type="button" class="btn btn-secondary" id="billing-payment-form-cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Record payment</button>
+                      </div>
+                      <p id="billing-payment-status" class="form-status" aria-live="polite"></p>
+                    </form>
+                        </div>
+                      </dialog>
                     </div>
-                    <div class="billing-balance-row" id="billing-invoice-snapshot"><span>Invoice total <strong>₱0</strong></span><span>Outstanding <strong>₱0</strong></span></div>
-                    <div class="field-row">
-                      <div class="field-group"><label for="billing-payment-amount">Payment amount</label><input id="billing-payment-amount" name="amount" type="number" min="0.01" step="0.01" required /></div>
-                      <div class="field-group"><label for="billing-payment-method">Payment method</label><select id="billing-payment-method" name="method" required><option>Cash</option><option>GCash</option><option>Bank Transfer</option><option>Credit/Debit Card</option><option>Other</option></select></div>
-                    </div>
-                    <div class="field-row">
-                      <div class="field-group"><label for="billing-payment-reference">Reference / transaction number</label><input id="billing-payment-reference" name="reference" /></div>
-                      <div class="field-group"><label for="billing-payment-date">Payment date</label><input id="billing-payment-date" name="paymentDate" type="date" required /></div>
-                    </div>
-                    <div class="field-group"><label for="billing-payment-notes">Notes</label><textarea id="billing-payment-notes" name="notes" rows="2"></textarea></div>
-                    <button type="submit" class="btn btn-primary">Record payment</button>
-                    <p id="billing-payment-status" class="form-status" aria-live="polite"></p>
-                  </form>
+                  </>
                 )}
-                <div class="list-toolbar billing-toolbar">
-                  <input id="billing-search" type="search" placeholder={(section === 'billing-invoices' || section === 'invoice-templates') ? 'Search invoice number or customer' : section === 'outstanding-balances' ? 'Search customer or invoice number' : 'Search payment, customer, or invoice'} />
-                  {(section === 'billing-invoices' || section === 'invoice-templates') && (
-                    <>
-                      <select id="billing-status-filter"><option value="">All statuses</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option><option value="partially-paid">Partially Paid</option><option value="overdue">Overdue</option><option value="cancelled">Cancelled</option></select>
-                      <input id="billing-date-filter" type="date" aria-label="Filter invoices by date" />
-                    </>
-                  )}
-                  {section === 'payment-history' && (
-                    <>
-                      <select id="billing-customer-filter"><option value="">All customers</option></select>
-                      <select id="billing-method-filter"><option value="">All methods</option><option>Cash</option><option>GCash</option><option>Bank Transfer</option><option>Credit/Debit Card</option><option>Other</option></select>
-                      <select id="billing-payment-status-filter"><option value="">All statuses</option><option value="recorded">Recorded</option><option value="reversed">Reversed</option></select>
-                      <input id="billing-date-from" type="date" aria-label="Payment date from" />
-                      <input id="billing-date-to" type="date" aria-label="Payment date to" />
-                      <button type="button" class="btn btn-secondary" id="billing-export">Export CSV</button>
-                    </>
-                  )}
-                  {section === 'outstanding-balances' && (
-                    <>
-                      <select id="billing-status-filter"><option value="">All outstanding</option><option value="unpaid">Unpaid</option><option value="partially-paid">Partially Paid</option><option value="overdue">Overdue</option></select>
-                      <select id="billing-sort"><option value="dueDate">Sort by due date</option><option value="balance">Sort by outstanding amount</option></select>
-                    </>
-                  )}
-                </div>
+                <div class="team-management-users" style="margin-top: 2rem;">
+                  <div class="section-header split"><div><h2 style="margin: 0;">Records</h2></div></div>
+                  <div class="list-toolbar billing-toolbar">
+                    <input id="billing-search" type="search" placeholder={(section === 'billing-invoices' || section === 'invoice-templates') ? 'Search invoice number or customer' : section === 'outstanding-balances' ? 'Search customer or invoice number' : 'Search payment, customer, or invoice'} />
+                    {(section === 'billing-invoices' || section === 'invoice-templates') && (
+                      <>
+                        <select id="billing-status-filter"><option value="">All statuses</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option><option value="partially-paid">Partially Paid</option><option value="overdue">Overdue</option><option value="cancelled">Cancelled</option></select>
+                        <input id="billing-date-filter" type="date" aria-label="Filter invoices by date" />
+                      </>
+                    )}
+                    {section === 'payment-history' && (
+                      <>
+                        <select id="billing-customer-filter"><option value="">All customers</option></select>
+                        <select id="billing-method-filter"><option value="">All methods</option><option>Cash</option><option>GCash</option><option>Bank Transfer</option><option>Credit/Debit Card</option><option>Other</option></select>
+                        <select id="billing-payment-status-filter"><option value="">All statuses</option><option value="recorded">Recorded</option><option value="reversed">Reversed</option></select>
+                        <input id="billing-date-from" type="date" aria-label="Payment date from" />
+                        <input id="billing-date-to" type="date" aria-label="Payment date to" />
+                        <button type="button" class="btn btn-secondary" id="billing-export">Export CSV</button>
+                      </>
+                    )}
+                    {section === 'outstanding-balances' && (
+                      <>
+                        <select id="billing-status-filter"><option value="">All outstanding</option><option value="unpaid">Unpaid</option><option value="partially-paid">Partially Paid</option><option value="overdue">Overdue</option></select>
+                        <select id="billing-sort"><option value="dueDate">Sort by due date</option><option value="balance">Sort by outstanding amount</option></select>
+                      </>
+                    )}
+                  </div>
                 <div id="billing-list" class="record-list"><p class="empty-appointments">Loading billing records...</p></div>
+                <div id="billing-pagination" class="pagination" aria-label="Billing records pages"></div>
                 <dialog id="billing-detail-modal" class="audit-detail-modal billing-detail-modal">
                   <div class="audit-detail-modal-header"><h2 id="billing-detail-title">Details</h2><div class="billing-modal-actions"><button type="button" class="btn btn-secondary" id="billing-print">Print</button><button type="button" class="btn btn-secondary" id="billing-detail-close">Close</button></div></div>
                   <div id="billing-detail-content"></div>
                 </dialog>
+              </div>
                 </div>
 
                 {(section === 'billing-invoices' || section === 'invoice-templates') && (
@@ -407,6 +474,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                 <div class="field-group"><label for="workflow-service">Service</label><select id="workflow-service" name="service" required><option value="">Select a service</option><option>Comprehensive Eye Examination</option><option>Vision Assessment</option><option>Eye Health Screening</option><option>Optical Consultation</option></select></div>
                 <div class="field-group"><label for="workflow-date">Preferred date</label><input id="workflow-date" name="preferredDate" type="date" required /></div>
               </div>
+              <div id="clinic-hours-display" style="font-size: 0.9rem; color: #666; margin: -0.5rem 0 0.5rem 0; display: none;"></div>
               <div class="field-row">
                 <div class="field-group"><label for="workflow-time">Available time</label><select id="workflow-time" name="preferredTime" required><option value="">Select a date first</option></select></div>
                 <div class="field-group"><label for="workflow-message">Appointment information</label><input id="workflow-message" name="message" placeholder="Reason for your visit" /></div>
@@ -463,14 +531,43 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           {section === 'manage-team' && (
             <div class="team-management-layout">
               <div class="team-management-create">
-                <h2>Create Clinic Staff Account</h2>
-                <form id="admin-user-form" class="workflow-form">
-                  <div class="field-row"><div class="field-group"><label for="admin-name">Full name</label><input id="admin-name" name="name" required /></div><div class="field-group"><label for="admin-role">Account type</label><select id="admin-role" name="role"><option value="optometrist">Optometrist</option><option value="eye-care-assistant">Eye Care Assistant</option></select></div></div>
-                  <div class="field-row"><div class="field-group"><label for="admin-email">Email</label><input id="admin-email" name="email" type="email" required /></div><div class="field-group"><label for="admin-password">Temporary password</label><input id="admin-password" name="password" type="password" required /></div></div>
-                  <div class="field-row"><div class="field-group"><label for="admin-phone">Contact</label><input id="admin-phone" name="phone" type="tel" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" /></div><div class="field-group"><label for="admin-specialty">Specialty / Department</label><input id="admin-specialty" name="specialty" /></div></div>
-                  <button type="submit" class="btn btn-primary">Create account</button>
-                  <p id="admin-status" class="form-status" aria-live="polite"></p>
-                </form>
+                <div class="team-management-header">
+                  <h2>Create Clinic Staff Account</h2>
+                  <button type="button" class="btn btn-secondary" id="admin-form-toggle" aria-expanded="false">Create account</button>
+                </div>
+                <dialog id="admin-create-modal" class="confirmation-dialog admin-form-dialog">
+                  <div class="confirmation-dialog__content">
+                    <div class="dialog-header-row">
+                      <h3>Create Clinic Staff Account</h3>
+                      <button type="button" class="btn btn-secondary btn-icon" id="admin-create-close" aria-label="Close create account form">×</button>
+                    </div>
+                    <form id="admin-user-form" class="workflow-form">
+                      <div class="field-row">
+                        <div class="field-group"><label for="admin-first-name">First Name</label><input id="admin-first-name" name="firstName" required /></div>
+                        <div class="field-group"><label for="admin-middle-name">Middle Name</label><input id="admin-middle-name" name="middleName" /></div>
+                        <div class="field-group"><label for="admin-last-name">Last Name</label><input id="admin-last-name" name="lastName" required /></div>
+                        <div class="field-group"><label for="admin-suffix">Suffix</label><input id="admin-suffix" name="suffix" placeholder="Jr., Sr., III" /></div>
+                      </div>
+                      <div class="field-row"><div class="field-group"><label for="admin-role">Account type</label><select id="admin-role" name="role"><option value="optometrist">Optometrist</option><option value="eye-care-assistant">Eye Care Assistant</option></select></div><div class="field-group"><label for="admin-email">Email</label><input id="admin-email" name="email" type="email" required /></div></div>
+                      <div class="field-row"><div class="field-group"><label for="admin-password">Temporary password</label><input id="admin-password" name="password" type="password" required /></div><div class="field-group"><label for="admin-phone">Contact</label><input id="admin-phone" name="phone" type="tel" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" /></div></div>
+                      <div class="confirmation-actions confirmation-actions--stacked">
+                        <button type="button" class="btn btn-secondary" id="admin-form-cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save account</button>
+                      </div>
+                      <p id="admin-status" class="form-status" aria-live="polite"></p>
+                    </form>
+                  </div>
+                </dialog>
+                <dialog id="admin-confirm-modal" class="confirmation-dialog">
+                  <div class="confirmation-dialog__content">
+                    <h3>Confirm account details</h3>
+                    <div id="admin-confirm-summary" class="confirmation-summary"></div>
+                    <div class="confirmation-actions">
+                      <button type="button" class="btn btn-secondary" id="admin-confirm-cancel">Cancel</button>
+                      <button type="button" class="btn btn-primary" id="admin-confirm-submit">Save account</button>
+                    </div>
+                  </div>
+                </dialog>
               </div>
               <div class="team-management-users">
                 <div class="section-header split"><div><h2>All clinic users</h2></div><span class="team-management-note">Manage account access</span></div>
@@ -533,12 +630,24 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
   </main>
 
   <script>
+    import { connectClinicRealtime } from '../../../scripts/realtimeClient.js';
+    import * as XLSX from 'xlsx';
+
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const role = pathParts[1];
     const section = pathParts[2];
     const token = localStorage.getItem('hmVisionToken');
     const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+    const navigationData = {
+      patient: { dashboard: 'Patient Dashboard', 'book-exam': 'Book an Appointment', appointments: 'Appointments', 'follow-ups': 'Follow-ups', 'medical-records': 'Medical Records', prescriptions: 'Prescriptions', notifications: 'Notifications', profile: 'Profile' },
+      optometrist: { dashboard: 'Optometrist Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'clinical-records': 'Clinical Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups' },
+      'eye-care-assistant': { dashboard: 'Eye Care Assistant Dashboard', 'check-in': 'Patient Check-In', appointments: 'Appointments', 'clinic-queue': 'Clinic Queue', 'patient-records': 'Patient Records', billing: 'Billing' },
+      owner: { dashboard: 'Owner Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'clinical-records': 'Clinical Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups', 'manage-team': "User's Management", 'manage-users': 'Manage Users', 'roles-permissions': 'Roles & Permissions', 'audit-logs': 'Audit Logs', reports: 'Reports', 'clinic-settings': 'Clinic Settings', suppliers: 'Suppliers', 'purchase-orders': 'Purchase Orders', receiving: 'Receiving', 'purchase-history': 'Purchase History', inventory: 'Inventory', 'stock-movements': 'Stock Movements', 'stock-in': 'Stock In', 'stock-out': 'Stock Out', 'stock-adjustment': 'Stock Adjustment', 'inventory-history': 'Inventory History', 'billing-invoices': 'Billing / Invoices', 'invoice-templates': 'Invoice Templates', 'customer-payments': 'Customer Payments', 'payment-history': 'Payment History', 'outstanding-balances': 'Outstanding Balances' }
+    };
+    const pageTitle = (navigationData[role] || {})[section] || 'Workspace';
+    let refreshBilling = async () => {};
+    let refreshOverviewAppointments = async () => {};
 
     if (role === 'owner' && section === 'manage-users') window.location.replace('/dashboard/owner/manage-team');
 
@@ -848,17 +957,25 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     document.getElementById('appointment-calendar-prev')?.addEventListener('click', () => { appointmentCalendarCursor.setMonth(appointmentCalendarCursor.getMonth() - 1); renderAppointmentCalendar(); });
     document.getElementById('appointment-calendar-next')?.addEventListener('click', () => { appointmentCalendarCursor.setMonth(appointmentCalendarCursor.getMonth() + 1); renderAppointmentCalendar(); });
 
-    if (appointmentList) {
+    const loadAppointments = async () => {
+      if (!appointmentList) return;
       const endpoint = role === 'patient' ? '/api/appointments/mine' : '/api/appointments';
-      fetch(`${api}${endpoint}`, { headers: { Authorization: `Bearer ${token}` } })
-        .then(async (response) => { const result = await response.json(); if (!response.ok) throw new Error(result.message); return result; })
-        .then((result) => {
-          showState(`${result.appointments?.length || 0} appointment${result.appointments?.length === 1 ? '' : 's'} found.`, 'success');
-          appointments = result.appointments || [];
-          renderAppointmentCalendar();
-          renderAppointmentPage();
-        })
-        .catch((error) => { showState(error.message || 'Unable to load appointments.', 'error'); appointmentList.innerHTML = '<p class="empty-appointments">Try again when the clinic API is available.</p>'; });
+      try {
+        const response = await fetch(`${api}${endpoint}`, { headers: { Authorization: `Bearer ${token}` } });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message);
+        showState(`${result.appointments?.length || 0} appointment${result.appointments?.length === 1 ? '' : 's'} found.`, 'success');
+        appointments = result.appointments || [];
+        renderAppointmentCalendar();
+        renderAppointmentPage();
+      } catch (error) {
+        showState(error.message || 'Unable to load appointments.', 'error');
+        appointmentList.innerHTML = '<p class="empty-appointments">Try again when the clinic API is available.</p>';
+      }
+    };
+
+    if (appointmentList) {
+      loadAppointments();
     } else if (section !== 'book-exam' && section !== 'manage-team') {
       showState('Workspace ready. No records require attention right now.', 'success');
     }
@@ -888,6 +1005,29 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       try {
         const response = await fetch(`${api}/api/appointments/availability?date=${date}`);
         const result = await response.json();
+
+        // Display clinic hours if available
+        const clinicHoursDisplay = document.getElementById('clinic-hours-display');
+        if (clinicHoursDisplay && result.clinicHours) {
+          clinicHoursDisplay.textContent = `Clinic hours: ${result.clinicHours}`;
+          clinicHoursDisplay.style.display = 'block';
+        }
+
+        // If clinic is not operating on this day (like Sunday)
+        if (!result.slots || result.slots.length === 0) {
+          if (result.scheduleInfo && !result.scheduleInfo.operatingDay) {
+            workflowTime.innerHTML = '<option value="">By Appointment Only - Please contact clinic</option>';
+            if (clinicHoursDisplay) {
+              clinicHoursDisplay.textContent = 'Clinic hours: By Appointment Only';
+              clinicHoursDisplay.style.display = 'block';
+            }
+          } else {
+            workflowTime.innerHTML = '<option value="">No times available</option>';
+          }
+          return;
+        }
+
+        // Build options from available slots
         workflowTime.innerHTML = result.slots?.some((slot) => slot.available)
           ? '<option value="">Select a time</option>' + result.slots.map((slot) => `<option value="${slot.time}" ${slot.available ? '' : 'disabled'}>${slot.time}${slot.available ? '' : ' - booked'}</option>`).join('')
           : '<option value="">No times available</option>';
@@ -1187,22 +1327,106 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     });
 
     const adminForm = document.getElementById('admin-user-form');
+    const adminCreateModal = document.getElementById('admin-create-modal');
+    const adminCreateClose = document.getElementById('admin-create-close');
+    const adminFormCancel = document.getElementById('admin-form-cancel');
     const adminStatus = document.getElementById('admin-status');
     const adminPhone = document.getElementById('admin-phone');
+    const adminFormToggle = document.getElementById('admin-form-toggle');
+    const adminConfirmModal = document.getElementById('admin-confirm-modal');
+    const adminConfirmSummary = document.getElementById('admin-confirm-summary');
+    const adminConfirmCancel = document.getElementById('admin-confirm-cancel');
+    const adminConfirmSubmit = document.getElementById('admin-confirm-submit');
+
+    const setAdminStatus = (message, type = 'success') => {
+      if (!adminStatus) return;
+      adminStatus.textContent = message;
+      adminStatus.classList.remove('error', 'success');
+      if (type === 'error') adminStatus.classList.add('error');
+      if (type === 'success') adminStatus.classList.add('success');
+    };
+
+    const renderAdminConfirmation = () => {
+      if (!adminForm || !adminConfirmSummary) return;
+      const formData = new FormData(adminForm);
+      const firstName = String(formData.get('firstName') || '').trim();
+      const middleName = String(formData.get('middleName') || '').trim();
+      const lastName = String(formData.get('lastName') || '').trim();
+      const suffix = String(formData.get('suffix') || '').trim();
+      const role = String(formData.get('role') || 'optometrist');
+      const email = String(formData.get('email') || '').trim();
+      const phone = String(formData.get('phone') || '').trim();
+      const name = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
+      adminConfirmSummary.innerHTML = `
+        <div class="confirmation-summary__item"><span>Name</span><strong>${escapeHtml(name || 'Not provided')}</strong></div>
+        <div class="confirmation-summary__item"><span>Account type</span><strong>${escapeHtml(role)}</strong></div>
+        <div class="confirmation-summary__item"><span>Email</span><strong>${escapeHtml(email || 'Not provided')}</strong></div>
+        <div class="confirmation-summary__item"><span>Contact</span><strong>${escapeHtml(phone || 'Not provided')}</strong></div>
+      `;
+    };
+
+    adminFormToggle?.addEventListener('click', () => {
+      adminCreateModal?.showModal();
+      adminFormToggle.setAttribute('aria-expanded', 'true');
+      requestAnimationFrame(() => adminForm?.querySelector('input:not([type="hidden"])')?.focus());
+    });
+
+    adminCreateClose?.addEventListener('click', () => {
+      adminCreateModal?.close();
+      adminFormToggle.setAttribute('aria-expanded', 'false');
+    });
+
+    adminFormCancel?.addEventListener('click', () => {
+      adminCreateModal?.close();
+      adminFormToggle.setAttribute('aria-expanded', 'false');
+    });
+
     adminPhone?.addEventListener('input', () => {
       const digits = adminPhone.value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
       adminPhone.value = `+63 ${[digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean).join('-')}`;
     });
-    adminForm?.addEventListener('submit', async (event) => {
+
+    adminForm?.addEventListener('submit', (event) => {
       event.preventDefault();
-      adminStatus.textContent = 'Creating account...';
+      renderAdminConfirmation();
+      adminCreateModal?.close();
+      adminConfirmModal?.showModal();
+    });
+
+    adminConfirmCancel?.addEventListener('click', () => {
+      adminConfirmModal?.close();
+    });
+
+    adminConfirmSubmit?.addEventListener('click', async () => {
+      if (!adminForm) return;
+      adminConfirmModal?.close();
+      setAdminStatus('Creating account...', 'success');
+
       try {
-        const response = await fetch(`${api}/api/admin/users`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(Object.fromEntries(new FormData(adminForm).entries())) });
+        const formData = new FormData(adminForm);
+        const firstName = String(formData.get('firstName') || '').trim();
+        const middleName = String(formData.get('middleName') || '').trim();
+        const lastName = String(formData.get('lastName') || '').trim();
+        const suffix = String(formData.get('suffix') || '').trim();
+        const safeName = [firstName, middleName, lastName, suffix].filter(Boolean).join(' ');
+        const payload = Object.fromEntries(formData.entries());
+        payload.name = safeName;
+        delete payload.firstName;
+        delete payload.middleName;
+        delete payload.lastName;
+
+        const response = await fetch(`${api}/api/admin/users`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to create account.');
-        adminStatus.textContent = result.message;
+        setAdminStatus(result.message || 'Account created successfully.', 'success');
         adminForm.reset();
-      } catch (error) { adminStatus.textContent = error.message; adminStatus.classList.add('error'); }
+        adminForm.hidden = true;
+        adminFormToggle.textContent = 'Create account';
+        adminFormToggle.setAttribute('aria-expanded', 'false');
+        await loadUsers();
+      } catch (error) {
+        setAdminStatus(error.message || 'Unable to create account.', 'error');
+      }
     });
 
     const managedUsers = document.getElementById('managed-users');
@@ -1221,7 +1445,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       userPage = Math.min(userPage, pages);
       const visible = filtered.slice((userPage - 1) * pageSize, userPage * pageSize);
       managedUsers.innerHTML = visible.length
-        ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Identifier</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Name"><strong>${escapeHtml(item.name)}</strong></td><td data-label="Email">${escapeHtml(item.email)}</td><td data-label="Role">${escapeHtml(item.role)}</td><td data-label="Identifier">${escapeHtml(item.patientId || item._id)}</td><td data-label="Status"><span class="appointment-status ${item.isActive ? 'status-confirmed' : 'status-cancelled'}">${item.isActive ? 'Active' : 'Inactive'}</span></td><td data-label="Action"><button class="btn btn-secondary user-status-button ${item.isActive ? 'action-deactivate' : 'action-activate'}" data-user-id="${item._id}" data-active="${item.isActive}">${item.isActive ? 'Deactivate' : 'Activate'}</button></td></tr>`).join('')}</tbody></table></div>`
+        ? `<div class="appointment-table-wrap"><table class="appointment-table manage-team-table"><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Identifier</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Name"><div class="manage-team-name"><strong>${escapeHtml(item.name)}</strong><span class="manage-team-mobile-status appointment-status ${item.isActive ? 'status-confirmed' : 'status-cancelled'}">${item.isActive ? 'Active' : 'Inactive'}</span></div></td><td data-label="Email">${escapeHtml(item.email)}</td><td data-label="Role">${escapeHtml(item.role)}</td><td data-label="Identifier">${escapeHtml(item.patientId || item._id)}</td><td class="manage-team-status-cell" data-label="Status"><span class="appointment-status ${item.isActive ? 'status-confirmed' : 'status-cancelled'}">${item.isActive ? 'Active' : 'Inactive'}</span></td><td class="manage-team-action-cell" data-label="Action"><button class="btn btn-secondary user-status-button ${item.isActive ? 'action-deactivate' : 'action-activate'}" data-user-id="${item._id}" data-active="${item.isActive}">${item.isActive ? 'Deactivate' : 'Activate'}</button></td></tr>`).join('')}</tbody></table></div>`
         : '<p class="empty-appointments">No matching users.</p>';
       const userPagination = document.getElementById('user-pagination');
       userPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${userPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${userPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${userPage === pages ? 'disabled' : ''}>Next</button>` : '';
@@ -1246,9 +1470,79 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     userRoleFilter?.addEventListener('change', () => { userPage = 1; renderUsers(); });
     userStatusFilter?.addEventListener('change', () => { userPage = 1; renderUsers(); });
     loadUsers().catch((error) => { if (managedUsers) managedUsers.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
+    const inventoryBrands = ['ADIDAS', 'ALTER EGO', 'BABY', 'DALE AND ADY', 'FISHER PRICE', 'HYPE!', 'IOS', 'JECKSEN', 'JECKSEN KIDS', 'KIDS', 'LAFONT', "LET'S GROOVE", 'MUSTAFA', 'PROMO', 'RC', 'SEZEN', 'TOKYOFLEX', 'VALETTE', 'YOKOTA', 'YORK'];
+    const inventoryMaterials = ['Acetate', 'Alloy Metal', 'Aviator', 'Cats Eye', 'Clubmaster', 'Combination', 'Double Bar', 'Injected Metal on Temple', 'Light', 'Metal', 'Oval', 'Oversize', 'Oversize Square', 'Plastic', 'Sports', 'Stainless', 'SUBTOTAL', 'Titanium', 'TR Metal', 'TR90', 'Ultem', 'Women', 'Wood'];
+    if (section === 'inventory') {
+      const inventoryForm = document.getElementById('operation-form');
+      const options = (values, label) => `<option value="">Select a ${label.toLowerCase()}</option>${values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}`;
+      if (inventoryForm) {
+        inventoryForm.innerHTML = `<div class="field-row"><div class="field-group"><label for="operation-brand">Brand</label><select id="operation-brand" name="brand" required>${options(inventoryBrands, 'brand')}</select></div><div class="field-group"><label for="operation-material">Material</label><select id="operation-material" name="material" required>${options(inventoryMaterials, 'material')}</select></div></div><div class="field-row"><div class="field-group"><label for="operation-item-code">Item Code</label><input id="operation-item-code" name="itemCode" required /></div><div class="field-group"><label for="operation-color-code">Color Code</label><input id="operation-color-code" name="colorCode" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-color">Color</label><input id="operation-color" name="color" required /></div><div class="field-group"><label for="operation-beginning-balance">Beginning Balance</label><input id="operation-beginning-balance" name="beginningBalance" type="number" min="0" step="1" inputmode="numeric" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-receipt">Receipt</label><input id="operation-receipt" name="receipt" type="number" min="0" step="1" inputmode="numeric" required /></div><div class="field-group"><label for="operation-sold">Sold</label><input id="operation-sold" name="sold" type="number" min="0" step="1" inputmode="numeric" required /></div></div><div class="field-group"><label for="operation-ending-balance">Ending Balance</label><input id="operation-ending-balance" name="endingBalance" type="number" readonly aria-readonly="true" /></div><div class="confirmation-actions confirmation-actions--stacked"><button type="button" class="btn btn-secondary" id="operation-form-cancel">Cancel</button><button type="submit" class="btn btn-primary">Save ${pageTitle}</button></div><p id="operation-status" class="form-status" aria-live="polite"></p>`;
+        const updateEndingBalance = () => {
+          const value = (name) => Number(inventoryForm.elements.namedItem(name)?.value || 0);
+          inventoryForm.elements.namedItem('endingBalance').value = value('beginningBalance') + value('receipt') - value('sold');
+        };
+        ['beginningBalance', 'receipt', 'sold'].forEach((name) => inventoryForm.elements.namedItem(name)?.addEventListener('input', updateEndingBalance));
+        updateEndingBalance();
+      }
+      const toolbar = document.querySelector('.inventory-toolbar');
+      if (toolbar) {
+        document.getElementById('inventory-search')?.setAttribute('placeholder', 'Search brand, material, item code, color, or balance');
+        toolbar.insertAdjacentHTML('beforeend', `<select id="inventory-brand-filter" aria-label="Filter by brand"><option value="">All brands</option>${inventoryBrands.map((value) => `<option>${escapeHtml(value)}</option>`).join('')}</select><select id="inventory-material-filter" aria-label="Filter by material"><option value="">All materials</option>${inventoryMaterials.map((value) => `<option>${escapeHtml(value)}</option>`).join('')}</select><button type="button" class="btn btn-secondary" id="inventory-export">Export CSV</button><button type="button" class="btn btn-secondary" id="inventory-import-button">Import CSV/XLSX</button><input id="inventory-import-file" type="file" accept=".csv,.xlsx,.xls" hidden />`);
+        const importButton = document.getElementById('inventory-import-button');
+        const importFile = document.getElementById('inventory-import-file');
+        importButton?.addEventListener('click', () => importFile?.click());
+        importFile?.addEventListener('change', async () => {
+          const file = importFile.files?.[0];
+          if (!file) return;
+          try {
+            const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1, defval: '' });
+            const headers = rows.shift().map((value) => String(value).trim().toLowerCase().replace(/[^a-z]/g, ''));
+            const expected = ['brand', 'material', 'itemcode', 'colorcode', 'color', 'beginningbalance', 'receipt', 'sold', 'endingbalance'];
+            if (headers.length < expected.length || expected.some((header, index) => headers[index] !== header)) throw new Error(`The first row must contain: ${expected.map((header) => header.replace(/([a-z])([A-Z])/g, '$1 $2')).join(', ')}`);
+            const records = rows.filter((row) => row.some((value) => String(value).trim())).map((row, index) => {
+              const data = Object.fromEntries(expected.slice(0, 8).map((header, column) => [header, row[column]]));
+              if (!inventoryBrands.includes(data.brand) || !inventoryMaterials.includes(data.material) || !data.itemcode || !data.colorcode || !data.color) throw new Error(`Invalid Brand, Material, or text value on row ${index + 2}.`);
+              if ([data.beginningbalance, data.receipt, data.sold].some((value) => value === '' || !Number.isFinite(Number(value)) || Number(value) < 0)) throw new Error(`Beginning Balance, Receipt, and Sold must be non-negative numbers on row ${index + 2}.`);
+              return { brand: data.brand, material: data.material, itemCode: String(data.itemcode).trim(), colorCode: String(data.colorcode).trim(), color: String(data.color).trim(), beginningBalance: Number(data.beginningbalance), receipt: Number(data.receipt), sold: Number(data.sold) };
+            });
+            for (const data of records) {
+              const response = await fetch(`${api}/api/clinic-operations/inventory-item`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
+              const result = await response.json();
+              if (!response.ok) throw new Error(result.message || 'Unable to import inventory row.');
+            }
+            setOperationStatus(`${records.length} inventory record${records.length === 1 ? '' : 's'} imported.`, 'success');
+            await loadOperations();
+          } catch (error) {
+            setOperationStatus(error.message || 'Unable to import inventory file.', 'error');
+          } finally {
+            importFile.value = '';
+          }
+        });
+      }
+    }
     const operationList = document.getElementById('operation-list');
     const operationForm = document.getElementById('operation-form');
+    const operationFormModal = document.getElementById('operation-form-modal');
+    const operationFormToggle = document.getElementById('operation-form-toggle');
+    const operationFormClose = document.getElementById('operation-form-close');
+    const operationFormCancel = document.getElementById('operation-form-cancel');
+    const operationConfirmModal = document.getElementById('operation-confirm-modal');
+    const operationConfirmSummary = document.getElementById('operation-confirm-summary');
+    const operationConfirmCancel = document.getElementById('operation-confirm-cancel');
+    const operationConfirmSubmit = document.getElementById('operation-confirm-submit');
+    const operationFormTitle = document.getElementById('operation-form-title');
     const operationStatus = document.getElementById('operation-status');
+    if (false && section === 'inventory' && operationForm) {
+      const options = (values, label) => `<option value="">Select a ${label.toLowerCase()}</option>${values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}`;
+      operationForm.innerHTML = `<div class="field-row"><div class="field-group"><label for="operation-brand">Brand</label><select id="operation-brand" name="brand" required>${options(inventoryBrands, 'brand')}</select></div><div class="field-group"><label for="operation-material">Material</label><select id="operation-material" name="material" required>${options(inventoryMaterials, 'material')}</select></div></div><div class="field-row"><div class="field-group"><label for="operation-item-code">Item Code</label><input id="operation-item-code" name="itemCode" required /></div><div class="field-group"><label for="operation-color-code">Color Code</label><input id="operation-color-code" name="colorCode" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-color">Color</label><input id="operation-color" name="color" required /></div><div class="field-group"><label for="operation-beginning-balance">Beginning Balance</label><input id="operation-beginning-balance" name="beginningBalance" type="number" min="0" step="1" inputmode="numeric" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-receipt">Receipt</label><input id="operation-receipt" name="receipt" type="number" min="0" step="1" inputmode="numeric" required /></div><div class="field-group"><label for="operation-sold">Sold</label><input id="operation-sold" name="sold" type="number" min="0" step="1" inputmode="numeric" required /></div></div><div class="field-group"><label for="operation-ending-balance">Ending Balance</label><input id="operation-ending-balance" name="endingBalance" type="number" readonly aria-readonly="true" /></div><div class="confirmation-actions confirmation-actions--stacked"><button type="button" class="btn btn-secondary" id="operation-form-cancel">Cancel</button><button type="submit" class="btn btn-primary">Save ${pageTitle}</button></div><p id="operation-status" class="form-status" aria-live="polite"></p>`;
+      const updateEndingBalance = () => {
+        const value = (name) => Number(operationForm.elements.namedItem(name)?.value || 0);
+        operationForm.elements.namedItem('endingBalance').value = value('beginningBalance') + value('receipt') - value('sold');
+      };
+      ['beginningBalance', 'receipt', 'sold'].forEach((name) => operationForm.elements.namedItem(name)?.addEventListener('input', updateEndingBalance));
+      updateEndingBalance();
+    }
     const operationTypeBySection = {
       suppliers: 'supplier',
       'purchase-orders': 'purchase-order',
@@ -1266,26 +1560,108 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       'outstanding-balances': 'invoice',
     };
     const operationTypesForSection = {
-      'stock-movements': ['stock-in', 'stock-out'],
-      'inventory-history': ['receiving', 'stock-in', 'stock-out', 'stock-adjustment'],
+      'stock-movements': ['receiving', 'stock-in', 'stock-out', 'stock-adjustment', 'stock-reservation', 'stock-return', 'stock-transfer'],
+      'inventory-history': ['receiving', 'stock-in', 'stock-out', 'stock-adjustment', 'stock-reservation', 'stock-return', 'stock-transfer'],
     };
     const operationType = operationTypeBySection[section];
     const operationTypesForPage = operationTypesForSection[section] || (operationType ? [operationType] : []);
+    const createOperationLabel = section === 'inventory' ? 'Add inventory item' : 'Create record';
     let editingOperationId = '';
     const operationPhone = document.getElementById('operation-phone');
+    const inventoryCategory = document.getElementById('operation-category');
+    const syncInventoryCategoryFields = () => {
+      const selectedCategory = inventoryCategory?.value || '';
+      document.querySelectorAll('.inventory-category-fields').forEach((group) => {
+        const isActive = group.dataset.inventoryCategory === selectedCategory;
+        group.hidden = !isActive;
+        group.querySelectorAll('input, select, textarea').forEach((input) => { input.disabled = !isActive; });
+      });
+    };
+    inventoryCategory?.addEventListener('change', syncInventoryCategoryFields);
+    syncInventoryCategoryFields();
     operationPhone?.addEventListener('input', () => {
       const digits = operationPhone.value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
       operationPhone.value = `+63 ${[digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean).join('-')}`;
     });
     const editableOperationTypes = ['supplier', 'purchase-order', 'inventory-item', 'invoice', 'payment'];
-    const operationActionCell = (record) => `<td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary operation-edit action-edit" data-operation-id="${record._id}" ${editableOperationTypes.includes(record.recordType) ? '' : 'disabled'}>Edit</button><button type="button" class="btn btn-secondary operation-remove action-delete" data-operation-id="${record._id}">Remove</button></div></td>`;
+    const operationActionCell = (record) => `<td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary operation-edit action-edit" data-operation-id="${record._id}" aria-label="Edit record" ${editableOperationTypes.includes(record.recordType) ? '' : 'disabled'}><svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span class="action-button-label">Edit</span></button><button type="button" class="btn btn-secondary operation-remove action-delete" data-operation-id="${record._id}" aria-label="Remove record"><svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14H5V6"/><path d="M10 11v5m4-5v5"/></svg><span class="action-button-label">Remove</span></button></div></td>`;
     const operationValue = (record, key) => record?.data?.[key] ?? record?.[key] ?? '';
     const operationLabel = (record) => {
       const data = record.data || {};
       return data.name || data.invoiceNumber || data.orderNumber || data.reference || data.sku || record.recordType;
     };
+    const setOperationStatus = (message, type = 'success') => {
+      if (!operationStatus) return;
+      operationStatus.textContent = message;
+      operationStatus.classList.remove('error', 'success');
+      if (type === 'error') operationStatus.classList.add('error');
+      if (type === 'success') operationStatus.classList.add('success');
+    };
+    const renderOperationConfirmation = () => {
+      if (!operationForm || !operationConfirmSummary) return;
+      const formData = new FormData(operationForm);
+      const summary = [];
+      const push = (label, value) => {
+        const text = String(value || '').trim();
+        if (text) summary.push({ label, value: text });
+      };
+      push('Type', section.replace(/-/g, ' '));
+      if (section === 'suppliers') {
+        push('Supplier name', formData.get('name'));
+        push('Contact person', formData.get('contactPerson'));
+        push('Contact number', formData.get('phone'));
+        push('Email', formData.get('email'));
+        push('Address', formData.get('address'));
+        push('Status', formData.get('status'));
+      } else if (section === 'inventory') {
+        push('Brand', formData.get('brand'));
+        push('Material', formData.get('material'));
+        push('Item Code', formData.get('itemCode'));
+        push('Color Code', formData.get('colorCode'));
+        push('Color', formData.get('color'));
+        push('Beginning Balance', formData.get('beginningBalance'));
+        push('Receipt', formData.get('receipt'));
+        push('Sold', formData.get('sold'));
+        push('Ending Balance', formData.get('endingBalance'));
+      } else {
+        push('Reference', formData.get('reference') || formData.get('orderNumber') || formData.get('supplierName'));
+        push('Status', formData.get('status'));
+        push('Reason', formData.get('reason'));
+      }
+      const itemValues = [...document.querySelectorAll('#operation-items-body tr')].map((row) => {
+        const sku = row.querySelector('[name="itemSku"]')?.value.trim();
+        const quantity = row.querySelector('[name="itemQuantity"]')?.value;
+        return sku && quantity ? `${sku} × ${quantity}` : '';
+      }).filter(Boolean);
+      if (itemValues.length) push('Items', itemValues.join(', '));
+      operationConfirmSummary.innerHTML = summary.length ? summary.map((item) => `<div class="confirmation-summary__item"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.value)}</strong></div>`).join('') : '<div class="confirmation-summary__item"><span>Record</span><strong>Ready to save</strong></div>';
+    };
+    const renderInventoryTable = (records) => {
+      const search = String(document.getElementById('inventory-search')?.value || '').toLowerCase().trim();
+      const brand = document.getElementById('inventory-brand-filter')?.value || '';
+      const material = document.getElementById('inventory-material-filter')?.value || '';
+      const filtered = records.filter((record) => {
+        const data = record.data || {};
+        const searchable = [data.brand, data.material, data.itemCode, data.colorCode, data.color, data.beginningBalance, data.receipt, data.sold, data.endingBalance].join(' ').toLowerCase();
+        return (!search || searchable.includes(search)) && (!brand || data.brand === brand) && (!material || data.material === material);
+      });
+      const rows = filtered.map((record) => {
+        const data = record.data || {};
+        return `<tr><td data-label="Brand">${escapeHtml(data.brand || '—')}</td><td data-label="Material">${escapeHtml(data.material || '—')}</td><td data-label="Item Code"><strong>${escapeHtml(data.itemCode || '—')}</strong></td><td data-label="Color Code">${escapeHtml(data.colorCode || '—')}</td><td data-label="Color">${escapeHtml(data.color || '—')}</td><td data-label="Beginning Balance" class="table-number">${Number(data.beginningBalance || 0)}</td><td data-label="Receipt" class="table-number">${Number(data.receipt || 0)}</td><td data-label="Sold" class="table-number">${Number(data.sold || 0)}</td><td data-label="Ending Balance" class="table-number">${Number(data.endingBalance || 0)}</td>${operationActionCell(record)}</tr>`;
+      }).join('');
+      operationList.innerHTML = rows ? `<div class="appointment-table-wrap"><table class="appointment-table operation-records-table inventory-table"><thead><tr><th>Brand</th><th>Material</th><th>Item Code</th><th>Color Code</th><th>Color</th><th>Beginning Balance</th><th>Receipt</th><th>Sold</th><th>Ending Balance</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-appointments">No inventory items match the selected filters.</p>';
+      bindOperationActions(records);
+      document.getElementById('inventory-export')?.replaceWith(Object.assign(document.createElement('button'), { type: 'button', id: 'inventory-export', className: 'btn btn-secondary', textContent: 'Export CSV' }));
+      document.getElementById('inventory-export')?.addEventListener('click', () => {
+        const headers = ['Brand', 'Material', 'Item Code', 'Color Code', 'Color', 'Beginning Balance', 'Receipt', 'Sold', 'Ending Balance'];
+        const csvRows = filtered.map(({ data = {} }) => [data.brand, data.material, data.itemCode, data.colorCode, data.color, data.beginningBalance, data.receipt, data.sold, data.endingBalance].map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`).join(','));
+        const blob = new Blob([[headers.join(','), ...csvRows].join('\n')], { type: 'text/csv' });
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'inventory.csv'; link.click(); URL.revokeObjectURL(link.href);
+      });
+    };
     const renderOperations = (records) => {
       if (!operationList) return;
+      if (section === 'inventory') { renderInventoryTable(records); return; }
       if (section === 'suppliers') {
         const rows = records.map((record) => {
           const data = record.data || {};
@@ -1296,18 +1672,63 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         return;
       }
       if (section === 'inventory') {
-        const rows = records.map((record) => {
+        const search = String(document.getElementById('inventory-search')?.value || '').toLowerCase().trim();
+        const category = document.getElementById('inventory-category-filter')?.value || '';
+        const brand = String(document.getElementById('inventory-brand-filter')?.value || '').toLowerCase().trim();
+        const supplier = String(document.getElementById('inventory-supplier-filter')?.value || '').toLowerCase().trim();
+        const location = String(document.getElementById('inventory-location-filter')?.value || '').toLowerCase().trim();
+        const stockFilter = document.getElementById('inventory-status-filter')?.value || '';
+        const expirationState = (data) => {
+          if (!data.expirationDate) return 'normal';
+          const days = Math.ceil((new Date(`${data.expirationDate}T00:00:00`).getTime() - Date.now()) / 86400000);
+          return days < 0 ? 'expired' : days <= 30 ? 'expiring' : 'normal';
+        };
+        const stockState = (data) => {
+          const quantity = Number(data.quantity || 0);
+          if (quantity <= 0) return 'out';
+          if (quantity <= Number(data.minimumStock || 0)) return 'low';
+          return expirationState(data);
+        };
+        const filteredRecords = records.filter((record) => {
+          const data = record.data || {};
+          const searchable = [data.sku, data.name, data.category, data.brand, data.model, data.supplier, data.location, data.batchLotNumber].join(' ').toLowerCase();
+          return (!search || searchable.includes(search)) && (!category || data.category === category) && (!brand || String(data.brand || '').toLowerCase().includes(brand)) && (!supplier || String(data.supplier || '').toLowerCase().includes(supplier)) && (!location || String(data.location || '').toLowerCase().includes(location)) && (!stockFilter || stockState(data) === stockFilter);
+        });
+        const summary = document.getElementById('inventory-summary');
+        if (summary) {
+          const totals = records.reduce((result, record) => {
+            const data = record.data || {}; const quantity = Number(data.quantity || 0); const state = stockState(data);
+            result.quantity += quantity; result.value += quantity * Number(data.cost || 0); result.reserved += Number(data.reserved || 0); result.low += state === 'low' ? 1 : 0; result.out += state === 'out' ? 1 : 0; result.expiring += state === 'expiring' ? 1 : 0; result.expired += state === 'expired' ? 1 : 0; return result;
+          }, { quantity: 0, value: 0, reserved: 0, low: 0, out: 0, expiring: 0, expired: 0 });
+          const metric = (label, value) => `<article class="inventory-metric"><span>${label}</span><strong>${value}</strong></article>`;
+          summary.innerHTML = [metric('Total products', records.length), metric('Total stock', totals.quantity), metric('Low stock', totals.low), metric('Out of stock', totals.out), metric('Reserved', totals.reserved), metric('Expiring soon', totals.expiring), metric('Expired', totals.expired), metric('Inventory value', `₱${totals.value.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`)].join('');
+        }
+        const rows = filteredRecords.map((record) => {
           const data = record.data || {};
           const quantity = Number(data.quantity || 0);
           const minimum = Number(data.minimumStock || 0);
-          const reorderLevel = Number(data.reorderLevel || 0);
-          const stockThreshold = reorderLevel || minimum;
-          const status = quantity <= 0 ? 'Out of stock' : quantity <= stockThreshold ? 'Low stock' : 'In stock';
-          const statusClass = quantity <= 0 ? 'inventory-stock-out' : quantity <= stockThreshold ? 'inventory-stock-low' : 'inventory-stock-in';
-          return `<tr><td data-label="Item"><strong>${escapeHtml(data.name)}</strong><small>${escapeHtml(data.sku)}</small></td><td data-label="Category">${escapeHtml(data.category)}</td><td data-label="Current Stock" class="table-number">${quantity} ${escapeHtml(data.unit || '')}</td><td data-label="Minimum Level" class="table-number">${minimum}</td><td data-label="Reorder Level" class="table-number">${reorderLevel}</td><td data-label="Cost" class="table-number">${Number(data.cost || 0).toFixed(2)}</td><td data-label="Selling Price" class="table-number">${Number(data.sellingPrice || 0).toFixed(2)}</td><td data-label="Status"><span class="inventory-stock-status ${statusClass}">${status}</span></td>${operationActionCell(record)}</tr>`;
+          const state = stockState(data);
+          const status = ({ normal: 'Available', low: 'Low stock', out: 'Out of stock', expiring: 'Expiring soon', expired: 'Expired' })[state];
+          const statusClass = state === 'out' || state === 'expired' ? 'inventory-stock-out' : state === 'low' || state === 'expiring' ? 'inventory-stock-low' : 'inventory-stock-in';
+          return `<tr><td data-label="SKU"><strong>${escapeHtml(data.sku)}</strong></td><td data-label="Item">${escapeHtml(data.name)}</td><td data-label="Category">${escapeHtml(data.category)}</td><td data-label="Brand">${escapeHtml(data.brand || '—')}</td><td data-label="Model">${escapeHtml(data.model || '—')}</td><td data-label="Stock" class="table-number">${quantity}</td><td data-label="Reserved" class="table-number">${Number(data.reserved || 0)}</td><td data-label="Purchase price" class="table-number">₱${Number(data.cost || 0).toFixed(2)}</td><td data-label="Selling price" class="table-number">₱${Number(data.sellingPrice || 0).toFixed(2)}</td><td data-label="Supplier">${escapeHtml(data.supplier || '—')}</td><td data-label="Location">${escapeHtml(data.location || '—')}</td><td data-label="Status"><span class="inventory-stock-status ${statusClass}">${status}</span></td>${operationActionCell(record)}</tr>`;
         }).join('');
-        operationList.innerHTML = rows ? `<div class="appointment-table-wrap"><table class="appointment-table operation-records-table inventory-table"><thead><tr><th scope="col">Item</th><th scope="col">Category</th><th scope="col">Current Stock</th><th scope="col">Minimum Level</th><th scope="col">Reorder Level</th><th scope="col">Cost</th><th scope="col">Selling Price</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-appointments">No inventory items found.</p>';
+        operationList.innerHTML = rows ? `<div class="appointment-table-wrap"><table class="appointment-table operation-records-table inventory-table"><thead><tr><th scope="col">SKU</th><th scope="col">Item name</th><th scope="col">Category</th><th scope="col">Brand</th><th scope="col">Model</th><th scope="col">Stock</th><th scope="col">Reserved</th><th scope="col">Purchase price</th><th scope="col">Selling price</th><th scope="col">Supplier</th><th scope="col">Location</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-appointments">No inventory items match the selected filters.</p>';
         bindOperationActions(records);
+        return;
+      }
+      if (['stock-movements', 'inventory-history'].includes(section)) {
+        const movementLabels = { receiving: 'Stock In / Receiving', 'stock-in': 'Stock In', 'stock-out': 'Sale / Stock Out', 'stock-adjustment': 'Stock Adjustment', 'stock-reservation': 'Reservation', 'stock-return': 'Return', 'stock-transfer': 'Stock Transfer' };
+        const rows = records.flatMap((record) => (record.data?.items || []).map((item) => {
+          const isIncoming = ['receiving', 'stock-in', 'stock-return'].includes(record.recordType) || (record.recordType === 'stock-adjustment' && Number(item.newStock) >= Number(item.previousStock));
+          const quantity = Number(item.quantity || 0);
+          const signedQuantity = `${isIncoming ? '+' : '-'}${quantity}`;
+          const beginningBalance = item.beginningBalance ?? item.previousStock ?? '—';
+          const receipt = item.receipt ?? (isIncoming ? quantity : '—');
+          const sold = item.sold ?? (!isIncoming ? quantity : '—');
+          const endingBalance = item.endingBalance ?? item.newStock ?? '—';
+          return `<tr><td data-label="Date / time">${escapeHtml(new Date(record.createdAt).toLocaleString())}</td><td data-label="Transaction type">${escapeHtml(movementLabels[record.recordType] || record.recordType)}</td><td data-label="Brand">${escapeHtml(item.brand || '—')}</td><td data-label="Material">${escapeHtml(item.material || '—')}</td><td data-label="Item Code"><strong>${escapeHtml(item.itemCode || item.sku || '—')}</strong></td><td data-label="Color Code">${escapeHtml(item.colorCode || '—')}</td><td data-label="Color">${escapeHtml(item.color || '—')}</td><td data-label="Beginning Balance" class="table-number">${beginningBalance}</td><td data-label="Receipt" class="table-number">${receipt}</td><td data-label="Sold" class="table-number">${sold}</td><td data-label="Ending Balance" class="table-number">${endingBalance}</td><td data-label="Reference">${escapeHtml(record.data?.reference || record.data?.purchaseOrderId || record.operationKey || '—')}</td><td data-label="User / staff">${escapeHtml(record.createdBy?.name || record.data?.processedBy || '—')}</td></tr>`;
+        })).join('');
+        operationList.innerHTML = rows ? `<div class="appointment-table-wrap"><table class="appointment-table operation-records-table inventory-movement-table"><thead><tr><th>Date / time</th><th>Transaction type</th><th>Brand</th><th>Material</th><th>Item Code</th><th>Color Code</th><th>Color</th><th>Beginning Balance</th><th>Receipt</th><th>Sold</th><th>Ending Balance</th><th>Reference</th><th>User / staff</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-appointments">No inventory movements found.</p>';
         return;
       }
       const rows = records.map((record) => {
@@ -1330,13 +1751,18 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const record = records.find((item) => item._id === button.dataset.operationId);
         if (!record || !operationForm) return;
         editingOperationId = record._id;
+        if (operationFormTitle) operationFormTitle.textContent = `Edit ${pageTitle}`;
+        if (operationFormToggle) operationFormToggle.textContent = `Edit ${pageTitle}`;
+        if (operationFormToggle) operationFormToggle.setAttribute('aria-expanded', 'true');
         Object.entries(record.data || {}).forEach(([key, value]) => { const input = operationForm.elements.namedItem(key); if (input && !Array.isArray(value)) input.value = value; });
+        syncInventoryCategoryFields();
         if (Array.isArray(record.data?.items) && operationItemsBody) {
           operationItemsBody.innerHTML = record.data.items.map((item) => `<tr><td><input name="itemSku" aria-label="Item SKU" value="${escapeHtml(item.sku || '')}" required /></td><td><input name="itemQuantity" type="number" min="1" step="1" aria-label="Item quantity" value="${Number(item.quantity) || 1}" required /></td><td><button type="button" class="btn btn-secondary remove-operation-item" aria-label="Remove item">Remove</button></td></tr>`).join('');
         }
         const submit = operationForm.querySelector('button[type="submit"]');
         if (submit) submit.textContent = `Update ${pageTitle}`;
-        operationForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        operationFormModal?.showModal();
+        requestAnimationFrame(() => operationForm?.querySelector('input:not([type="hidden"])')?.focus());
       }));
     };
     const loadOperations = async () => {
@@ -1349,13 +1775,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       renderOperations(records);
       if (operationStatus) operationStatus.textContent = `${records.length} record${records.length === 1 ? '' : 's'} found.`;
     };
-    operationForm?.addEventListener('submit', async (event) => {
-      event.preventDefault();
+    const submitOperationForm = async () => {
+      if (!operationForm) return;
       const raw = Object.fromEntries(new FormData(operationForm).entries());
       const data = Object.fromEntries(Object.entries(raw).filter(([, value]) => value !== ''));
       if (operationPhone?.value && !/^\+63 \d{3}-\d{3}-\d{4}$/.test(operationPhone.value)) {
-        operationStatus.textContent = 'Contact number must use +63 000-000-0000 format.';
-        operationStatus.classList.add('error');
+        setOperationStatus('Contact number must use +63 000-000-0000 format.', 'error');
         return;
       }
       if (['purchase-orders', 'receiving', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section)) {
@@ -1364,8 +1789,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           quantity: Number(row.querySelector('[name="itemQuantity"]')?.value),
         }));
         if (!data.items.length || data.items.some((item) => !item.sku || !item.quantity || item.quantity < 1)) {
-          operationStatus.textContent = 'Add an item SKU and a quantity of at least 1.';
-          operationStatus.classList.add('error');
+          setOperationStatus('Add an item SKU and a quantity of at least 1.', 'error');
           return;
         }
       }
@@ -1373,9 +1797,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         operationTypeBySection[section] = data.movementType || 'stock-in';
         delete data.movementType;
       }
-      ['quantity', 'minimumStock', 'reorderLevel', 'cost', 'sellingPrice', 'total', 'amount'].forEach((field) => { if (data[field] !== undefined) data[field] = Number(data[field]); });
-      operationStatus.textContent = 'Saving record...';
-      operationStatus.classList.remove('error');
+      if (section === 'stock-adjustment') {
+        data.items = data.items.map((item) => ({ ...item, adjustmentType: data.adjustmentType || 'increase' }));
+        delete data.adjustmentType;
+      }
+      ['quantity', 'minimumStock', 'reorderLevel', 'cost', 'sellingPrice', 'beginningBalance', 'receipt', 'sold', 'endingBalance', 'total', 'amount'].forEach((field) => { if (data[field] !== undefined) data[field] = Number(data[field]); });
+      setOperationStatus('Saving record...', 'success');
       try {
         const endpoint = editingOperationId ? `${api}/api/clinic-operations/${editingOperationId}` : `${api}/api/clinic-operations/${operationTypeBySection[section]}`;
         const response = await fetch(endpoint, { method: editingOperationId ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
@@ -1385,9 +1812,52 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         editingOperationId = '';
         const submit = operationForm.querySelector('button[type="submit"]');
         if (submit) submit.textContent = `Save ${pageTitle}`;
-        operationStatus.textContent = `${pageTitle} ${response.status === 200 ? 'updated' : 'saved'}.`;
+        setOperationStatus(`${pageTitle} ${response.status === 200 ? 'updated' : 'saved'}.`, 'success');
+        if (operationFormModal) operationFormModal.close();
+        if (operationConfirmModal) operationConfirmModal.close();
+        if (operationFormToggle) operationFormToggle.setAttribute('aria-expanded', 'false');
         await loadOperations();
-      } catch (error) { operationStatus.textContent = error.message; operationStatus.classList.add('error'); }
+      } catch (error) {
+        setOperationStatus(error.message || 'Unable to save record.', 'error');
+      }
+    };
+    operationFormToggle?.addEventListener('click', () => {
+      editingOperationId = '';
+      if (operationForm) operationForm.reset();
+      syncInventoryCategoryFields();
+      if (operationFormTitle) operationFormTitle.textContent = `Create ${pageTitle}`;
+      if (operationFormToggle) operationFormToggle.textContent = createOperationLabel;
+      if (operationFormModal) operationFormModal.showModal();
+      operationFormToggle.setAttribute('aria-expanded', 'true');
+      requestAnimationFrame(() => operationForm?.querySelector('input:not([type="hidden"])')?.focus());
+    });
+    operationFormClose?.addEventListener('click', () => {
+      operationFormModal?.close();
+      operationFormToggle?.setAttribute('aria-expanded', 'false');
+      if (operationForm) operationForm.reset();
+      editingOperationId = '';
+      if (operationFormTitle) operationFormTitle.textContent = `Create ${pageTitle}`;
+      if (operationFormToggle) operationFormToggle.textContent = createOperationLabel;
+    });
+    operationFormCancel?.addEventListener('click', () => {
+      operationFormModal?.close();
+      operationFormToggle?.setAttribute('aria-expanded', 'false');
+      if (operationForm) operationForm.reset();
+      editingOperationId = '';
+      if (operationFormTitle) operationFormTitle.textContent = `Create ${pageTitle}`;
+      if (operationFormToggle) operationFormToggle.textContent = createOperationLabel;
+    });
+    operationConfirmCancel?.addEventListener('click', () => {
+      operationConfirmModal?.close();
+      operationFormModal?.showModal();
+    });
+    operationConfirmSubmit?.addEventListener('click', () => {
+      void submitOperationForm();
+    });
+    operationForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      renderOperationConfirmation();
+      if (operationConfirmModal) operationConfirmModal.showModal();
     });
     const operationItemsBody = document.getElementById('operation-items-body');
     document.getElementById('add-operation-item')?.addEventListener('click', () => {
@@ -1395,6 +1865,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     });
     operationItemsBody?.addEventListener('click', (event) => {
       if (event.target.closest('.remove-operation-item') && operationItemsBody.rows.length > 1) event.target.closest('tr').remove();
+    });
+    ['inventory-search', 'inventory-brand-filter', 'inventory-material-filter'].forEach((id) => {
+      const control = document.getElementById(id);
+      control?.addEventListener(control.tagName === 'SELECT' ? 'change' : 'input', () => { void loadOperations(); });
     });
     loadOperations().catch((error) => { if (operationList) operationList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
 
@@ -1418,9 +1892,29 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const invoiceStatus = document.getElementById('billing-invoice-status');
       const paymentStatus = document.getElementById('billing-payment-status');
       const itemsBody = document.getElementById('billing-items-body');
+      const billingInvoiceFormToggle = document.getElementById('billing-invoice-form-toggle');
+      const billingInvoiceFormModal = document.getElementById('billing-invoice-form-modal');
+      const billingInvoiceFormClose = document.getElementById('billing-invoice-form-close');
+      const billingInvoiceFormCancel = document.getElementById('billing-invoice-form-cancel');
+      const billingPagination = document.getElementById('billing-pagination');
+      let billingPage = 1;
+      const billingPageSize = 5;
       const detailModal = document.getElementById('billing-detail-modal');
       const detailTitle = document.getElementById('billing-detail-title');
       const detailContent = document.getElementById('billing-detail-content');
+      billingInvoiceFormToggle?.addEventListener('click', () => {
+        billingInvoiceFormModal?.showModal();
+        billingInvoiceFormToggle.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(() => document.getElementById('billing-customer')?.focus());
+      });
+      billingInvoiceFormClose?.addEventListener('click', () => {
+        billingInvoiceFormModal?.close();
+        billingInvoiceFormToggle?.setAttribute('aria-expanded', 'false');
+      });
+      billingInvoiceFormCancel?.addEventListener('click', () => {
+        billingInvoiceFormModal?.close();
+        billingInvoiceFormToggle?.setAttribute('aria-expanded', 'false');
+      });
       const itemRowMarkup = (item = {}) => `<tr><td><input name="itemDescription" value="${escapeHtml(item.description || '')}" required placeholder="Service or product" /></td><td><input name="itemQuantity" type="number" min="1" step="1" value="${item.quantity || 1}" required /></td><td><input name="itemUnitPrice" type="number" min="0" step="0.01" value="${item.unitPrice || ''}" required /></td><td><input name="itemDiscount" type="number" min="0" step="0.01" value="${item.discount || 0}" /></td><td><input name="itemTax" type="number" min="0" step="0.01" value="${item.tax || 0}" /></td><td class="table-number billing-line-total">${peso(item.lineTotal || 0)}</td><td><button type="button" class="btn btn-secondary billing-remove-item">Remove</button></td></tr>`;
       const collectItems = () => [...(itemsBody?.querySelectorAll('tr') || [])].map((row) => ({
         description: row.querySelector('[name="itemDescription"]')?.value.trim(),
@@ -1737,27 +2231,39 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const status = document.getElementById('billing-status-filter')?.value || '';
         if (section === 'billing-invoices' || section === 'invoice-templates') {
           const date = document.getElementById('billing-date-filter')?.value || '';
-          const rows = billingInvoices.filter((invoice) => {
+          const filtered = billingInvoices.filter((invoice) => {
             const data = invoice.data || {};
             return (!status || data.status === status) && (!date || data.invoiceDate === date) && (!query || `${data.invoiceNumber} ${data.patientName}`.toLowerCase().includes(query));
           });
+          const pages = Math.max(1, Math.ceil(filtered.length / billingPageSize));
+          billingPage = Math.min(billingPage, pages);
+          const rows = filtered.slice((billingPage - 1) * billingPageSize, billingPage * billingPageSize);
           billingList.innerHTML = rows.length ? `<div class="appointment-table-wrap"><table class="appointment-table billing-table"><thead><tr><th>Invoice</th><th>Customer</th><th>Date</th><th>Due</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows.map((invoice) => {
             const data = invoice.data || {};
             const locked = Number(data.paid || 0) > 0 || data.status === 'cancelled';
             return `<tr class="${data.status === 'overdue' ? 'is-overdue' : ''}"><td data-label="Invoice"><strong>${escapeHtml(data.invoiceNumber)}</strong></td><td data-label="Customer">${escapeHtml(data.patientName)}<small>${escapeHtml(data.customerEmail || data.customerPhone || '')}</small></td><td data-label="Date">${escapeHtml(data.invoiceDate || '—')}</td><td data-label="Due">${escapeHtml(data.dueDate || '—')}</td><td data-label="Total" class="table-number">${peso(data.total)}</td><td data-label="Paid" class="table-number">${peso(data.paid)}</td><td data-label="Balance" class="table-number">${peso(data.balance)}</td><td data-label="Status"><span class="${statusClass(data.status)}">${statusLabel(data.status)}</span></td><td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary" data-billing-view="invoice" data-id="${invoice._id}">View</button><button type="button" class="btn btn-secondary action-edit" data-billing-edit="${invoice._id}" ${locked ? 'disabled' : ''}>Edit</button><button type="button" class="btn btn-secondary action-delete" data-billing-cancel="${invoice._id}" ${locked ? 'disabled' : ''}>Cancel</button></div></td></tr>`;
           }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No invoices match these filters.</p>';
+          billingPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${billingPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${billingPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${billingPage === pages ? 'disabled' : ''}>Next</button>` : '';
+          billingPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { billingPage -= 1; renderBilling(); });
+          billingPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { billingPage += 1; renderBilling(); });
           return;
         }
         if (section === 'outstanding-balances') {
           const sort = document.getElementById('billing-sort')?.value || 'dueDate';
-          const rows = outstandingInvoices().filter((invoice) => {
+          const filtered = outstandingInvoices().filter((invoice) => {
             const data = invoice.data || {};
             return (!status || data.status === status) && (!query || `${data.invoiceNumber} ${data.patientName}`.toLowerCase().includes(query));
           }).sort((first, second) => sort === 'balance' ? Number(second.data.balance) - Number(first.data.balance) : String(first.data.dueDate || '').localeCompare(String(second.data.dueDate || '')));
+          const pages = Math.max(1, Math.ceil(filtered.length / billingPageSize));
+          billingPage = Math.min(billingPage, pages);
+          const rows = filtered.slice((billingPage - 1) * billingPageSize, billingPage * billingPageSize);
           billingList.innerHTML = rows.length ? `<div class="appointment-table-wrap"><table class="appointment-table billing-table"><thead><tr><th>Customer</th><th>Invoice</th><th>Invoice date</th><th>Due date</th><th>Total</th><th>Paid</th><th>Outstanding</th><th>Status</th><th>Days overdue</th><th>Actions</th></tr></thead><tbody>${rows.map((invoice) => {
             const data = invoice.data || {};
             return `<tr class="${data.status === 'overdue' ? 'is-overdue' : ''}"><td data-label="Customer">${escapeHtml(data.patientName)}</td><td data-label="Invoice">${escapeHtml(data.invoiceNumber)}</td><td data-label="Invoice date">${escapeHtml(data.invoiceDate || '—')}</td><td data-label="Due date">${escapeHtml(data.dueDate || '—')}</td><td data-label="Total" class="table-number">${peso(data.total)}</td><td data-label="Paid" class="table-number">${peso(data.paid)}</td><td data-label="Outstanding" class="table-number">${peso(data.balance)}</td><td data-label="Status"><span class="${statusClass(data.status)}">${statusLabel(data.status)}</span></td><td data-label="Days overdue">${invoice.daysOverdue || 0}</td><td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary" data-billing-view="invoice" data-id="${invoice._id}">View</button><button type="button" class="btn btn-primary" data-billing-pay="${invoice._id}">Record payment</button><button type="button" class="btn btn-secondary" data-billing-remind="${invoice._id}">Remind</button></div></td></tr>`;
           }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No outstanding balances.</p>';
+          billingPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${billingPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${billingPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${billingPage === pages ? 'disabled' : ''}>Next</button>` : '';
+          billingPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { billingPage -= 1; renderBilling(); });
+          billingPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { billingPage += 1; renderBilling(); });
           return;
         }
         const customer = document.getElementById('billing-customer-filter')?.value || '';
@@ -1765,16 +2271,22 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const paymentStatusFilter = document.getElementById('billing-payment-status-filter')?.value || '';
         const from = document.getElementById('billing-date-from')?.value || '';
         const to = document.getElementById('billing-date-to')?.value || '';
-        const rows = billingPayments.filter((payment) => {
+        const filtered2 = billingPayments.filter((payment) => {
           const data = payment.data || {};
           const date = data.paymentDate || String(payment.createdAt || '').slice(0, 10);
           return (!customer || data.patientName === customer) && (!method || data.method === method) && (!paymentStatusFilter || data.status === paymentStatusFilter) && (!from || date >= from) && (!to || date <= to) && (!query || `${data.receiptNumber} ${data.patientName} ${data.invoiceNumber} ${data.reference}`.toLowerCase().includes(query));
         });
+        const pages = Math.max(1, Math.ceil(filtered2.length / billingPageSize));
+        billingPage = Math.min(billingPage, pages);
+        const rows = filtered2.slice((billingPage - 1) * billingPageSize, billingPage * billingPageSize);
         billingList.innerHTML = rows.length ? `<div class="appointment-table-wrap"><table class="appointment-table billing-table"><thead><tr><th>Payment ID</th><th>Receipt</th><th>Customer</th><th>Invoice</th><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th><th>Recorded by</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows.map((payment) => {
           const data = payment.data || {};
           const reversed = data.status === 'reversed';
           return `<tr><td data-label="Payment ID"><small>${escapeHtml(payment._id)}</small></td><td data-label="Receipt">${escapeHtml(data.receiptNumber || '—')}</td><td data-label="Customer">${escapeHtml(data.patientName || '—')}</td><td data-label="Invoice">${escapeHtml(data.invoiceNumber || '—')}</td><td data-label="Date">${escapeHtml(data.paymentDate || '—')}</td><td data-label="Amount" class="table-number">${peso(data.amount)}</td><td data-label="Method">${escapeHtml(data.method || '—')}</td><td data-label="Reference">${escapeHtml(data.reference || '—')}</td><td data-label="Recorded by">${escapeHtml(payment.createdBy?.name || data.recordedBy || '—')}</td><td data-label="Status"><span class="${statusClass(data.status)}">${statusLabel(data.status)}</span></td><td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary" data-billing-view="payment" data-id="${payment._id}">View</button>${reversed ? '' : `<button type="button" class="btn btn-secondary action-delete" data-billing-reverse="${payment._id}">Reverse</button>`}</div></td></tr>`;
         }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No payments match these filters.</p>';
+        billingPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${billingPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${billingPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${billingPage === pages ? 'disabled' : ''}>Next</button>` : '';
+        billingPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { billingPage -= 1; renderBilling(); });
+        billingPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { billingPage += 1; renderBilling(); });
       };
       const loadBilling = async () => {
         const [invoiceResponse, paymentResponse, userResponse, templateResponse, settingsResponse] = await Promise.all([
@@ -1838,8 +2350,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       document.getElementById('billing-payment-customer')?.addEventListener('change', fillPaymentInvoices);
       document.getElementById('billing-payment-invoice')?.addEventListener('change', updatePaymentSnapshot);
       ['billing-search', 'billing-status-filter', 'billing-date-filter', 'billing-customer-filter', 'billing-method-filter', 'billing-payment-status-filter', 'billing-date-from', 'billing-date-to', 'billing-sort'].forEach((id) => {
-        document.getElementById(id)?.addEventListener('input', renderBilling);
-        document.getElementById(id)?.addEventListener('change', renderBilling);
+        document.getElementById(id)?.addEventListener('input', () => { billingPage = 1; renderBilling(); });
+        document.getElementById(id)?.addEventListener('change', () => { billingPage = 1; renderBilling(); });
       });
       invoiceForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -1869,6 +2381,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           if (dueDate) dueDate.value = todayIso();
           invoiceForm.querySelector('button[type="submit"]').textContent = 'Create invoice';
           invoiceStatus.textContent = result.record?.data?.invoiceNumber ? `Invoice ${result.record.data.invoiceNumber} saved.` : 'Invoice saved.';
+          if (billingInvoiceFormModal) billingInvoiceFormModal.close();
+          if (billingInvoiceFormToggle) billingInvoiceFormToggle.setAttribute('aria-expanded', 'false');
+          billingPage = 1;
           await loadBilling();
         } catch (error) { invoiceStatus.textContent = error.message; invoiceStatus.classList.add('error'); }
       });
@@ -1902,7 +2417,27 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           detailTitle.textContent = 'Payment receipt';
           detailContent.innerHTML = receiptMarkup(result.record);
           detailModal?.showModal();
+          const paymentFormModal = document.getElementById('billing-payment-form-modal');
+          paymentFormModal?.close();
         } catch (error) { paymentStatus.textContent = error.message; paymentStatus.classList.add('error'); }
+      });
+      const paymentFormModal = document.getElementById('billing-payment-form-modal');
+      const paymentFormToggle = document.getElementById('billing-payment-form-toggle');
+      const paymentFormClose = document.getElementById('billing-payment-form-close');
+      const paymentFormCancel = document.getElementById('billing-payment-form-cancel');
+      paymentFormToggle?.addEventListener('click', () => {
+        paymentFormModal?.showModal();
+        paymentFormToggle.setAttribute('aria-expanded', 'true');
+        paymentForm?.querySelector('input, select')?.focus();
+      });
+      paymentFormClose?.addEventListener('click', () => {
+        paymentFormModal?.close();
+        paymentFormToggle?.setAttribute('aria-expanded', 'false');
+      });
+      paymentFormCancel?.addEventListener('click', () => {
+        paymentFormModal?.close();
+        paymentFormToggle?.setAttribute('aria-expanded', 'false');
+        paymentStatus.textContent = '';
       });
       billingList.addEventListener('click', async (event) => {
         const view = event.target.closest('[data-billing-view]');
@@ -1978,6 +2513,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         link.click();
       });
       loadBilling().catch((error) => { billingList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
+      refreshBilling = loadBilling;
 
       // Tab switching logic for Billing / Invoices and Invoice Templates
       const switchBillingTab = (tab) => {
@@ -2017,6 +2553,62 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           event.preventDefault();
           switchBillingTab(link.dataset.tab);
         });
+      });
+    }
+
+    const handleRealtimeEvent = async (event) => {
+      if (!event || !event.type) return;
+
+      const refreshTargets = new Set();
+      if (event.type === 'appointment') refreshTargets.add('appointments');
+      if (event.type === 'follow-up') refreshTargets.add('followUps');
+      if (event.type === 'clinical-record') refreshTargets.add('clinicalRecords');
+      if (event.type === 'user') refreshTargets.add('users');
+      if (['invoice', 'payment', 'supplier', 'purchase-order', 'receiving', 'inventory-item', 'stock-in', 'stock-out', 'stock-adjustment', 'template'].includes(event.type)) {
+        refreshTargets.add('operations');
+        refreshTargets.add('billing');
+      }
+
+      try {
+        if (section === 'dashboard' && typeof loadDashboard === 'function') {
+          await loadDashboard();
+        }
+        if (refreshTargets.has('appointments') && typeof loadAppointments === 'function') {
+          await loadAppointments();
+        }
+        if (refreshTargets.has('followUps') && typeof loadPatientFollowUps === 'function') {
+          await loadPatientFollowUps();
+        }
+        if (refreshTargets.has('followUps') && typeof loadClinicalFollowUps === 'function') {
+          await loadClinicalFollowUps();
+        }
+        if (refreshTargets.has('clinicalRecords') && typeof loadClinicalRecords === 'function') {
+          await loadClinicalRecords();
+        }
+        if (refreshTargets.has('users') && typeof loadUsers === 'function') {
+          await loadUsers();
+        }
+        if (refreshTargets.has('operations') && typeof loadOperations === 'function') {
+          await loadOperations();
+        }
+        if (refreshTargets.has('billing') && typeof refreshBilling === 'function') {
+          await refreshBilling();
+        }
+        if (section !== 'dashboard') {
+          await loadNotifications();
+        }
+      } catch (error) {
+        console.error('Realtime refresh failed.', error);
+      }
+    };
+
+    if (token && user) {
+      connectClinicRealtime({
+        apiUrl: api,
+        token,
+        onEvent: (event) => {
+          void handleRealtimeEvent(event);
+        },
       });
     }
 

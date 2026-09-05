@@ -4,6 +4,7 @@ import InvoiceTemplate from '../models/InvoiceTemplate.js';
 import ClinicOperation from '../models/ClinicOperation.js';
 import AuditLog from '../models/AuditLog.js';
 import { requireAuth, allowRoles } from '../middleware/auth.js';
+import { broadcastRealtimeEvent } from '../config/realtime.js';
 
 const router = express.Router();
 router.use(requireAuth, allowRoles('owner'));
@@ -101,6 +102,18 @@ router.post('/', async (req, res) => {
     const body = req.body;
     const template = await InvoiceTemplate.create({ ...body, name: body.name.trim(), isDefault: true, createdBy: req.user.id });
     await AuditLog.create({ actorId: req.user.id, action: 'Created invoice template', target: `invoice-template:${template._id}`, newData: template.toObject() });
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: 'invoice-template',
+      action: 'created',
+      entityId: String(template._id),
+      payload: {
+        _id: String(template._id),
+        id: String(template._id),
+        name: template.name,
+        isDefault: template.isDefault,
+      },
+      roles: ['owner'],
+    });
     return res.status(201).json({ message: 'Invoice template saved.', template });
   } catch (error) {
     console.error('Invoice template POST error:', error);
@@ -120,6 +133,18 @@ router.patch('/:id', async (req, res) => {
     Object.assign(template, req.body, { name: req.body.name?.trim() || template.name, isDefault: true });
     await template.save();
     await AuditLog.create({ actorId: req.user.id, action: 'Updated invoice template', target: `invoice-template:${template._id}`, previousData: before, newData: template.toObject() });
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: 'invoice-template',
+      action: 'updated',
+      entityId: String(template._id),
+      payload: {
+        _id: String(template._id),
+        id: String(template._id),
+        name: template.name,
+        isDefault: template.isDefault,
+      },
+      roles: ['owner'],
+    });
     return res.json({ message: 'Invoice template saved.', template });
   } catch (error) {
     console.error('Invoice template PATCH error:', error);
@@ -144,6 +169,17 @@ router.delete('/:id', async (req, res) => {
     const before = template.toObject();
     await InvoiceTemplate.findByIdAndDelete(req.params.id);
     await AuditLog.create({ actorId: req.user.id, action: 'Deleted invoice template', target: `invoice-template:${template._id}`, previousData: before });
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: 'invoice-template',
+      action: 'deleted',
+      entityId: String(template._id),
+      payload: {
+        _id: String(template._id),
+        id: String(template._id),
+        name: template.name,
+      },
+      roles: ['owner'],
+    });
 
     // Ensure at least one default template exists
     const existingTemplate = await InvoiceTemplate.findOne();

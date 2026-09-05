@@ -4,24 +4,55 @@ import AuditLog from '../models/AuditLog.js';
 import { requireAuth, optionalAuth, allowRoles } from '../middleware/auth.js';
 import { sendAppointmentNotifications } from '../config/mailer.js';
 import { appointmentCreationLimiter } from '../middleware/rateLimit.js';
+import { broadcastRealtimeEvent, publicAppointmentPayload } from '../config/realtime.js';
+import {
+  getAvailableSlotsForDate,
+  validateAppointmentTime,
+  formatTime12Hour,
+  getFormattedClinicHours,
+  getClinicScheduleForDate,
+} from '../config/clinicSchedule.js';
 
 const router = express.Router();
-const appointmentSlots = ['09:00 AM', '10:30 AM', '01:00 PM', '02:30 PM', '04:00 PM'];
 
 router.get('/availability', async (req, res) => {
   try {
     const { date } = req.query;
     if (!date) return res.status(400).json({ message: 'A date is required.' });
 
+    // Get available slots for this date based on clinic schedule
+    const availableSlotTimes = getAvailableSlotsForDate(date);
+    const scheduleInfo = getClinicScheduleForDate(date);
+
+    // If clinic is not operating on this day
+    if (!scheduleInfo.operatingDay) {
+      return res.status(200).json({
+        date,
+        scheduleInfo,
+        clinicHours: getFormattedClinicHours(date),
+        slots: [],
+      });
+    }
+
+    // Get booked appointments for this date
     const appointments = await Appointment.find({
       preferredDate: date,
       status: { $nin: ['cancelled', 'no-show'] },
     }).select('preferredTime');
-    const booked = new Set(appointments.map((appointment) => appointment.preferredTime));
+    const bookedTimes = new Set(appointments.map((appointment) => appointment.preferredTime));
+
+    // Map time slots to format (HH:MM -> 12-hour format)
+    const slots = availableSlotTimes.map((time) => ({
+      time24Hr: time,
+      time: formatTime12Hour(time),
+      available: !bookedTimes.has(formatTime12Hour(time)) && !bookedTimes.has(time),
+    }));
 
     return res.status(200).json({
       date,
-      slots: appointmentSlots.map((time) => ({ time, available: !booked.has(time) })),
+      scheduleInfo,
+      clinicHours: getFormattedClinicHours(date),
+      slots,
     });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to load availability.', error: error.message });
@@ -44,15 +75,35 @@ router.post('/', appointmentCreationLimiter, optionalAuth, async (req, res) => {
       return res.status(400).json({ message: 'Appointment date must be today or a future date.' });
     }
 
+    // Validate appointment time against clinic schedule if both date and time are provided
     if (preferredDate && preferredTime) {
+      const scheduleInfo = getClinicScheduleForDate(preferredDate);
+
+      // Check if clinic is operating on this day
+      if (!scheduleInfo.operatingDay) {
+        return res.status(400).json({
+          message: 'The clinic is not open on Sunday. Sunday appointments must be requested through the appointment workflow. Please contact the clinic.',
+        });
+      }
+
+      // Validate the time is within clinic hours
+      const timeValidation = validateAppointmentTime(preferredDate, preferredTime);
+      if (!timeValidation.valid) {
+        return res.status(400).json({ message: timeValidation.error });
+      }
+
+      // Check for appointment conflicts
       const conflict = await Appointment.findOne({
         preferredDate,
-        preferredTime,
+        $or: [
+          { preferredTime }, // Exact time match
+          { preferredTime: formatTime12Hour(preferredTime) }, // Handle format conversion
+        ],
         status: { $nin: ['cancelled', 'no-show'] },
       });
 
       if (conflict) {
-        return res.status(409).json({ message: 'That appointment time is already booked.' });
+        return res.status(409).json({ message: 'That appointment time is already booked. Please select another time.' });
       }
     }
 
@@ -65,6 +116,16 @@ router.post('/', appointmentCreationLimiter, optionalAuth, async (req, res) => {
       preferredTime,
       message,
       userId,
+    });
+
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: 'appointment',
+      action: 'created',
+      entityId: String(appointment._id),
+      payload: publicAppointmentPayload(appointment),
+      roles: ['owner', 'optometrist', 'eye-care-assistant'],
+      userIds: [userId].filter(Boolean),
+      emails: [appointment.email].filter(Boolean),
     });
 
     try {
@@ -132,6 +193,17 @@ router.patch('/:id/status', requireAuth, allowRoles('owner', 'optometrist', 'eye
       details: `${appointment.service} (${appointment.email})`,
       previousData: { status: previousStatus },
       newData: { status: appointment.status },
+    });
+
+    const appointmentAction = status === 'rescheduled' ? 'rescheduled' : status === 'completed' ? 'completed' : 'status-updated';
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: 'appointment',
+      action: appointmentAction,
+      entityId: String(appointment._id),
+      payload: publicAppointmentPayload(appointment),
+      roles: ['owner', 'optometrist', 'eye-care-assistant'],
+      userIds: [appointment.userId].filter(Boolean),
+      emails: [appointment.email].filter(Boolean),
     });
 
     return res.status(200).json({ appointment });

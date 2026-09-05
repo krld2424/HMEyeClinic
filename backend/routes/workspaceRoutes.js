@@ -7,6 +7,7 @@ import ClinicalRecord from '../models/ClinicalRecord.js';
 import FollowUp from '../models/FollowUp.js';
 import ClinicOperation from '../models/ClinicOperation.js';
 import { requireAuth, allowRoles } from '../middleware/auth.js';
+import { broadcastRealtimeEvent, publicUserPayload } from '../config/realtime.js';
 
 const router = express.Router();
 router.use(requireAuth);
@@ -21,6 +22,14 @@ router.patch('/profile', allowRoles('patient'), async (req, res) => {
   const { name, phone, age, gender } = req.body;
   const user = await User.findByIdAndUpdate(req.user.id, { name, phone, age, gender }, { new: true, runValidators: true }).select('-password');
   if (!user) return res.status(404).json({ message: 'Profile not found.' });
+  broadcastRealtimeEvent(req.app.get('io'), {
+    type: 'user',
+    action: 'updated',
+    entityId: String(user._id),
+    payload: publicUserPayload(user),
+    roles: ['owner'],
+    userIds: [String(user._id)],
+  });
   return res.status(200).json({ message: 'Profile updated.', user });
 });
 

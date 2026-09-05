@@ -5,6 +5,7 @@ import User from '../models/User.js';
 import crypto from 'node:crypto';
 import { sendPasswordResetOtp } from '../config/resend.js';
 import { forgotPasswordLimiter, loginLimiter, otpLimiter, registrationLimiter } from '../middleware/rateLimit.js';
+import { broadcastRealtimeEvent, publicUserPayload } from '../config/realtime.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'hm-visionsync-dev-secret';
@@ -150,6 +151,14 @@ router.post('/register', registrationLimiter, async (req, res) => {
     });
 
     const token = createToken(user);
+
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: 'user',
+      action: 'created',
+      entityId: String(user._id),
+      payload: publicUserPayload(user),
+      roles: ['owner'],
+    });
 
     return res.status(201).json({
       message: 'Account created successfully.',

@@ -6,6 +6,8 @@ import User from '../models/User.js';
 import InvoiceTemplate from '../models/InvoiceTemplate.js';
 import { requireAuth, allowRoles } from '../middleware/auth.js';
 import { sendPaymentReminder } from '../config/mailer.js';
+import { broadcastRealtimeEvent } from '../config/realtime.js';
+import { inventoryBrands, inventoryMaterials, isInventoryNumber, normalizeInventoryData } from '../config/inventory.js';
 import {
   money,
   todayDate,
@@ -25,10 +27,13 @@ const operationTypes = [
   'stock-in',
   'stock-out',
   'stock-adjustment',
+  'stock-reservation',
+  'stock-return',
+  'stock-transfer',
   'invoice',
   'payment',
 ];
-const inventoryChangeTypes = ['receiving', 'stock-in', 'stock-out', 'stock-adjustment'];
+const inventoryChangeTypes = ['receiving', 'stock-in', 'stock-out', 'stock-adjustment', 'stock-reservation', 'stock-return', 'stock-transfer'];
 
 router.use(requireAuth, allowRoles('owner'));
 
@@ -51,8 +56,11 @@ const validateRecord = (recordType, data) => {
   if (recordType === 'purchase-order' && ((!data.supplierId && !data.supplierName) || validateItems(data.items))) {
     return 'Purchase orders require a supplier and at least one item.';
   }
-  if (recordType === 'inventory-item' && (!data.name || !isNonNegativeNumber(data.quantity))) {
-    return 'Inventory items require a name and a non-negative quantity.';
+  if (recordType === 'inventory-item') {
+    if (!inventoryBrands.includes(data.brand)) return 'Choose a valid brand.';
+    if (!inventoryMaterials.includes(data.material)) return 'Choose a valid material.';
+    if (!data.itemCode || !data.colorCode || !data.color) return 'Brand, material, item code, color code, and color are required.';
+    if (![data.beginningBalance, data.receipt, data.sold].every(isInventoryNumber)) return 'Beginning Balance, Receipt, and Sold must be non-negative numbers.';
   }
   if (inventoryChangeTypes.includes(recordType) && validateItems(data.items)) return validateItems(data.items);
   if (recordType === 'receiving' && !data.reference) return 'Receiving requires a unique reference.';
@@ -116,38 +124,76 @@ const inventoryFilter = (item) => {
   if (item.inventoryItemId && mongoose.isValidObjectId(item.inventoryItemId)) {
     return { _id: item.inventoryItemId, recordType: 'inventory-item' };
   }
-  return { recordType: 'inventory-item', 'data.sku': item.sku };
+  return { recordType: 'inventory-item', $or: [{ 'data.itemCode': item.itemCode || item.sku }, { 'data.sku': item.sku }] };
 };
 
-const applyInventoryChange = async (recordType, items) => {
+const applyInventoryChange = async (recordType, items, metadata = {}) => {
   const operations = [];
+  const changes = [];
   for (const item of items) {
     const filter = inventoryFilter(item);
     const inventoryItem = await ClinicOperation.findOne(filter);
     if (!inventoryItem) throw new Error(`Inventory item not found: ${item.inventoryItemId || item.sku}.`);
 
-    const currentQuantity = Number(inventoryItem.data.quantity || 0);
+    const currentQuantity = Number(inventoryItem.data.endingBalance ?? inventoryItem.data.quantity ?? 0);
     const quantity = Number(item.quantity);
+    const currentReserved = Number(inventoryItem.data.reserved || 0);
     let nextQuantity = quantity;
-    if (recordType === 'receiving' || recordType === 'stock-in') nextQuantity = currentQuantity + quantity;
+    let nextReserved = currentReserved;
+    if (['receiving', 'stock-in', 'stock-return'].includes(recordType)) nextQuantity = currentQuantity + quantity;
     if (recordType === 'stock-out') nextQuantity = currentQuantity - quantity;
-    if (recordType === 'stock-adjustment') nextQuantity = quantity;
+    if (recordType === 'stock-reservation') {
+      nextQuantity = currentQuantity - quantity;
+      nextReserved = currentReserved + quantity;
+    }
+    if (recordType === 'stock-adjustment') {
+      nextQuantity = item.adjustmentType === 'set'
+        ? quantity
+        : currentQuantity + (item.adjustmentType === 'decrease' ? -quantity : quantity);
+    }
+    if (recordType === 'stock-transfer') nextQuantity = currentQuantity - quantity;
     if (nextQuantity < 0) throw new Error(`Insufficient stock for ${inventoryItem.data.name}.`);
+    if (nextReserved < 0) throw new Error(`Reserved stock cannot be negative for ${inventoryItem.data.name}.`);
 
+    const nextReceipt = Number(inventoryItem.data.receipt || 0) + (['receiving', 'stock-in', 'stock-return'].includes(recordType) ? quantity : 0);
+    const nextSold = Number(inventoryItem.data.sold || 0) + (['stock-out', 'stock-reservation', 'stock-transfer'].includes(recordType) ? quantity : 0);
+    const inventoryUpdate = { 'data.endingBalance': nextQuantity, 'data.receipt': nextReceipt, 'data.sold': nextSold, 'data.reserved': nextReserved };
+    if (recordType === 'receiving' && metadata.batchLotNumber) inventoryUpdate['data.batchLotNumber'] = metadata.batchLotNumber;
+    if (recordType === 'receiving' && metadata.expirationDate) inventoryUpdate['data.expirationDate'] = metadata.expirationDate;
     operations.push({
       updateOne: {
-        filter: { _id: inventoryItem._id, recordType: 'inventory-item', 'data.quantity': currentQuantity },
-        update: { $set: { 'data.quantity': nextQuantity } },
+        filter: { _id: inventoryItem._id, recordType: 'inventory-item', 'data.endingBalance': currentQuantity },
+        update: { $set: inventoryUpdate },
       },
+    });
+    changes.push({
+      ...item,
+      inventoryItemId: String(inventoryItem._id),
+      sku: inventoryItem.data.sku,
+      itemName: inventoryItem.data.itemCode,
+      brand: inventoryItem.data.brand,
+      material: inventoryItem.data.material,
+      itemCode: inventoryItem.data.itemCode,
+      colorCode: inventoryItem.data.colorCode,
+      color: inventoryItem.data.color,
+      beginningBalance: inventoryItem.data.beginningBalance,
+      receipt: nextReceipt,
+      sold: nextSold,
+      endingBalance: nextQuantity,
+      previousStock: currentQuantity,
+      newStock: nextQuantity,
+      previousReserved: currentReserved,
+      newReserved: nextReserved,
     });
   }
 
   const result = await ClinicOperation.bulkWrite(operations);
   if (result.modifiedCount !== items.length) throw new Error('Inventory changed while this operation was being processed.');
+  return changes;
 };
 
 const reverseInventoryChange = async (recordType, items) => {
-  const reverseType = ['receiving', 'stock-in'].includes(recordType) ? 'stock-out' : 'stock-in';
+  const reverseType = ['receiving', 'stock-in', 'stock-return'].includes(recordType) ? 'stock-out' : 'stock-in';
   if (recordType === 'stock-adjustment') {
     throw new Error('Stock adjustments must be corrected with a new adjustment rather than deleted.');
   }
@@ -223,6 +269,13 @@ router.post('/payment/:id/reverse', async (req, res) => {
       previousData,
       newData: payment.data,
     });
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: 'payment',
+      action: 'updated',
+      entityId: String(payment._id),
+      payload: { _id: String(payment._id), id: String(payment._id), invoiceId: payment.data.invoiceId, amount: payment.data.amount, status: payment.data.status },
+      roles: ['owner'],
+    });
     return res.status(200).json({ message: 'Payment reversed.', record: payment, invoice });
   } catch (error) {
     return res.status(400).json({ message: error.message || 'Unable to reverse payment.' });
@@ -240,6 +293,13 @@ router.post('/invoice/:id/cancel', async (req, res) => {
     current.data = { ...current.data, status: 'cancelled' };
     await current.save();
     await AuditLog.create({ actorId: req.user.id, action: 'Cancelled invoice', target: `invoice:${current._id}`, previousData: invoice.data, newData: current.data });
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: 'invoice',
+      action: 'updated',
+      entityId: String(current._id),
+      payload: { _id: String(current._id), id: String(current._id), invoiceNumber: current.data.invoiceNumber, status: current.data.status, patientName: current.data.patientName },
+      roles: ['owner'],
+    });
     return res.status(200).json({ message: 'Invoice cancelled.', record: current });
   } catch (error) {
     return res.status(400).json({ message: error.message || 'Unable to cancel invoice.' });
@@ -291,6 +351,14 @@ router.patch('/:id', async (req, res) => {
     }
     const previousData = operation.data;
     const data = req.body || {};
+    if (operation.recordType === 'inventory-item') {
+      if (![data.beginningBalance, data.receipt, data.sold].every(isInventoryNumber)) {
+        return res.status(400).json({ message: 'Beginning Balance, Receipt, and Sold must be non-negative numbers.' });
+      }
+      Object.assign(data, normalizeInventoryData(data));
+      const duplicate = await ClinicOperation.exists({ _id: { $ne: operation._id }, recordType: 'inventory-item', 'data.itemCode': data.itemCode });
+      if (duplicate) return res.status(409).json({ message: `Item Code ${data.itemCode} already exists.` });
+    }
     if (operation.recordType === 'invoice') {
       data.items = normalizeInvoiceItems(data.items);
       data.total = invoiceTotalFromItems(data.items) || money(data.total || 0);
@@ -310,6 +378,19 @@ router.patch('/:id', async (req, res) => {
     await operation.save();
     const result = operation.recordType === 'invoice' ? await refreshInvoice(operation._id) : operation;
     await AuditLog.create({ actorId: req.user.id, action: `Updated ${operation.recordType}`, target: `${operation.recordType}:${operation._id}`, previousData, newData: data });
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: operation.recordType,
+      action: 'updated',
+      entityId: String(operation._id),
+      payload: {
+        _id: String(operation._id),
+        id: String(operation._id),
+        recordType: operation.recordType,
+        operationKey: operation.operationKey,
+        data: result?.data || operation.data,
+      },
+      roles: ['owner'],
+    });
     return res.status(200).json({ record: result });
   } catch (error) {
     return res.status(400).json({ message: error.message || 'Unable to update clinic operation.' });
@@ -327,8 +408,16 @@ router.delete('/:id', async (req, res) => {
       return res.status(400).json({ message: 'Invoices with payments cannot be deleted. Cancel only after reversing payments.' });
     }
     if (operation.inventoryApplied) await reverseInventoryChange(operation.recordType, operation.data.items);
+    const deletedOperation = { _id: String(operation._id), recordType: operation.recordType, operationKey: operation.operationKey, data: operation.data };
     await operation.deleteOne();
     await AuditLog.create({ actorId: req.user.id, action: `Removed ${operation.recordType}`, target: `${operation.recordType}:${operation._id}`, previousData: operation.data });
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: operation.recordType,
+      action: 'deleted',
+      entityId: String(operation._id),
+      payload: deletedOperation,
+      roles: ['owner'],
+    });
     return res.status(200).json({ message: 'Clinic operation removed.' });
   } catch (error) {
     return res.status(400).json({ message: error.message || 'Unable to remove clinic operation.' });
@@ -391,7 +480,8 @@ router.post('/:recordType', async (req, res) => {
 
     if (inventoryChangeTypes.includes(recordType)) {
       try {
-        await applyInventoryChange(recordType, data.items);
+        const itemChanges = await applyInventoryChange(recordType, data.items, data);
+        operation.data = { ...operation.data, items: itemChanges, processedAt: new Date().toISOString(), processedBy: req.user.email || req.user.id };
         operation.inventoryApplied = true;
         await operation.save();
       } catch (error) {
@@ -408,9 +498,24 @@ router.post('/:recordType', async (req, res) => {
       target: `${recordType}:${operation._id}`,
       newData: data,
     });
+
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: recordType,
+      action: 'created',
+      entityId: String(operation._id),
+      payload: {
+        _id: String(operation._id),
+        id: String(operation._id),
+        recordType,
+        operationKey: operation.operationKey,
+        data: result?.data || data,
+      },
+      roles: ['owner'],
+    });
+
     return res.status(201).json({ record: result });
   } catch (error) {
-    if (error.code === 11000) return res.status(409).json({ message: 'A receiving record with that reference already exists.' });
+    if (error.code === 11000) return res.status(409).json({ message: recordType === 'inventory-item' ? 'An inventory item already uses that Item Code.' : 'A receiving record with that reference already exists.' });
     return res.status(500).json({ message: `Failed to create ${recordType}.`, error: error.message });
   }
 });
