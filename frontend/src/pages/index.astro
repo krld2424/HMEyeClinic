@@ -6,6 +6,7 @@ import TrustedPatients from '../components/TrustedPatients.astro';
 import Partners from '../components/Partners.astro';
 import heroVideo from '../assets/hero-video/hero-v3.mp4';
 import heroPoster from '../assets/partners/satisfied-patients/1.jpg';
+import doctorJedImage from '../assets/partners/Dr.Jed-v1.jpg';
 
 const highlights = [
   {
@@ -63,29 +64,6 @@ const services = [
     title: 'Optical Consultation',
     description: 'Personalized guidance for selecting appropriate eyewear and vision solutions.',
     icon: 'chat',
-  },
-];
-
-const examinationSteps = [
-  {
-    number: '01',
-    title: 'Consultation',
-    description: 'Understand your vision concerns and needs.',
-  },
-  {
-    number: '02',
-    title: 'Eye Examination',
-    description: 'Perform a comprehensive assessment using modern equipment.',
-  },
-  {
-    number: '03',
-    title: 'Results & Recommendation',
-    description: 'Discuss the examination results and appropriate next steps.',
-  },
-  {
-    number: '04',
-    title: 'Eyewear Selection',
-    description: 'Choose from stylish and affordable frames suited to your needs.',
   },
 ];
 
@@ -184,7 +162,6 @@ const instagramLink = "https://www.instagram.com/hernandezmercadoeyeclinic";
         poster={heroPoster.src}
         aria-hidden="true"
       >
-        <!-- Generate hero-v3.webm from hero-v3.mp4 for better compression and browser compatibility. -->
         <source src="/videos/hero-v3.webm" type="video/webm" />
         <source src={heroVideo} type="video/mp4" />
       </video>
@@ -307,23 +284,112 @@ const instagramLink = "https://www.instagram.com/hernandezmercadoeyeclinic";
 
     <section class="exam-process container reveal">
       <div class="section-header center">
-        <span class="eyebrow">Eye Examination Experience</span>
-        <h2>See Clearly. Live Fully.</h2>
+        <span class="eyebrow">Eye Examination Procedures</span>
+        <h2>Thorough Care From First Concern to Clearer Vision</h2>
       </div>
       <p class="process-intro">
-        Experience a comprehensive eye examination supported by modern equipment and a professional
-        approach to eye care.
+        Each examination is tailored to your concerns, history, and visual needs, using careful
+        testing and professional guidance throughout your visit.
       </p>
-      <div class="timeline">
-        {examinationSteps.map((step) => (
-          <article class="timeline-item">
-            <span class="step-number">{step.number}</span>
-            <div class="step-content">
-              <h3>{step.title}</h3>
-              <p>{step.description}</p>
-            </div>
+      <div class="procedure-progress" aria-label="Eye examination progress">
+        <div class="progress-track" aria-hidden="true"></div>
+        <div class="progress-step is-complete">
+          <span>01</span>
+          <strong>History</strong>
+        </div>
+        <div class="progress-step is-complete">
+          <span>02</span>
+          <strong>Refraction</strong>
+        </div>
+        <div class="progress-step is-complete">
+          <span>03</span>
+          <strong>Color Vision</strong>
+        </div>
+        <div class="progress-step is-complete">
+          <span>04</span>
+          <strong>Internal Exam</strong>
+        </div>
+        <div class="progress-step is-complete">
+          <span>05</span>
+          <strong>External Exam</strong>
+        </div>
+        <div class="progress-step is-complete">
+          <span>06</span>
+          <strong>Education</strong>
+        </div>
+      </div>
+      <div class="procedure-grid">
+        <article class="procedure-card">
+          <span class="procedure-number">01</span>
+          <h3>History Taking</h3>
+          <p>
+            The doctor gives you a chance to freely share your eye or visual concerns, lifestyle,
+            ocular history, medical history, and other relevant information.
+          </p>
+        </article>
+        <article class="procedure-card">
+          <span class="procedure-number">02</span>
+          <h3>Refraction</h3>
+          <p>Refraction determines the eye grade that best supports clarity and comfort.</p>
+          <ul>
+            <li><strong>Objective refraction:</strong> A computerized refractometer measures the eye grade.</li>
+            <li><strong>Subjective refraction:</strong> The patient's responses help refine the measured grade for clarity and comfort.</li>
+          </ul>
+        </article>
+        <article class="procedure-card">
+          <span class="procedure-number">03</span>
+          <h3>Color Vision Test</h3>
+          <p>
+            The doctor uses Ishihara Color Vision Test Plates to assess your color vision.
+          </p>
+        </article>
+        <article class="procedure-card">
+          <span class="procedure-number">04</span>
+          <h3>Internal Eye Exam</h3>
+          <p>
+            A direct ophthalmoscope is used to grossly assess internal structures such as the
+            crystalline lens, optic nerve head, retina, macula, and blood vessels.
+          </p>
+        </article>
+        <article class="procedure-card">
+          <span class="procedure-number">05</span>
+          <h3>External Eye Exam</h3>
+          <p>
+            A slit lamp biomicroscope is used to assess the eyelids, eyelashes, sclera, conjunctiva,
+            cornea, iris, and pupil. The doctor also assesses tear quality for dry eyes and related
+            signs and symptoms such as redness, itchiness, foreign body sensation, and excessive tearing.
+          </p>
+        </article>
+        <article class="procedure-card">
+          <span class="procedure-number">06</span>
+          <h3>Patient Education</h3>
+          <p>
+            The doctor explains your diagnoses in relation to the test results and your complaints,
+            then presents the best possible recommendations to address your needs.
+          </p>
+        </article>
+      </div>
+      <div class="additional-tests">
+        <div class="section-header">
+          <span class="eyebrow">Other Tests</span>
+          <h3>Additional Testing and Services</h3>
+        </div>
+        <div class="additional-tests-grid">
+          <article>
+            <h4>Cycloplegic Refraction</h4>
+            <p>
+              Diagnostic eye drops relax a child's eye muscles for a more accurate result for
+              pediatric patients.
+            </p>
           </article>
-        ))}
+          <article>
+            <h4>Contact Lens Fitting</h4>
+            <p>
+              The doctor measures the necessary parameters to ensure an optimal and comfortable fit
+              for contact lens patients.
+            </p>
+          </article>
+        </div>
       </div>
     </section>
 
@@ -411,7 +477,7 @@ const instagramLink = "https://www.instagram.com/hernandezmercadoeyeclinic";
         </div>
         <div class="experience-image">
           <img
-            src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=1200&q=80"
+            src={doctorJedImage.src}
             alt="Friendly patient smiling during a clinic visit"
           />
         </div>
@@ -684,6 +750,268 @@ const instagramLink = "https://www.instagram.com/hernandezmercadoeyeclinic";
     color: #fff;
     border-color: rgba(255, 255, 255, 0.55);
     background: rgba(255, 255, 255, 0.08);
+  }
+
+  .procedure-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .exam-process {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .exam-process::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 34px;
+    right: -8vw;
+    left: -8vw;
+    height: 440px;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 18% 22%, rgba(14, 132, 130, 0.09), transparent 31%),
+      radial-gradient(circle at 82% 58%, rgba(88, 170, 166, 0.08), transparent 34%);
+  }
+
+  .exam-process > .section-header h2 {
+    max-width: 700px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .exam-process .process-intro {
+    max-width: 650px;
+  }
+
+  .procedure-progress {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    max-width: 1040px;
+    margin: 0 auto 38px;
+    padding: 0 18px;
+  }
+
+  .progress-track {
+    position: absolute;
+    top: 19px;
+    right: 9%;
+    left: 9%;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--primary), #75c3bc);
+    opacity: 0.55;
+  }
+
+  .progress-step {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    gap: 9px;
+    min-width: 0;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .progress-step span {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 5px solid var(--white);
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--white);
+    box-shadow: 0 5px 14px rgba(14, 132, 130, 0.2);
+    font-size: 0.76rem;
+    font-weight: 800;
+  }
+
+  .progress-step strong {
+    max-width: 120px;
+    font-size: 0.76rem;
+    line-height: 1.25;
+  }
+
+  .procedure-card {
+    position: relative;
+    overflow: hidden;
+    padding: 28px 22px 24px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 28px rgba(17, 56, 58, 0.03);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .procedure-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), #69b9b2);
+    opacity: 0.8;
+  }
+
+  .procedure-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(14, 132, 130, 0.28);
+    box-shadow: 0 18px 36px rgba(17, 56, 58, 0.1);
+  }
+
+  .procedure-number {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 18px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+    color: var(--white);
+    font-weight: 800;
+    font-size: 0.88rem;
+    box-shadow: 0 8px 16px rgba(14, 132, 130, 0.2);
+  }
+
+  .procedure-card h3,
+  .additional-tests h3,
+  .additional-tests h4 {
+    color: var(--text);
+  }
+
+  .procedure-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+  }
+
+  .procedure-card p,
+  .procedure-card li,
+  .additional-tests p {
+    color: var(--muted);
+    font-size: 0.96rem;
+    line-height: 1.65;
+  }
+
+  .procedure-card p {
+    margin: 0;
+  }
+
+  .procedure-card ul {
+    display: grid;
+    gap: 10px;
+    margin: 14px 0 0;
+    padding-left: 1.15rem;
+  }
+
+  .procedure-card strong {
+    color: var(--text);
+  }
+
+  .additional-tests {
+    margin-top: 48px;
+    padding: 32px;
+    background: linear-gradient(135deg, var(--primary-pale), rgba(255, 255, 255, 0.92));
+    border: 1px solid rgba(14, 132, 130, 0.14);
+    border-radius: var(--radius-xl);
+  }
+
+  .additional-tests .section-header {
+    margin-bottom: 22px;
+  }
+
+  .additional-tests .section-header h3 {
+    margin: 0;
+    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    letter-spacing: -0.04em;
+  }
+
+  .additional-tests-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .additional-tests-grid article {
+    padding: 22px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(14, 132, 130, 0.12);
+    border-radius: var(--radius-md);
+  }
+
+  .additional-tests h4 {
+    margin: 0 0 8px;
+    font-size: 1.08rem;
+  }
+
+  .additional-tests p {
+    margin: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .procedure-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .procedure-progress {
+      display: flex;
+      gap: 18px;
+      max-width: none;
+      margin-right: -16px;
+      margin-left: -16px;
+      padding: 0 16px 12px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .progress-track {
+      top: 19px;
+      right: 34px;
+      left: 34px;
+      width: 560px;
+    }
+
+    .progress-step {
+      flex: 0 0 72px;
+    }
+
+    .progress-step strong {
+      font-size: 0.7rem;
+    }
+
+    .procedure-grid,
+    .additional-tests-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .procedure-card {
+      padding: 24px 18px 20px;
+    }
+
+    .additional-tests {
+      padding: 24px 18px;
+      border-radius: var(--radius-lg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .procedure-card {
+      transition: none;
+    }
+
+    .procedure-card:hover {
+      transform: none;
+    }
   }
 
   @media (max-width: 480px) {

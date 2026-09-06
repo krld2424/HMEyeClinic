@@ -4,7 +4,6 @@ const isHome = current === 'home';
 const sectionHref = (id) => (isHome ? `#${id}` : `/#${id}`);
 const navItems = [
   { id: 'home', label: 'Home', href: isHome ? '#home' : '/' },
-  { id: 'about', label: 'About', href: sectionHref('about') },
   { id: 'services', label: 'Services', href: sectionHref('services') },
   { id: 'eyewear', label: 'Eyewear', href: current === 'eyewear' ? '/eyewear' : sectionHref('eyewear') },
   { id: 'why-choose-us', label: 'Why Choose Us', href: sectionHref('why-choose-us') },
@@ -30,12 +29,31 @@ const navItems = [
     <div class="nav-menu">
       <div class="nav-links">
         <span class="nav-indicator" aria-hidden="true"></span>
-        {navItems.map((item) => (
-          <a
-            href={item.href}
-            data-section={item.id}
-            class={item.id === current ? 'is-current' : undefined}
-          >
+        {navItems.slice(0, 1).map((item) => (
+          <a href={item.href} data-section={item.id} class={item.id === current ? 'is-current' : undefined}>
+            {item.label}
+          </a>
+        ))}
+        <div class="nav-dropdown">
+          <button class="nav-dropdown-toggle" type="button" aria-expanded="false">
+            About <span class="nav-dropdown-chevron" aria-hidden="true"></span>
+          </button>
+          <div class="nav-dropdown-menu">
+            <a href={sectionHref('about')}>About Hernandez Mercado Eye Clinic</a>
+            <div class="nav-dropdown-group">
+              <span>Eye Conditions</span>
+              <a href="/eye-conditions/astigmatism">Astigmatism</a>
+              <a href="/eye-conditions/dry-eye-syndrome">Dry Eye Syndrome</a>
+              <a href="/eye-conditions/glaucoma">Glaucoma</a>
+              <a href="/eye-conditions/hyperopia-farsightedness">Hyperopia/Farsightedness</a>
+              <a href="/eye-conditions/keratoconus">Keratoconus</a>
+              <a href="/eye-conditions/myopia-nearsightedness">Myopia/Nearsightedness</a>
+              <a href="/eye-conditions/presbyopia">Presbyopia</a>
+            </div>
+          </div>
+        </div>
+        {navItems.slice(1).map((item) => (
+          <a href={item.href} data-section={item.id} class={item.id === current ? 'is-current' : undefined}>
             {item.label}
           </a>
         ))}
@@ -80,6 +98,30 @@ const navItems = [
       link.addEventListener('click', () => {
         navMenu.classList.remove('is-open');
         navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  const dropdownToggle = document.querySelector('.nav-dropdown-toggle');
+  const dropdown = document.querySelector('.nav-dropdown');
+  if (dropdownToggle && dropdown) {
+    dropdownToggle.addEventListener('click', () => {
+      const isExpanded = dropdownToggle.getAttribute('aria-expanded') === 'true';
+      dropdownToggle.setAttribute('aria-expanded', String(!isExpanded));
+      dropdown.classList.toggle('is-open', !isExpanded);
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!dropdown.contains(event.target)) {
+        dropdownToggle.setAttribute('aria-expanded', 'false');
+        dropdown.classList.remove('is-open');
+      }
+    });
+
+    dropdown.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        dropdownToggle.setAttribute('aria-expanded', 'false');
+        dropdown.classList.remove('is-open');
       });
     });
   }

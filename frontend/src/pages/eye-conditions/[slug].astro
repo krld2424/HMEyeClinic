@@ -1,0 +1,182 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+
+export function getStaticPaths() {
+  const conditions = {
+    astigmatism: {
+      title: 'Astigmatism',
+      description: 'Astigmatism is a common refractive error caused by an irregularly curved cornea or lens, which can make vision appear blurred or distorted at different distances.',
+      article: true,
+    },
+    'dry-eye-syndrome': {
+      title: 'Dry Eye Syndrome',
+      description: 'Dry eye syndrome occurs when the eyes do not produce enough tears or when tears evaporate too quickly, often causing irritation, redness, fluctuating vision, or a gritty sensation.',
+    },
+    glaucoma: {
+      title: 'Glaucoma',
+      description: 'Glaucoma is a group of eye conditions that can damage the optic nerve. Regular eye examinations help identify risk factors and changes early.',
+    },
+    'hyperopia-farsightedness': {
+      title: 'Hyperopia/Farsightedness',
+      description: 'Hyperopia, or farsightedness, can make close-up objects appear less clear because the eye focuses images behind the retina.',
+    },
+    keratoconus: {
+      title: 'Keratoconus',
+      description: 'Keratoconus is a condition in which the cornea gradually becomes thinner and more cone-shaped, potentially causing blurred or distorted vision and increased sensitivity to light.',
+    },
+    'myopia-nearsightedness': {
+      title: 'Myopia/Nearsightedness',
+      description: 'Myopia, or nearsightedness, makes distant objects appear blurry because light focuses in front of the retina rather than directly on it.',
+    },
+    presbyopia: {
+      title: 'Presbyopia',
+      description: 'Presbyopia is an age-related change that gradually makes it harder to focus on nearby objects, usually becoming noticeable in adulthood.',
+    },
+  };
+
+  return Object.entries(conditions).map(([slug, condition]) => ({
+    params: { slug },
+    props: { condition },
+  }));
+}
+
+const { condition } = Astro.props;
+---
+
+<Layout title={`${condition.title} | Hernandez Mercado Eye Clinic`}>
+  <SiteHeader />
+  <main class="condition-page">
+    <section class="condition-page-hero section-surface">
+      <div class="container">
+        <a class="back-link" href="/#about">About the clinic</a>
+        <span class="eyebrow">Eye Condition</span>
+        <h1>{condition.title}</h1>
+        <p>{condition.description}</p>
+      </div>
+    </section>
+    {condition.article && (
+      <article class="condition-article container">
+        <section>
+          <h2>What Is Astigmatism?</h2>
+          <p>
+            Astigmatism is a refractive error caused by an uneven curve in the cornea or lens. A
+            normally rounded eye focuses incoming light toward one point on the retina; with
+            astigmatism, the uneven shape can spread focus across different directions and make
+            vision look blurred or distorted.
+          </p>
+          <p>
+            It may be present from childhood or develop later. If you notice a change in your
+            vision, schedule an eye examination so the cause can be assessed.
+          </p>
+        </section>
+
+        <section>
+          <h2>Symptoms and Causes</h2>
+          <h3>Common symptoms</h3>
+          <p>
+            Astigmatism can affect vision at near and far distances. Symptoms may include blurred
+            or distorted details, overlapping images, glare or halos around lights, squinting,
+            headaches, eye fatigue, and eye strain.
+          </p>
+          <p>
+            Children may not describe blurred vision clearly. Frequent squinting, eye rubbing, or
+            headaches can be reasons to arrange a pediatric eye assessment.
+          </p>
+          <h3>Possible causes</h3>
+          <p>
+            The most common cause is corneal astigmatism, where the cornea has an oval or irregular
+            curve. Lenticular astigmatism involves an irregularly shaped lens. Eyelid pressure,
+            an eye injury, keratoconus, lenticonus, a stye, or changes after eye surgery may also
+            contribute in some cases.
+          </p>
+        </section>
+
+        <section>
+          <h2>Diagnosis and Tests</h2>
+          <p>
+            An eye doctor evaluates astigmatism during a comprehensive examination. The assessment
+            may include checking visual clarity, examining the front and inside of the eye, and
+            using refraction to measure how the eyes focus and bend light. The results help guide
+            the most suitable correction for your needs.
+          </p>
+        </section>
+
+        <section>
+          <h2>Management and Treatment</h2>
+          <h3>Corrective lenses</h3>
+          <p>
+            Glasses or contact lenses are common ways to improve clarity. Mild astigmatism may not
+            require immediate correction if it does not affect daily activities, but regular
+            examinations can monitor changes over time.
+          </p>
+          <h3>Other options</h3>
+          <p>
+            Depending on the type and amount of astigmatism, an eye-care provider may discuss
+            specialty contact lenses or orthokeratology. Laser vision procedures such as LASIK or
+            PRK can reshape the cornea for selected patients, while people with cataracts may be
+            able to address both conditions during cataract treatment. Suitability must be decided
+            by a qualified eye-care professional.
+          </p>
+        </section>
+
+        <section>
+          <h2>When Should I See an Eye-Care Provider?</h2>
+          <p>
+            Arrange an examination if your vision becomes blurry, distorted, or noticeably worse,
+            especially at night, in rain, or around bright lights. Regular eye examinations are a
+            practical way to track changes even when symptoms are mild.
+          </p>
+        </section>
+
+        <section>
+          <h2>Outlook</h2>
+          <p>
+            Astigmatism is usually manageable with appropriate correction and follow-up. Glasses,
+            contact lenses, or a suitable vision-correction procedure can improve clarity, but the
+            right option depends on your examination results, age, eye health, and lifestyle.
+          </p>
+        </section>
+
+        <aside class="condition-note">
+          <strong>Important:</strong> This page is for general education and does not replace a
+          professional diagnosis. Ask your eye-care provider how often you should have your eyes
+          checked and which treatment is appropriate for you.
+        </aside>
+
+        <section class="condition-references">
+          <h2>References</h2>
+          <ol>
+            <li>
+              American Optometric Association. <em>Astigmatism</em>. Accessed March 23, 2026.
+              <a href="https://www.aoa.org/healthy-eyes/eye-and-vision-conditions/astigmatism?sso=y" target="_blank" rel="noopener noreferrer">Read source</a>
+            </li>
+            <li>
+              Gurnani B, Kaur K. <em>Astigmatism</em>. StatPearls [Internet]. Updated June 26,
+              2023. StatPearls Publishing; 2026 Jan-. Accessed March 23, 2026.
+              <a href="https://www.ncbi.nlm.nih.gov/books/NBK582142/" target="_blank" rel="noopener noreferrer">Read source</a>
+            </li>
+            <li>
+              National Eye Institute (U.S.). <em>Astigmatism</em>. Last updated December 4, 2024.
+              Accessed March 23, 2026.
+              <a href="https://www.nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/astigmatism" target="_blank" rel="noopener noreferrer">Read source</a>
+            </li>
+          </ol>
+        </section>
+      </article>
+    )}
+    <section class="condition-page-content container">
+      <article class="condition-info-card">
+        <span class="eyebrow">What to do next</span>
+        <h2>Have questions about your vision?</h2>
+        <p>
+          A professional eye examination can help assess your symptoms and determine the right next
+          steps for your visual needs.
+        </p>
+        <a class="btn btn-primary" href="/#contact">Book an Eye Exam</a>
+      </article>
+    </section>
+  </main>
+  <SiteFooter />
+</Layout>
