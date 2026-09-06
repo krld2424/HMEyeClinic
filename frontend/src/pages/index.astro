@@ -4,6 +4,8 @@ import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import TrustedPatients from '../components/TrustedPatients.astro';
 import Partners from '../components/Partners.astro';
+import heroVideo from '../assets/hero-video/hero-v3.mp4';
+import heroPoster from '../assets/partners/satisfied-patients/1.jpg';
 
 const highlights = [
   {
@@ -171,8 +173,23 @@ const instagramLink = "https://www.instagram.com/hernandezmercadoeyeclinic";
   <SiteHeader current="home" />
 
   <main id="home">
-    <section class="hero">
-      <div class="container hero-grid">
+    <section class="hero hero-video">
+      <video
+        class="hero-video-media"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        poster={heroPoster.src}
+        aria-hidden="true"
+      >
+        <!-- Generate hero-v3.webm from hero-v3.mp4 for better compression and browser compatibility. -->
+        <source src="/videos/hero-v3.webm" type="video/webm" />
+        <source src={heroVideo} type="video/mp4" />
+      </video>
+      <div class="hero-video-overlay" aria-hidden="true"></div>
+      <div class="container hero-content">
         <div class="hero-copy reveal">
           <span class="eyebrow">Trusted Eye Care in Santa Rosa</span>
           <h1>Healthy Eyes, Meaningful Lives</h1>
@@ -191,22 +208,6 @@ const instagramLink = "https://www.instagram.com/hernandezmercadoeyeclinic";
           </ul>
         </div>
 
-        <div class="hero-visual reveal" aria-label="Optical care patient experience">
-          <div class="visual-card">
-            <img
-              src="https://scontent.fcrk2-1.fna.fbcdn.net/v/t39.30808-6/542679580_122134947944820523_6495000686571925256_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1350&ctp=s1080x1350&_nc_cat=109&ccb=1-7&_nc_sid=f727a1&_nc_ohc=0PPXoN9ENAwQ7kNvwHHOigO&_nc_oc=Adok6sJrMstEYB2h6kHRqjj4izmIVr0cIwxsOkrmvhqwIq2s1GZodi52_c2SzngNXX8&_nc_zt=23&_nc_ht=scontent.fcrk2-1.fna&_nc_gid=xOGeyxLw08T8P6eQInEbZw&_nc_ss=7b2a8&oh=00_AQKWwct1d7VkRwjoQoWVCaYhpq8pSsU1OnZdxWZk3ss6mw&oe=6A9874DC"
-              alt="Optometrist examining a patient during an eye consultation"
-            />
-          </div>
-          <div class="floating-badge badge-top">
-            <strong>Comprehensive care</strong>
-            <span>Professional evaluation</span>
-          </div>
-          <div class="floating-badge badge-bottom">
-            <strong>Modern optics</strong>
-            <span>Comfort & style</span>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -599,3 +600,142 @@ const instagramLink = "https://www.instagram.com/hernandezmercadoeyeclinic";
 
   });
 </script>
+
+<script>
+  const heroVideoElement = document.querySelector('.hero-video-media');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (heroVideoElement && reducedMotion.matches) {
+    heroVideoElement.pause();
+    heroVideoElement.removeAttribute('autoplay');
+  }
+</script>
+
+<style>
+  .hero-video {
+    position: relative;
+    isolation: isolate;
+    min-height: 100dvh;
+    overflow: hidden;
+    padding: 0;
+    background: #123437;
+  }
+
+  .hero-video-media,
+  .hero-video-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-video-media {
+    z-index: -2;
+    object-fit: cover;
+    object-position: center center;
+  }
+
+  .hero-video-overlay {
+    z-index: -1;
+    background: linear-gradient(90deg, rgba(5, 25, 27, 0.72) 0%, rgba(5, 25, 27, 0.45) 52%, rgba(5, 25, 27, 0.28) 100%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    min-height: 100dvh;
+    padding-top: max(7rem, calc(5rem + env(safe-area-inset-top)));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(4rem, calc(3rem + env(safe-area-inset-bottom)));
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
+
+  .hero-video .hero-copy {
+    max-width: 720px;
+  }
+
+  .hero-video .eyebrow,
+  .hero-video .hero-copy h1,
+  .hero-video .hero-copy p,
+  .hero-video .hero-meta {
+    color: #fff;
+  }
+
+  .hero-video .hero-copy h1 {
+    font-size: clamp(2.5rem, 6vw, 5.8rem);
+  }
+
+  .hero-video .hero-copy p {
+    max-width: 640px;
+    font-size: clamp(1rem, 1.6vw, 1.2rem);
+  }
+
+  .hero-video .hero-meta li::before {
+    background: #fff;
+  }
+
+  .hero-video .btn {
+    min-height: 44px;
+  }
+
+  .hero-video .btn-secondary {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  @media (max-width: 480px) {
+    .hero-video-media {
+      object-position: 58% center;
+    }
+
+    .hero-video-overlay {
+      background: linear-gradient(180deg, rgba(5, 25, 27, 0.42) 0%, rgba(5, 25, 27, 0.72) 100%);
+    }
+
+    .hero-content {
+      align-items: flex-end;
+      padding-top: max(6rem, calc(4rem + env(safe-area-inset-top)));
+    }
+
+    .hero-video .hero-actions {
+      gap: 12px;
+    }
+
+    .hero-video .hero-actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 1024px) {
+    .hero-video .hero-copy {
+      max-width: 680px;
+    }
+  }
+
+  @media (min-width: 1025px) and (max-width: 1440px) {
+    .hero-content {
+      padding-right: max(32px, env(safe-area-inset-right));
+      padding-left: max(32px, env(safe-area-inset-left));
+    }
+  }
+
+  @media (min-width: 1441px) {
+    .hero-video .hero-copy {
+      max-width: 780px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-video-media {
+      visibility: hidden;
+    }
+
+    .hero-video {
+      background: #123437 url('../assets/partners/satisfied-patients/1.jpg') center / cover no-repeat;
+    }
+  }
+</style>
