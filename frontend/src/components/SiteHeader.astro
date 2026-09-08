@@ -35,6 +35,22 @@ const navItems = [
           </a>
         ))}
         <div class="nav-dropdown">
+          <button class:list={['nav-dropdown-toggle', { 'is-current': current === 'eyewear' }]} type="button" aria-expanded="false">
+            Eyewear <span class="nav-dropdown-chevron" aria-hidden="true"></span>
+          </button>
+          <div class="nav-dropdown-menu">
+            <a href="/eyewear">Eyewear Collection</a>
+            <div class="nav-dropdown-group">
+              <span>Collections</span>
+              <a href="/eyewear#reading-glasses">Reading Glasses</a>
+              <a href="/eyewear#sunglasses">Sunglasses</a>
+              <a href="/eyewear#anti-rad">Anti-Rad</a>
+              <a href="/eyewear#accessories">Accessories</a>
+              <a href="/eyewear">Eye Drops</a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-dropdown">
           <button class="nav-dropdown-toggle" type="button" aria-expanded="false">
             About <span class="nav-dropdown-chevron" aria-hidden="true"></span>
           </button>
@@ -52,7 +68,7 @@ const navItems = [
             </div>
           </div>
         </div>
-        {navItems.slice(1).map((item) => (
+        {navItems.filter((item) => item.id !== 'eyewear').slice(1).map((item) => (
           <a href={item.href} data-section={item.id} class={item.id === current ? 'is-current' : undefined}>
             {item.label}
           </a>
@@ -102,20 +118,17 @@ const navItems = [
     });
   }
 
-  const dropdownToggle = document.querySelector('.nav-dropdown-toggle');
-  const dropdown = document.querySelector('.nav-dropdown');
-  if (dropdownToggle && dropdown) {
+  const dropdowns = [...document.querySelectorAll('.nav-dropdown')];
+  dropdowns.forEach((dropdown) => {
+    const dropdownToggle = dropdown.querySelector('.nav-dropdown-toggle');
+    if (!dropdownToggle) return;
+
     dropdownToggle.addEventListener('click', () => {
       const isExpanded = dropdownToggle.getAttribute('aria-expanded') === 'true';
-      dropdownToggle.setAttribute('aria-expanded', String(!isExpanded));
-      dropdown.classList.toggle('is-open', !isExpanded);
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!dropdown.contains(event.target)) {
-        dropdownToggle.setAttribute('aria-expanded', 'false');
-        dropdown.classList.remove('is-open');
-      }
+      dropdowns.forEach((item) => {
+        item.classList.toggle('is-open', item === dropdown && !isExpanded);
+        item.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', String(item === dropdown && !isExpanded));
+      });
     });
 
     dropdown.querySelectorAll('a').forEach((link) => {
@@ -124,7 +137,16 @@ const navItems = [
         dropdown.classList.remove('is-open');
       });
     });
-  }
+  });
+
+  document.addEventListener('click', (event) => {
+    dropdowns.forEach((dropdown) => {
+      if (!dropdown.contains(event.target)) {
+        dropdown.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+        dropdown.classList.remove('is-open');
+      }
+    });
+  });
 
   const navLinksRoot = document.querySelector('.nav-links');
   const indicator = document.querySelector('.nav-indicator');

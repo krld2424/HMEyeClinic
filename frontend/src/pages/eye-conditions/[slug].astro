@@ -13,6 +13,7 @@ export function getStaticPaths() {
     'dry-eye-syndrome': {
       title: 'Dry Eye Syndrome',
       description: 'Dry eye syndrome occurs when the eyes do not produce enough tears or when tears evaporate too quickly, often causing irritation, redness, fluctuating vision, or a gritty sensation.',
+      articleType: 'dry-eye',
     },
     glaucoma: {
       title: 'Glaucoma',
@@ -161,6 +162,157 @@ const { condition } = Astro.props;
               National Eye Institute (U.S.). <em>Astigmatism</em>. Last updated December 4, 2024.
               Accessed March 23, 2026.
               <a href="https://www.nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/astigmatism" target="_blank" rel="noopener noreferrer">Read source</a>
+            </li>
+          </ol>
+        </section>
+      </article>
+    )}
+    {condition.articleType === 'dry-eye' && (
+      <article class="condition-article container">
+        <section>
+          <h2>What Is Dry Eye?</h2>
+          <p>
+            Dry eye disease affects the tear film that coats and protects the eye. When the eyes
+            do not make enough tears, or when tears evaporate too quickly, the surface can become
+            uncomfortable and vision may fluctuate.
+          </p>
+          <p>
+            People may notice burning, itching, watering, grittiness, light sensitivity, or a
+            feeling that something is in the eye. Finding the cause can take time, so ongoing or
+            worsening symptoms should be assessed by an optometrist or ophthalmologist.
+          </p>
+        </section>
+
+        <section>
+          <h2>Types of Dry Eye Disease</h2>
+          <p>Dry eye may be grouped according to how the tear film is affected:</p>
+          <ul>
+            <li><strong>Aqueous-deficient dry eye:</strong> the lacrimal glands do not produce enough of the watery tear layer.</li>
+            <li><strong>Evaporative dry eye:</strong> tears disappear too quickly, often when the oil-producing meibomian glands are not working well.</li>
+            <li><strong>Mixed dry eye:</strong> reduced tear production and tear-film instability occur together.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Symptoms and Causes</h2>
+          <h3>Common symptoms</h3>
+          <p>
+            Symptoms can include a scratchy or sandy sensation, burning or stinging, blurry or
+            fluctuating vision, sensitivity to light, mucus or discharge, and watery eyes. Excess
+            watering can happen when irritation triggers the lacrimal glands to produce reflex tears
+            that do not correct the underlying tear-film problem.
+          </p>
+          <h3>Causes and risk factors</h3>
+          <p>
+            Dry eye can occur by itself or alongside conditions such as blepharitis, thyroid eye
+            disease, or autoimmune disorders including Sjogren syndrome. Risk can also be affected
+            by age, dry or windy environments, extended screen use, contact lenses, smoking,
+            allergies, and some medicines used for depression, allergies, blood pressure, glaucoma,
+            menopause, or pain.
+          </p>
+          <p>
+            Previous eye procedures, including LASIK or cataract surgery, may also increase the
+            chance of dry-eye symptoms. Your clinician can help determine which factors are relevant
+            to you.
+          </p>
+        </section>
+
+        <section>
+          <h2>Possible Complications</h2>
+          <p>
+            Untreated or severe dryness can cause persistent irritation and may affect the corneal
+            surface. In more serious cases, complications can include corneal damage, ulcers,
+            scarring, infection, or reduced visual quality.
+          </p>
+        </section>
+
+        <section>
+          <h2>Diagnosis and Tests</h2>
+          <p>
+            Diagnosis begins with questions about symptoms, medical history, medicines, environment,
+            screen habits, and contact-lens use. A comprehensive eye examination then checks the
+            eyelids, eye surface, and tear film.
+          </p>
+          <p>Depending on the findings, testing may include:</p>
+          <ul>
+            <li><strong>Slit-lamp examination:</strong> a microscope and light are used to inspect the eyes and eyelids.</li>
+            <li><strong>Schirmer test:</strong> a small strip measures tear production.</li>
+            <li><strong>Tear breakup time:</strong> dye helps show how long the tear film remains stable before evaporating.</li>
+            <li><strong>Additional testing:</strong> laboratory or antibody tests may be considered when an underlying condition is suspected.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Management and Treatment</h2>
+          <p>
+            Treatment depends on the severity of symptoms, tear-film findings, and any underlying
+            condition. Options may include lubricating artificial tears, thicker nighttime ointments,
+            prescription medicines, tear stimulation, punctal occlusion, or specialty scleral lenses.
+            Selected patients may need treatment for eyelid problems or other procedures recommended
+            by an eye-care professional.
+          </p>
+          <h3>Self-care measures</h3>
+          <ul>
+            <li>Limit exposure to smoke, wind, direct air vents, and other personal triggers.</li>
+            <li>Use a humidifier when indoor air is dry and consider protective glasses outdoors.</li>
+            <li>Apply a warm eye compress for about 10 minutes when advised by your provider.</li>
+            <li>Take regular screen breaks and blink fully and frequently.</li>
+            <li>Discuss supplements such as omega-3 fatty acids with your clinician before starting them.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>When Should I See My Healthcare Provider?</h2>
+          <p>
+            Keep scheduled follow-ups so your care team can monitor symptoms and treatment response.
+            Contact your eye-care provider if you develop new symptoms, worsening discomfort, or
+            side effects from treatment. Prompt assessment is especially important when vision
+            changes or significant pain occurs.
+          </p>
+        </section>
+
+        <section>
+          <h2>Outlook</h2>
+          <p>
+            Dry eye is often a long-term condition rather than something that disappears permanently,
+            but treatment can make symptoms much easier to manage. Finding the right plan may require
+            adjustments over time. Regular eye examinations help protect comfort, the ocular surface,
+            and visual function.
+          </p>
+        </section>
+
+        <aside class="condition-note">
+          <strong>Important:</strong> This page is for general education and does not replace a
+          professional diagnosis. Ask your eye-care provider which treatment is appropriate for you.
+        </aside>
+
+        <section class="condition-references">
+          <h2>References</h2>
+          <ol>
+            <li>
+              American Academy of Ophthalmology. <em>What Is Dry Eye? Symptoms, Causes and Treatment</em>.
+              Published October 15, 2024. Accessed June 20, 2025.
+              <a href="https://www.aao.org/eye-health/diseases/what-is-dry-eye" target="_blank" rel="noopener noreferrer">Read source</a>
+            </li>
+            <li>
+              American Optometric Association. <em>Dry Eye</em>. Accessed June 20, 2025.
+              <a href="https://www.aoa.org/healthy-eyes/eye-and-vision-conditions/dry-eye" target="_blank" rel="noopener noreferrer">Read source</a>
+            </li>
+            <li>
+              Golden MI, Meyer JJ, Zeppieri M, Patel BC. <em>Dry Eye Syndrome</em>. StatPearls
+              [Internet]. Updated February 29, 2024. StatPearls Publishing; 2025 Jan. Accessed
+              June 20, 2025.
+              <a href="https://pubmed.ncbi.nlm.nih.gov/29262012/" target="_blank" rel="noopener noreferrer">Read source</a>
+            </li>
+            <li>
+              Merck Manual (Consumer Version). <em>Keratoconjunctivitis Sicca</em>. Last reviewed
+              July 2024. Accessed June 20, 2025.
+              <a href="https://www.merckmanuals.com/home/eye-disorders/corneal-disorders/keratoconjunctivitis-sicca" target="_blank" rel="noopener noreferrer">Read source</a>
+            </li>
+            <li>
+              National Eye Institute (U.S.). <em>Dry Eye</em>. Last updated February 18, 2025.
+              Accessed June 20, 2025.
+              <a href="https://www.nei.nih.gov/learn-about-eye-health/eye-conditions-and-diseases/dry-eye" target="_blank" rel="noopener noreferrer">Read source</a>
             </li>
           </ol>
         </section>
