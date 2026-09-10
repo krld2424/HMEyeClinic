@@ -63,7 +63,7 @@ const sidebarGroups = {
   ],
   optometrist: [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: "Today's Patients", slug: 'today-patients' }] },
-    { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Clinical Records', slug: 'clinical-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
+    { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Patient Records', slug: 'patient-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
   ],
   'eye-care-assistant': [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: 'Clinic Queue', slug: 'clinic-queue' }] },
@@ -71,7 +71,7 @@ const sidebarGroups = {
   ],
   owner: [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: 'Reports', slug: 'reports' }] },
-    { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Clinical Records', slug: 'clinical-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
+    { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Patient Records', slug: 'patient-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
     { label: 'Management', links: [{ label: "User's Management", slug: 'manage-team' }, { label: 'Roles & Permissions', slug: 'roles-permissions' }] },
     { label: 'Supplier Transactions', links: [{ label: 'Suppliers', slug: 'suppliers' }, { label: 'Purchase Orders', slug: 'purchase-orders' }, { label: 'Receiving', slug: 'receiving' }, { label: 'Purchase History', slug: 'purchase-history' }] },
     { label: 'Inventory', links: [{ label: 'Inventory', slug: 'inventory' }, { label: 'Stock Movements', slug: 'stock-movements' }, { label: 'Stock Adjustment', slug: 'stock-adjustment' }, { label: 'Inventory History', slug: 'inventory-history' }] },
@@ -294,7 +294,7 @@ const groupIcons = {
         confirmed: [['completed', 'Mark completed'], ['rescheduled', 'Reschedule'], ['cancelled', 'Cancel']],
         rescheduled: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
       }[appointment.status] || [];
-      if (appointment.status === 'completed' || appointment.status === 'cancelled') return `<a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View</a><a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View Clinical Record</a>${appointment.status === 'cancelled' ? '<button type="button" class="btn btn-secondary appointment-action action-rescheduled" data-appointment-id="' + escapeHtml(appointment._id) + '" data-status="rescheduled">Reschedule</button>' : ''}`;
+      if (appointment.status === 'completed' || appointment.status === 'cancelled') return `<a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/${['owner', 'optometrist'].includes(role) ? 'patient-records' : 'clinical-records'}">View</a><a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/${['owner', 'optometrist'].includes(role) ? 'patient-records' : 'clinical-records'}">View Clinical Record</a>${appointment.status === 'cancelled' ? '<button type="button" class="btn btn-secondary appointment-action action-rescheduled" data-appointment-id="' + escapeHtml(appointment._id) + '" data-status="rescheduled">Reschedule</button>' : ''}`;
       return actions.map(([status, label]) => `<button type="button" class="btn btn-secondary appointment-action action-${status}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${status}">${label}</button>`).join('');
     };
 

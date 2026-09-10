@@ -2,8 +2,10 @@
 import Layout from '../../../layouts/Layout.astro';
 import SidebarIcon from '../../../components/SidebarIcon.astro';
 import InvoiceTemplateBuilder from '../../../components/InvoiceTemplateBuilder.astro';
+import hmecLogo from '../../../assets/logo/HMEC logo blue.png';
 
 const { role, section } = Astro.params;
+const hmecLogoUrl = hmecLogo.src;
 const iconPaths = {
   dashboard: 'M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z',
   'book-exam': 'M6 3h12v18H6V3Zm3 0v4h6V3M9 12h6m-6 4h4',
@@ -44,7 +46,7 @@ const navigation = {
     'today-patients': "Today's Patients",
     appointments: 'Appointments',
     consultations: 'Consultations',
-    'clinical-records': 'Clinical Records',
+    'patient-records': 'Patient Records',
     prescriptions: 'Prescriptions',
     'follow-ups': 'Follow-ups',
   },
@@ -67,7 +69,7 @@ const navigation = {
     'today-patients': "Today's Patients",
     appointments: 'Appointments',
     consultations: 'Consultations',
-    'clinical-records': 'Clinical Records',
+    'patient-records': 'Patient Records',
     prescriptions: 'Prescriptions',
     'follow-ups': 'Follow-ups',
     'manage-team': "User's Management",
@@ -96,9 +98,9 @@ const navigation = {
 
 const sidebarGroups = {
   patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions']], ['Account', ['notifications', 'profile']]],
-  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']]],
+  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']]],
   'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'billing']], ['Inventory', ['inventory', 'stock-movements', 'stock-adjustment', 'inventory-history']]],
-  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'clinical-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']]],
+  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']]],
 };
 const groupIcons = {
   Overview: 'overview',
@@ -122,17 +124,17 @@ const canAccessInventory = ['owner', 'eye-care-assistant'].includes(role);
 
 const routePairs = [
   ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'],
-  ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'clinical-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
+  ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
   ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'],
-  ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'clinical-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
+  ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
 ];
 
 export function getStaticPaths() {
   return [
     ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'],
-    ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'clinical-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
+    ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
     ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'],
-    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'clinical-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
+    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
   ].map(([routeRole, routeSection]) => ({ params: { role: routeRole, section: routeSection } }));
 }
 
@@ -597,14 +599,42 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
           {(['medical-records', 'prescriptions'].includes(section) && role === 'patient') && <div id="patient-record-list" class="record-list"><p class="empty-appointments">Loading records...</p></div>}
 
-          {(['clinical-records', 'consultations', 'prescriptions'].includes(section) && ['owner', 'optometrist'].includes(role)) && (
+          {(['clinical-records', 'patient-records', 'consultations', 'prescriptions'].includes(section) && ['owner', 'optometrist'].includes(role)) && (
             <div class="clinical-workspace">
-              {section !== 'clinical-records' && <form id="clinical-record-form" class="workflow-form">
+              {section === 'patient-records' && role === 'owner' && (
+                <div class="patient-records-toolbar">
+                  <div>
+                    <h2>Patient Records</h2>
+                    <p>Search an existing patient account or enter a walk-in patient manually.</p>
+                  </div>
+                  <button type="button" class="btn btn-primary" id="patient-record-create-toggle">Add New Patient Record</button>
+                </div>
+              )}
+              {section === 'patient-records' && role === 'owner' && (
+                <dialog id="patient-record-modal" class="confirmation-dialog patient-record-dialog">
+                  <div class="confirmation-dialog__content">
+                    <div class="dialog-header-row"><h3>Add New Patient Record</h3><button type="button" class="btn btn-secondary btn-icon" id="patient-record-close" aria-label="Close patient record form">×</button></div>
+                    <form id="patient-record-form" class="workflow-form patient-record-form">
+                      <nav class="patient-progress" aria-label="Patient record steps"><button type="button" class="patient-progress-step is-current" data-step-target="0">Patient Record</button><button type="button" class="patient-progress-step" data-step-target="1">History</button><button type="button" class="patient-progress-step" data-step-target="2">Refraction</button><button type="button" class="patient-progress-step" data-step-target="3">Ocular Health</button><button type="button" class="patient-progress-step" data-step-target="4">Management</button><button type="button" class="patient-progress-step" data-step-target="5">Test</button><button type="button" class="patient-progress-step" data-step-target="6">Claim Stub</button></nav>
+                      <section class="patient-form-section patient-form-step" data-step="0"><h4>Patient Record</h4><div class="field-group"><label for="patient-account-search">Search name, patient ID, email, or contact number</label><input id="patient-account-search" type="search" autocomplete="off" placeholder="Search existing patient account" /><div id="patient-account-results" class="patient-account-results" role="listbox"></div></div><input id="patient-account-id" name="patientId" type="hidden" /><p id="patient-account-selection" class="form-status">No account selected. Complete the manual patient fields below for a walk-in patient.</p><div class="field-row"><div class="field-group"><label for="patient-surname">Surname</label><input id="patient-surname" name="surname" required /></div><div class="field-group"><label for="patient-name">Name</label><input id="patient-name" name="name" required /></div><div class="field-group"><label for="patient-date">Date</label><input id="patient-date" name="date" type="date" /></div><div class="field-group"><label for="patient-referred-by">Referred by</label><input id="patient-referred-by" name="referredBy" /></div></div><div class="field-row"><div class="field-group"><label for="patient-brgy">Brgy</label><input id="patient-brgy" name="brgy" /></div><div class="field-group"><label for="patient-town">Town</label><input id="patient-town" name="town" /></div><div class="field-group"><label for="patient-age">Age</label><input id="patient-age" name="age" type="number" min="0" max="120" /></div><div class="field-group"><label for="patient-person">Person</label><input id="patient-person" name="person" /></div><div class="field-group"><label for="patient-online">Online FB/IG</label><input id="patient-online" name="online" /></div></div><div class="field-row"><div class="field-group"><label for="patient-contact">Contact Number</label><input id="patient-contact" name="phone" required /></div><div class="field-group"><label for="patient-gender">Gender</label><input id="patient-gender" name="gender" /></div><div class="field-group"><label for="patient-hospital">Hospital</label><input id="patient-hospital" name="hospital" /></div><div class="field-group"><label for="patient-passed-by">Passed by</label><input id="patient-passed-by" name="passedBy" /></div></div></section>
+                      <section class="patient-form-section patient-form-step" data-step="1"><h4>History</h4><div class="field-group"><label for="patient-complaints">Complaints</label><textarea id="patient-complaints" name="complaints" rows="2"></textarea></div><div class="field-group"><label for="patient-activities">Activities</label><textarea id="patient-activities" name="activities" rows="2"></textarea></div><div class="field-group"><label for="patient-ocular-history">Ocular</label><textarea id="patient-ocular-history" name="ocularHistory" rows="2"></textarea></div><div class="field-row"><div class="field-group"><label for="patient-health">Health</label><input id="patient-health" name="health" /></div><div class="field-group"><label for="patient-allergies">Aller</label><input id="patient-allergies" name="allergies" /></div><div class="field-group"><label for="patient-bp">BP</label><input id="patient-bp" name="bp" placeholder="____ / ____" /></div></div></section>
+                      <section class="patient-form-section patient-form-step" data-step="2"><h4>Refraction</h4><div class="record-form-grid refraction-grid"><strong></strong><strong>Present</strong><strong>HVA</strong><strong>UVA</strong><strong>Full</strong><strong>BCVA</strong><strong>Final</strong><strong>MPD</strong><strong>OD</strong><input name="odPresent" /><input name="odHva" placeholder="20/" /><input name="odUva" placeholder="20/" /><input name="odFull" /><input name="odBcva" placeholder="20/" /><input name="odFinal" /><input name="odMpd" /><strong>OS</strong><input name="osPresent" /><input name="osHva" placeholder="20/" /><input name="osUva" placeholder="20/" /><input name="osFull" /><input name="osBcva" placeholder="20/" /><input name="osFinal" /><input name="osMpd" /><span></span><span></span><span></span><span></span><input name="refractionN" placeholder="N" /><input name="refractionAt" placeholder="@" /><input name="refractionCm" placeholder="cm" /><span></span></div></section>
+                      <section class="patient-form-section patient-form-step" data-step="3"><h4>Ocular Health</h4><div class="record-form-grid ocular-grid"><strong>Internal OD</strong><strong>Internal</strong><strong>Internal OS</strong><strong>External OD</strong><strong>External</strong><strong>External OS</strong>{['Media','CD Ratio','AV Ratio','Macula','Pupil','Lids/Lashes','Conjunctiva','Cornea','VH','Tears'].map((label) => <><label>{label}</label><input name={`ocular_${label.replace(/[^A-Za-z]/g, '').toLowerCase()}`} /><input name={`ocular_${label.replace(/[^A-Za-z]/g, '').toLowerCase()}_note`} /></>)}</div></section>
+                      <section class="patient-form-section patient-form-step" data-step="4"><h4>Management</h4><div class="field-row"><input name="lens" placeholder="Lens" /><input name="frame" placeholder="Frame" /></div><div class="field-row"><input name="contactLens" placeholder="Contact Lens" /><input name="dropsAccessories" placeholder="Drops/Accs" /></div><div class="field-row"><input name="pf" placeholder="PF" /><input name="grossTotal" placeholder="Gross Total" /></div><div class="field-row"><input name="discount" placeholder="Discount" /><input name="netTotal" placeholder="Net Total" /></div><div class="field-row"><input name="downPayment" placeholder="DP" /><input name="balance" placeholder="Bal" /></div></section>
+                      <section class="patient-form-section patient-form-step" data-step="5"><h4>Test</h4><textarea name="otherTests" rows="5" placeholder="Diagnosis, recommendation/s, next visit, and other tests"></textarea><h4>Job Order</h4><div class="field-row"><input name="jobOrderNo" placeholder="Job Order No." /><input name="orderDate" type="date" aria-label="Order Date" /><input name="invoiceNo" placeholder="Invoice No." /><input name="dueDate" type="date" aria-label="Due Date" /></div><div class="field-row"><input name="jobLens" placeholder="Lens" /><input name="jobFrame" placeholder="Frame" /></div><div class="record-form-grid job-order-grid"><strong></strong><strong>Sph</strong><strong>Cyl</strong><strong>Ax</strong><strong>Add</strong><strong>MPD</strong><strong>SH/FH</strong><strong>H:</strong><strong>Diag:</strong><strong>Cor:</strong><strong>OD</strong><input name="jobOdSph" /><input name="jobOdCyl" /><input name="jobOdAx" /><input name="jobOdAdd" /><input name="jobOdMpd" /><input name="jobOdShFh" /><input name="jobOdH" /><input name="jobOdDiag" /><input name="jobOdCor" /><strong>OS</strong><input name="jobOsSph" /><input name="jobOsCyl" /><input name="jobOsAx" /><input name="jobOsAdd" /><input name="jobOsMpd" /><input name="jobOsShFh" /><input name="jobOsH" /><input name="jobOsDiag" /><input name="jobOsCor" /></div><textarea name="jobNotes" rows="2" placeholder="Notes"></textarea><div class="field-row"><input name="claimDate" type="date" aria-label="Claim Date" /><input name="signature" placeholder="Name & Signature" /></div></section>
+                      <section class="patient-form-section patient-form-step claim-stub-step" data-step="6"><h4>C L A I M&nbsp;&nbsp; S T U B</h4><div class="field-row"><input name="claimPatientName" placeholder="Patient Name" /><input name="visitDate" type="date" aria-label="Visit Date" /><input name="claimDueDate" type="date" aria-label="Due Date" /></div><div class="record-form-grid claim-grid"><strong>Item</strong><strong>From</strong><strong>Less</strong><strong>To</strong>{['Professional Fee','Frame','Lens','Contact Lens','Ophthalmic Drops','Others'].map((item) => <><label>{item}:</label><input name={`claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_from`} /><input name={`claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_less`} /><input name={`claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_to`} /></>)}<label>Down Payment:</label><input name="claimDownPayment" /><label>Balance:</label><input name="claimBalance" /></div><div class="claim-notes"><strong>NOTES:</strong><p>- Paid items not collected within <u>90 days</u> from the date of purchase will be <u>voided</u>.</p><p>- Please ensure all items are <u>FULLY PAID</u> before claiming.</p><p>- Present this form upon claiming your order.</p></div></section>
+                      <div class="patient-step-actions"><button type="button" class="btn btn-secondary" id="patient-record-back">Back</button><button type="button" class="btn btn-secondary" id="patient-record-print">Print Patient Record</button><button type="button" class="btn btn-primary" id="patient-record-next">Next</button><button type="submit" class="btn btn-primary" id="patient-record-save">Save Patient Record</button></div><p id="patient-record-status" class="form-status" aria-live="polite"></p>
+                      <div class="confirmation-actions"><button type="button" class="btn btn-secondary" id="patient-record-cancel">Cancel</button><button type="submit" class="btn btn-primary">Save Patient Record</button></div><p id="patient-record-status" class="form-status" aria-live="polite"></p>
+                    </form>
+                  </div>
+                </dialog>
+              )}
+              {section !== 'clinical-records' && section !== 'patient-records' && <form id="clinical-record-form" class="workflow-form">
                 <div class="field-row"><div class="field-group"><label for="record-patient">Patient ID</label><input id="record-patient" name="patientId" placeholder="HME-000127" pattern="HME-[0-9]{6}" required /></div><div class="field-group"><label for="record-title">Title</label><input id="record-title" name="title" required /></div></div>
                 <div class="field-group"><label for="record-details">Clinical encounter details</label><textarea id="record-details" name="details" rows="7" placeholder="Chief complaint, history, eye examination, assessment, clinical notes, treatment recommendations, and follow-up plan" required></textarea></div>
                 <button type="submit" class="btn btn-primary">Save {section === 'consultations' ? 'consultation' : 'prescription'}</button><p id="record-status" class="form-status" aria-live="polite"></p>
               </form>}
-              {section === 'clinical-records' && <div class="list-toolbar"><input id="clinical-record-search" type="search" placeholder="Search patient, diagnosis, or record" aria-label="Search clinical records" /></div>}
+              {(section === 'clinical-records' || section === 'patient-records') && <div class="list-toolbar"><input id="clinical-record-search" type="search" placeholder="Search patient, diagnosis, or record" aria-label="Search patient records" /></div>}
               <div id="clinical-record-list" class="record-list"><p class="empty-appointments">Loading records...</p></div>
             </div>
           )}
@@ -625,7 +655,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             <form id="clinic-settings-form" class="workflow-form"><div class="field-group"><label for="clinic-name">Clinic name</label><input id="clinic-name" name="name" required /></div><div class="field-row"><div class="field-group"><label for="clinic-phone">Phone</label><input id="clinic-phone" name="phone" /></div><div class="field-group"><label for="clinic-email">Email</label><input id="clinic-email" name="email" type="email" /></div></div><div class="field-group"><label for="clinic-address">Address</label><input id="clinic-address" name="address" /></div><div class="field-group"><label for="clinic-hours">Hours</label><input id="clinic-hours" name="hours" /></div><div class="field-group"><label for="clinic-logo">Clinic Logo</label><div style="display: flex; gap: 0.5rem; align-items: center;"><input id="clinic-logo" name="logo" placeholder="URL or uploaded image" style="flex: 1;" /><label for="clinic-logo-upload" class="btn btn-secondary" style="margin: 0; padding: 0.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; height: 38px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></label><input id="clinic-logo-upload" type="file" accept="image/*" style="display: none;" /></div></div><button type="submit" class="btn btn-primary">Save clinic settings</button><p id="settings-status" class="form-status" aria-live="polite"></p></form>
           )}
 
-          {section !== 'dashboard' && section !== 'book-exam' && section !== 'appointments' && section !== 'today-patients' && section !== 'follow-ups' && section !== 'profile' && !['medical-records', 'prescriptions', 'clinical-records', 'consultations', 'manage-team', 'manage-users', 'roles-permissions', 'audit-logs', 'clinic-settings', 'suppliers', 'purchase-orders', 'receiving', 'purchase-history', 'inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history', 'billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances'].includes(section) && (
+          {section !== 'dashboard' && section !== 'book-exam' && section !== 'appointments' && section !== 'today-patients' && section !== 'follow-ups' && section !== 'profile' && !['medical-records', 'prescriptions', 'clinical-records', 'patient-records', 'consultations', 'manage-team', 'manage-users', 'roles-permissions', 'audit-logs', 'clinic-settings', 'suppliers', 'purchase-orders', 'receiving', 'purchase-history', 'inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history', 'billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances'].includes(section) && (
             <div class="task-grid">
               {role !== 'owner' && <><article class="task-summary-card"><span>Access scope</span><strong>{role === 'patient' ? 'Personal records only' : role === 'optometrist' ? 'Authorized clinical care' : role === 'eye-care-assistant' ? 'Clinic operations' : 'Clinic administration and clinical care'}</strong><small>Protected by role permissions</small></article><article class="task-summary-card"><span>Current state</span><strong>Ready to review</strong><small>Use this workspace for {pageTitle.toLowerCase()}</small></article></>}
               <div class="empty-state task-empty"><h2>No records loaded yet</h2><p>Connect this workspace to clinic records as activity becomes available.</p></div>
@@ -637,7 +667,50 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     </div>
   </main>
 
-  <script>
+  <style is="global">
+    .patient-records-toolbar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+    .patient-records-toolbar h2 { margin: 0; }
+    .patient-records-toolbar p { margin: .25rem 0 0; color: var(--muted); }
+    .patient-record-dialog { width: min(1100px, calc(100vw - 2rem)); max-height: 92vh; }
+    .patient-record-form { max-height: calc(92vh - 5rem); overflow-y: auto; padding-right: .25rem; }
+    .patient-form-section { border: 1px solid var(--line); padding: 1rem; margin-bottom: .9rem; background: var(--surface); }
+    .patient-form-step[hidden] { display: none; }
+    .patient-progress { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .35rem; margin-bottom: 1rem; }
+    .patient-progress-step { border: 0; border-bottom: 3px solid var(--line); background: transparent; color: var(--muted); padding: .65rem .35rem; font: inherit; font-size: .78rem; cursor: pointer; }
+    .patient-progress-step.is-current { border-bottom-color: var(--accent); color: var(--text); font-weight: 700; }
+    .patient-progress-step.is-complete { border-bottom-color: var(--accent); color: var(--accent); }
+    .patient-step-actions { display: flex; justify-content: flex-end; gap: .6rem; margin-top: .75rem; }
+    .claim-stub-step { background: #fff; color: #111; }
+    .claim-stub-step h4 { letter-spacing: .22em; text-align: center; font-size: 1.25rem; }
+    .claim-notes { border-top: 1px solid var(--line); margin-top: 1rem; padding-top: .75rem; font-size: .9rem; }
+    .claim-notes p { margin: .4rem 0; }
+    @media print {
+      body > *:not(.dashboard-page) { display: none !important; }
+      .dashboard-sidebar, .dashboard-header, .dashboard-summary, .patient-records-toolbar, .patient-progress, .patient-step-actions, #patient-record-status, .dialog-header-row, .patient-account-results, #patient-account-search, #patient-account-selection { display: none !important; }
+      .dashboard-main, .dashboard-grid, .clinical-workspace, .patient-record-dialog, .patient-record-dialog::backdrop { display: block !important; position: static !important; width: auto !important; max-width: none !important; max-height: none !important; overflow: visible !important; background: #fff !important; border: 0 !important; box-shadow: none !important; }
+      .patient-record-dialog { margin: 0 !important; padding: 0 !important; }
+      .patient-record-form { display: block !important; max-height: none !important; overflow: visible !important; }
+      .patient-form-step[hidden] { display: block !important; }
+      .patient-form-section { break-inside: avoid; page-break-inside: avoid; border-color: #999; }
+      .claim-stub-step { break-before: page; page-break-before: always; }
+    }
+    .patient-form-section h4 { margin: 0 0 .75rem; font-size: 1rem; }
+    .patient-account-results { display: grid; gap: .35rem; margin-top: .4rem; }
+    .patient-account-result { text-align: left; border: 1px solid var(--line); background: var(--bg); padding: .6rem .75rem; border-radius: 6px; cursor: pointer; color: var(--text); }
+    .patient-account-result:hover, .patient-account-result.is-selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg)); }
+    .record-form-grid { display: grid; gap: .45rem; align-items: center; }
+    .record-form-grid input { min-width: 0; }
+    .refraction-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+    .ocular-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .job-order-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+    .claim-grid { grid-template-columns: 2fr repeat(3, 1fr); }
+    .patient-form-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .patient-form-columns > div { display: grid; gap: .6rem; }
+    .patient-form-columns h4 { border-bottom: 1px solid var(--line); padding-bottom: .4rem; }
+    @media (max-width: 760px) { .patient-records-toolbar, .patient-form-columns { display: grid; grid-template-columns: 1fr; } .patient-progress { grid-template-columns: repeat(7, minmax(100px, 1fr)); overflow-x: auto; } .refraction-grid, .ocular-grid, .job-order-grid { overflow-x: auto; min-width: 650px; } .record-form-grid { overflow-x: auto; } }
+  </style>
+
+  <script define:vars={{ hmecLogoUrl }}>
     import { connectClinicRealtime } from '../../../scripts/realtimeClient.js';
     import * as XLSX from 'xlsx';
 
@@ -649,9 +722,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
     const navigationData = {
       patient: { dashboard: 'Patient Dashboard', 'book-exam': 'Book an Appointment', appointments: 'Appointments', 'follow-ups': 'Follow-ups', 'medical-records': 'Medical Records', prescriptions: 'Prescriptions', notifications: 'Notifications', profile: 'Profile' },
-      optometrist: { dashboard: 'Optometrist Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'clinical-records': 'Clinical Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups' },
+      optometrist: { dashboard: 'Optometrist Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'patient-records': 'Patient Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups' },
       'eye-care-assistant': { dashboard: 'Eye Care Assistant Dashboard', 'check-in': 'Patient Check-In', appointments: 'Appointments', 'clinic-queue': 'Clinic Queue', 'patient-records': 'Patient Records', billing: 'Billing' },
-      owner: { dashboard: 'Owner Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'clinical-records': 'Clinical Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups', 'manage-team': "User's Management", 'manage-users': 'Manage Users', 'roles-permissions': 'Roles & Permissions', 'audit-logs': 'Audit Logs', reports: 'Reports', 'clinic-settings': 'Clinic Settings', suppliers: 'Suppliers', 'purchase-orders': 'Purchase Orders', receiving: 'Receiving', 'purchase-history': 'Purchase History', inventory: 'Inventory', 'stock-movements': 'Stock Movements', 'stock-in': 'Stock In', 'stock-out': 'Stock Out', 'stock-adjustment': 'Stock Adjustment', 'inventory-history': 'Inventory History', 'billing-invoices': 'Billing / Invoices', 'invoice-templates': 'Invoice Templates', 'customer-payments': 'Customer Payments', 'payment-history': 'Payment History', 'outstanding-balances': 'Outstanding Balances' }
+      owner: { dashboard: 'Owner Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'patient-records': 'Patient Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups', 'manage-team': "User's Management", 'manage-users': 'Manage Users', 'roles-permissions': 'Roles & Permissions', 'audit-logs': 'Audit Logs', reports: 'Reports', 'clinic-settings': 'Clinic Settings', suppliers: 'Suppliers', 'purchase-orders': 'Purchase Orders', receiving: 'Receiving', 'purchase-history': 'Purchase History', inventory: 'Inventory', 'stock-movements': 'Stock Movements', 'stock-in': 'Stock In', 'stock-out': 'Stock Out', 'stock-adjustment': 'Stock Adjustment', 'inventory-history': 'Inventory History', 'billing-invoices': 'Billing / Invoices', 'invoice-templates': 'Invoice Templates', 'customer-payments': 'Customer Payments', 'payment-history': 'Payment History', 'outstanding-balances': 'Outstanding Balances' }
     };
     const pageTitle = (navigationData[role] || {})[section] || 'Workspace';
     let refreshBilling = async () => {};
@@ -911,7 +984,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         confirmed: [['completed', 'Mark completed'], ['rescheduled', 'Reschedule'], ['cancelled', 'Cancel']],
         rescheduled: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
       }[appointment.status] || [];
-      if (appointment.status === 'completed' || appointment.status === 'cancelled') return `<a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View</a><a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View Clinical Record</a>${appointment.status === 'cancelled' ? '<button type="button" class="btn btn-secondary appointment-action action-rescheduled" data-appointment-id="' + escapeHtml(appointment._id) + '" data-status="rescheduled">Reschedule</button>' : ''}`;
+      if (appointment.status === 'completed' || appointment.status === 'cancelled') return `<a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/${['owner', 'optometrist'].includes(role) ? 'patient-records' : 'clinical-records'}">View</a><a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/${['owner', 'optometrist'].includes(role) ? 'patient-records' : 'clinical-records'}">View Clinical Record</a>${appointment.status === 'cancelled' ? '<button type="button" class="btn btn-secondary appointment-action action-rescheduled" data-appointment-id="' + escapeHtml(appointment._id) + '" data-status="rescheduled">Reschedule</button>' : ''}`;
       return actions.map(([status, label]) => `<button type="button" class="btn btn-secondary appointment-action action-${status}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${status}">${label}</button>`).join('');
     };
 
@@ -1171,9 +1244,17 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const clinicalRecordList = document.getElementById('clinical-record-list');
     const clinicalRecordSearch = document.getElementById('clinical-record-search');
     let clinicalRecords = [];
+    const recordSummary = (record) => {
+      try {
+        const data = JSON.parse(record.details);
+        return [data.patientName, data.complaints, data.diagnosis, data.recommendation].filter(Boolean).join(' · ') || 'Patient record details saved.';
+      } catch {
+        return record.details;
+      }
+    };
     const renderRecords = (records, target) => {
       if (!target) return;
-      target.innerHTML = records.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Record</th><th scope="col">Type</th><th scope="col">Date</th><th scope="col">Details</th><th scope="col">Status</th></tr></thead><tbody>${records.map((record) => `<tr><td data-label="Record"><strong>${escapeHtml(record.title)}</strong></td><td data-label="Type">${escapeHtml(record.type || 'Clinical record')}</td><td data-label="Date">${escapeHtml(record.issuedAt || new Date(record.createdAt).toLocaleDateString())}</td><td data-label="Details">${escapeHtml(record.details)}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(record.status)}">${escapeHtml(record.status)}</span></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No records found.</p>';
+      target.innerHTML = records.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Record</th><th scope="col">Type</th><th scope="col">Date</th><th scope="col">Details</th><th scope="col">Status</th></tr></thead><tbody>${records.map((record) => `<tr><td data-label="Record"><strong>${escapeHtml(record.title)}</strong></td><td data-label="Type">${escapeHtml(record.type || 'Clinical record')}</td><td data-label="Date">${escapeHtml(record.issuedAt || new Date(record.createdAt).toLocaleDateString())}</td><td data-label="Details">${escapeHtml(recordSummary(record))}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(record.status)}">${escapeHtml(record.status)}</span></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No records found.</p>';
     };
     const loadPatientRecords = async () => {
       if (!patientRecordList) return;
@@ -1184,12 +1265,22 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
     const loadClinicalRecords = async () => {
       if (!clinicalRecordList) return;
+      if (!token) throw new Error('Your session has expired. Please sign in again.');
       const query = recordType ? `?type=${recordType}` : '';
-      const response = await fetch(`${api}/api/clinical-records${query}`, { headers: { Authorization: `Bearer ${token}` } });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message || 'Unable to load records.');
-      clinicalRecords = result.records || [];
-      renderRecords(clinicalRecords, clinicalRecordList);
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 10000);
+      try {
+        const response = await fetch(`${api}/api/clinical-records${query}`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || `Unable to load records (${response.status}).`);
+        clinicalRecords = result.records || [];
+        renderRecords(clinicalRecords, clinicalRecordList);
+      } catch (error) {
+        if (error.name === 'AbortError') throw new Error('The records request timed out. Check that the clinic API is running, then refresh.');
+        throw error;
+      } finally {
+        window.clearTimeout(timeout);
+      }
     };
     clinicalRecordSearch?.addEventListener('input', () => {
       const query = clinicalRecordSearch.value.toLowerCase().trim();
@@ -1209,6 +1300,126 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         clinicalRecordForm.reset();
         await loadClinicalRecords();
       } catch (error) { recordStatus.textContent = error.message; recordStatus.classList.add('error'); }
+    });
+
+    const patientRecordForm = document.getElementById('patient-record-form');
+    const patientRecordModal = document.getElementById('patient-record-modal');
+    const patientRecordCreateToggle = document.getElementById('patient-record-create-toggle');
+    const patientRecordClose = document.getElementById('patient-record-close');
+    const patientRecordCancel = document.getElementById('patient-record-cancel');
+    const patientAccountSearch = document.getElementById('patient-account-search');
+    const patientAccountResults = document.getElementById('patient-account-results');
+    const patientAccountId = document.getElementById('patient-account-id');
+    const patientAccountSelection = document.getElementById('patient-account-selection');
+    const patientRecordStatus = document.getElementById('patient-record-status');
+    const patientSteps = [...(patientRecordForm?.querySelectorAll('.patient-form-step') || [])];
+    const patientProgressSteps = [...(patientRecordForm?.querySelectorAll('.patient-progress-step') || [])];
+    const patientRecordBack = document.getElementById('patient-record-back');
+    const patientRecordNext = document.getElementById('patient-record-next');
+    const patientRecordSave = document.getElementById('patient-record-save');
+    const patientRecordPrint = document.getElementById('patient-record-print');
+    let patientStepIndex = 0;
+    const showPatientStep = (index) => {
+      patientStepIndex = Math.max(0, Math.min(index, patientSteps.length - 1));
+      patientSteps.forEach((step, stepIndex) => { step.hidden = stepIndex !== patientStepIndex; });
+      patientProgressSteps.forEach((step, stepIndex) => { step.classList.toggle('is-current', stepIndex === patientStepIndex); step.classList.toggle('is-complete', stepIndex < patientStepIndex); });
+      if (patientRecordBack) patientRecordBack.hidden = patientStepIndex === 0;
+      if (patientRecordNext) patientRecordNext.hidden = patientStepIndex === patientSteps.length - 1;
+      if (patientRecordSave) patientRecordSave.hidden = patientStepIndex !== patientSteps.length - 1;
+    };
+    const validatePatientStep = () => {
+      const requiredFields = [...(patientSteps[patientStepIndex]?.querySelectorAll('[required]') || [])];
+      const invalidField = requiredFields.find((field) => !field.checkValidity());
+      if (invalidField) { invalidField.reportValidity(); return false; }
+      return true;
+    };
+    patientProgressSteps.forEach((step) => step.addEventListener('click', () => showPatientStep(Number(step.dataset.stepTarget))));
+    patientRecordBack?.addEventListener('click', () => showPatientStep(patientStepIndex - 1));
+    patientRecordNext?.addEventListener('click', () => { if (validatePatientStep()) showPatientStep(patientStepIndex + 1); });
+    patientRecordPrint?.addEventListener('click', () => {
+      const values = Object.fromEntries(new FormData(patientRecordForm).entries());
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) return;
+      const printEscape = (value) => escapeHtml(value || '');
+      const logoUrl = hmecLogoUrl;
+      const printField = (label, key) => `<div class="field"><strong>${label}</strong><span>${printEscape(values[key]) || '________________'}</span></div>`;
+      const printSection = (title, content) => `<section><h2>${title}</h2>${content}</section>`;
+      const refractionRow = (eye) => `<tr><th>${eye}</th>${['Present', 'Hva', 'Uva', 'Full', 'Bcva', 'Final', 'Mpd'].map((key) => `<td>${printEscape(values[`${eye.toLowerCase()}${key}`])}</td>`).join('')}</tr>`;
+      const claimItems = ['Professional Fee', 'Frame', 'Lens', 'Contact Lens', 'Ophthalmic Drops', 'Others'];
+      const claimKey = (item, suffix) => `claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_${suffix}`;
+      const managementKeys = { Lens: 'lens', Frame: 'frame', 'Contact Lens': 'contactLens', 'Drops/Accs': 'dropsAccessories', PF: 'pf', 'Gross Total': 'grossTotal', Discount: 'discount', 'Net Total': 'netTotal', DP: 'downPayment', Bal: 'balance' };
+      const ocularLabels = ['Media', 'CD Ratio', 'AV Ratio', 'Macula', 'Pupil'];
+      const externalLabels = ['Lids/Lashes', 'Conjunctiva', 'Cornea', 'VH', 'Tears'];
+      const ocularPrintRows = () => ocularLabels.map((label, index) => `<tr><td>${label}</td><td>${printEscape(values[`ocular_${label.replace(/[^A-Za-z]/g, '').toLowerCase()}`])}</td><td></td><td>${externalLabels[index]}</td><td>${printEscape(values[`ocular_${externalLabels[index].replace(/[^A-Za-z]/g, '').toLowerCase()}`])}</td><td></td></tr>`).join('');
+      const printHtml = `<!doctype html><html><head><meta charset="utf-8"><title>Patient Record - ${printEscape(values.name)} ${printEscape(values.surname)}</title><style>
+        @page{size:8.5in 13in;margin:.35in .45in}*{box-sizing:border-box}body{margin:0;color:#111;font:10px Arial,sans-serif}h1{font-size:20px;text-align:center;margin:0}.brand{display:flex;align-items:center;gap:12px;border-bottom:2px solid #111;padding-bottom:6px}.brand img{width:90px;height:30px;object-fit:contain}.brand strong{font-size:15px;color:#0b5960}.record-title{display:flex;align-items:center;gap:12px;margin:5px 0}.record-title img{width:80px;height:34px;object-fit:contain}.record-title h1{flex:1;text-align:center}.job-brand{text-align:center;margin:8px 0}.job-brand img{width:105px;height:38px;object-fit:contain}.job-lines{font-size:11px;display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px}.job-lines span:nth-child(even){text-align:right}.claim-title{display:flex;align-items:center;gap:14px;margin:4px 0}.claim-title img{width:80px;height:34px;object-fit:contain}.claim-title h1{flex:1}.claim-title h1{letter-spacing:8px;font-size:18px}section{margin:8px 0;break-inside:avoid}h2{font-size:12px;text-align:center;background:#d9d9d9;border:1px solid #111;padding:4px;margin:0}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #111;padding:4px;min-height:22px;vertical-align:top;word-break:break-word}th{font-weight:bold} .fields{display:grid;grid-template-columns:repeat(4,1fr);border-left:1px solid #111}.field{display:flex;gap:3px;min-height:24px;padding:4px;border:1px solid #111;border-left:0;border-top:0}.field span{flex:1;border-bottom:1px solid #777;min-height:12px}.field strong{white-space:nowrap}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.two textarea{width:100%;height:70px;border:1px solid #111}.icons{height:45px;border:1px solid #111;text-align:center;padding:12px;letter-spacing:35px}.separator{border-top:2px dashed #111;margin:12px 0}.notes{border:1px solid #111;padding:6px}.notes p{margin:4px 0}.small{font-size:9px}
+      </style></head><body><div class="record-title"><img src="${logoUrl}"><h1>Patient Record</h1><span>No: ______________</span></div>
+      ${printSection('Patient Information', `<div class="fields">${printField('Surname:', 'surname')}${printField('Name:', 'name')}${printField('Date:', 'date')}${printField('Referred by:', 'referredBy')}${printField('Brgy:', 'brgy')}${printField('Town:', 'town')}${printField('Age:', 'age')}${printField('Person:', 'person')}${printField('Online FB/IG:', 'online')}${printField('Contact Number:', 'phone')}${printField('Gender:', 'gender')}${printField('Hospital:', 'hospital')}${printField('Passed by:', 'passedBy')}</div>`)}
+      ${printSection('History', `<div class="fields">${printField('Complaints:', 'complaints')}${printField('Activities:', 'activities')}${printField('Ocular:', 'ocularHistory')}${printField('Health:', 'health')}${printField('Aller:', 'allergies')}${printField('BP:', 'bp')}</div>`)}
+      ${printSection('Refraction', `<table><tr><th></th><th>Present</th><th>HVA</th><th>UVA</th><th>Full</th><th>BCVA</th><th>Final</th><th>MPD</th></tr>${refractionRow('OD')}${refractionRow('OS')}<tr><td colspan="4"></td><td>${printEscape(values.refractionN)}</td><td>${printEscape(values.refractionAt)}</td><td>${printEscape(values.refractionCm)}</td><td></td></tr></table>`)}
+      ${printSection('Ocular Health', `<table><tr><th>OD</th><th>Internal</th><th>OS</th><th>OD</th><th>External</th><th>OS</th></tr>${ocularPrintRows()}</table><div class="icons">OD ○ &nbsp;&nbsp; OS ○ &nbsp;&nbsp; OD ◉ &nbsp;&nbsp; OS ◉</div>`)}
+      ${printSection('Management and Tests', `<div class="two"><div><table>${Object.keys(managementKeys).map((label) => `<tr><th>${label}</th><td>${printEscape(values[managementKeys[label]])}</td></tr>`).join('')}</table></div><div class="notes"><strong>Other Tests</strong><p>${printEscape(values.otherTests)}</p><p><strong>Diagnosis:</strong> __________________________</p><p><strong>Recommendation/s:</strong> __________________</p><p><strong>Next Visit:</strong> ________________________</p></div></div>`)}
+      <div class="separator"></div><div class="job-brand"><img src="${logoUrl}"></div><div class="job-lines"><span>Job Order No.: ______________</span><span>Order Date: ______________</span><span>Invoice No.: ______________</span><span>Due Date: ______________</span></div>${printSection('Job Order', `<div class="fields">${printField('Lens:','jobLens')}${printField('Frame:','jobFrame')}${printField('Claim Date:','claimDate')}${printField('Name & Signature:','signature')}</div><p>${printEscape(values.jobNotes)}</p>`)}
+      <div class="separator"></div><section class="claim"><div class="claim-title"><img src="${logoUrl}"><h1>C L A I M&nbsp;&nbsp; S T U B</h1></div><div class="fields">${printField('Patient Name:','claimPatientName')}${printField('Visit Date:','visitDate')}${printField('Due Date:','claimDueDate')}</div><table><tr><th>Item</th><th>From</th><th>Less</th><th>To</th></tr>${claimItems.map((item) => `<tr><th>${item}:</th><td>${printEscape(values[claimKey(item,'from')])}</td><td>${printEscape(values[claimKey(item,'less')])}</td><td>${printEscape(values[claimKey(item,'to')])}</td></tr>`).join('')}<tr><th>Down Payment:</th><td>${printEscape(values.claimDownPayment)}</td><th>Balance:</th><td>${printEscape(values.claimBalance)}</td></tr></table><div class="notes"><strong>NOTES:</strong><p>- Paid items not collected within <u>90 days</u> from the date of purchase will be <u>voided</u>.</p><p>- Please ensure all items are <u>FULLY PAID</u> before claiming.</p><p>- Present this form upon claiming your order.</p></div></section></body></html>`;
+      printWindow.document.write(printHtml);
+      printWindow.document.close();
+      printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
+    });
+    showPatientStep(0);
+    const patientField = (name) => patientRecordForm?.elements.namedItem(name);
+    let patientSearchTimer;
+    const clearPatientAccount = () => {
+      if (patientAccountId) patientAccountId.value = '';
+      if (patientAccountSelection) patientAccountSelection.textContent = 'No account selected. Complete the manual patient fields below for a walk-in patient.';
+      patientAccountResults?.replaceChildren();
+    };
+    const selectPatientAccount = (patient) => {
+      if (patientAccountId) patientAccountId.value = patient._id;
+      if (patientAccountSelection) patientAccountSelection.textContent = `Using account: ${patient.name} (${patient.patientId || patient.email})`;
+      const name = patient.name || '';
+      const nameParts = name.trim().split(/\s+/);
+      if (patientField('name')) patientField('name').value = patient.firstName || nameParts[0] || '';
+      if (patientField('surname')) patientField('surname').value = patient.lastName || nameParts.slice(1).join(' ');
+      if (patientField('phone')) patientField('phone').value = patient.phone || '';
+      if (patientField('age')) patientField('age').value = patient.age || '';
+      if (patientField('gender')) patientField('gender').value = patient.gender || '';
+      patientAccountResults?.replaceChildren();
+    };
+    const searchPatientAccounts = async () => {
+      const query = patientAccountSearch?.value.trim() || '';
+      if (query.length < 2 || !patientAccountResults) { patientAccountResults?.replaceChildren(); return; }
+      try {
+        const response = await fetch(`${api}/api/clinical-records/patient-search?q=${encodeURIComponent(query)}`, { headers: { Authorization: `Bearer ${token}` } });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to search patient accounts.');
+        patientAccountResults.innerHTML = result.patients?.length ? result.patients.map((patient) => `<button type="button" class="patient-account-result" data-patient-id="${escapeHtml(patient._id)}"><strong>${escapeHtml(patient.name)}</strong><span>${escapeHtml(patient.patientId || 'No patient ID')} · ${escapeHtml(patient.email || '')} · ${escapeHtml(patient.phone || '')}</span></button>`).join('') : '<span class="form-status">No matching account. Enter the patient manually below.</span>';
+        patientAccountResults.querySelectorAll('[data-patient-id]').forEach((button, index) => button.addEventListener('click', () => selectPatientAccount(result.patients[index])));
+      } catch (error) { patientAccountResults.innerHTML = `<span class="form-status error">${escapeHtml(error.message)}</span>`; }
+    };
+    patientAccountSearch?.addEventListener('input', () => { window.clearTimeout(patientSearchTimer); patientSearchTimer = window.setTimeout(searchPatientAccounts, 250); });
+    const closePatientRecordModal = () => { patientRecordModal?.close(); patientRecordForm?.reset(); clearPatientAccount(); if (patientRecordStatus) patientRecordStatus.textContent = ''; showPatientStep(0); };
+    patientRecordCreateToggle?.addEventListener('click', () => patientRecordModal?.showModal());
+    patientRecordClose?.addEventListener('click', closePatientRecordModal);
+    patientRecordCancel?.addEventListener('click', closePatientRecordModal);
+    patientRecordForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const values = Object.fromEntries(new FormData(patientRecordForm).entries());
+      const patient = { name: [values.name, values.surname].filter(Boolean).join(' '), firstName: values.name, lastName: values.surname, phone: values.phone, age: values.age, gender: values.gender };
+      delete values.patientId;
+      delete values.name;
+      delete values.surname;
+      delete values.phone;
+      delete values.age;
+      delete values.gender;
+      if (patientRecordStatus) { patientRecordStatus.textContent = 'Saving patient record...'; patientRecordStatus.classList.remove('error'); }
+      try {
+        const response = await fetch(`${api}/api/clinical-records/patient-record`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ patientId: patientAccountId?.value || undefined, patient, record: values }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to create patient record.');
+        if (patientRecordStatus) patientRecordStatus.textContent = result.message;
+        await loadClinicalRecords();
+        window.setTimeout(closePatientRecordModal, 500);
+      } catch (error) { if (patientRecordStatus) { patientRecordStatus.textContent = error.message; patientRecordStatus.classList.add('error'); } }
     });
     loadPatientRecords().catch((error) => { if (patientRecordList) patientRecordList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
     loadClinicalRecords().catch((error) => { if (clinicalRecordList) clinicalRecordList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
@@ -2639,7 +2850,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           confirmed: [['completed', 'Mark completed'], ['rescheduled', 'Reschedule'], ['cancelled', 'Cancel']],
           rescheduled: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
         }[appointment.status] || [];
-        if (appointment.status === 'completed' || appointment.status === 'cancelled') return `<a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View</a><a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/clinical-records">View Clinical Record</a>${appointment.status === 'cancelled' ? '<button type="button" class="btn btn-secondary appointment-action action-rescheduled" data-appointment-id="' + escapeHtml(appointment._id) + '" data-status="rescheduled">Reschedule</button>' : ''}`;
+        if (appointment.status === 'completed' || appointment.status === 'cancelled') return `<a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/${['owner', 'optometrist'].includes(role) ? 'patient-records' : 'clinical-records'}">View</a><a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/${['owner', 'optometrist'].includes(role) ? 'patient-records' : 'clinical-records'}">View Clinical Record</a>${appointment.status === 'cancelled' ? '<button type="button" class="btn btn-secondary appointment-action action-rescheduled" data-appointment-id="' + escapeHtml(appointment._id) + '" data-status="rescheduled">Reschedule</button>' : ''}`;
         return actions.map(([status, label]) => `<button type="button" class="btn btn-secondary appointment-action action-${status}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${status}">${label}</button>`).join('');
       };
 
