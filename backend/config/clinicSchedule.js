@@ -37,6 +37,46 @@ export const appointmentSlotTimes = [
  * Used to validate that appointments don't extend beyond closing time
  */
 export const APPOINTMENT_DURATION_MINUTES = 30;
+export const SLOT_BUFFER_MINUTES = 15;
+
+const getLocalDateString = (date = new Date()) => {
+  const adjusted = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+  return adjusted.toISOString().slice(0, 10);
+};
+
+const convertTimeToMinutes = (timeString) => {
+  if (!timeString || typeof timeString !== 'string') return null;
+  const normalized = String(timeString).trim();
+  if (!normalized) return null;
+
+  if (normalized.includes('AM') || normalized.includes('PM')) {
+    const hourMatch = normalized.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (!hourMatch) return null;
+    let hours = Number(hourMatch[1]);
+    const minutes = Number(hourMatch[2]);
+    const meridiem = hourMatch[3].toUpperCase();
+    if (meridiem === 'PM' && hours !== 12) hours += 12;
+    if (meridiem === 'AM' && hours === 12) hours = 0;
+    return (hours * 60) + minutes;
+  }
+
+  const [hours, minutes] = normalized.split(':').map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+  return (hours * 60) + minutes;
+};
+
+export const isTimeSlotPastForDate = (dateString, timeString, now = new Date()) => {
+  if (!dateString || !timeString) return false;
+
+  const todayString = getLocalDateString(now);
+  if (dateString !== todayString) return false;
+
+  const slotMinutes = convertTimeToMinutes(timeString);
+  const currentMinutes = (now.getHours() * 60) + now.getMinutes();
+  if (slotMinutes === null) return false;
+
+  return slotMinutes <= currentMinutes + SLOT_BUFFER_MINUTES;
+};
 
 /**
  * Format time to 12-hour AM/PM format for display
@@ -84,18 +124,14 @@ export const getClinicScheduleForDate = (dateString) => {
  * @param {string} dateString - Date in YYYY-MM-DD format
  * @returns {array} Array of available time slots in 24-hour format (HH:MM)
  */
-export const getAvailableSlotsForDate = (dateString) => {
+export const getAvailableSlotsForDate = (dateString, now = new Date()) => {
   const scheduleInfo = getClinicScheduleForDate(dateString);
 
-  // If the clinic is not operating on this day, return empty array
   if (!scheduleInfo.operatingDay || !scheduleInfo.open || !scheduleInfo.close) {
     return [];
   }
 
-  // Filter appointment slots that fall within operating hours
-  // and ensure the appointment won't extend beyond closing time
   const availableSlots = appointmentSlotTimes.filter((slotTime) => {
-    // Convert time strings to minutes for comparison
     const [slotHours, slotMinutes] = slotTime.split(':').map(Number);
     const slotTotalMinutes = slotHours * 60 + slotMinutes;
 
@@ -105,16 +141,12 @@ export const getAvailableSlotsForDate = (dateString) => {
     const [closeHours, closeMinutes] = scheduleInfo.close.split(':').map(Number);
     const closeTotalMinutes = closeHours * 60 + closeMinutes;
 
-    // Appointment start time must be at or after opening time
-    if (slotTotalMinutes < openTotalMinutes) {
-      return false;
-    }
+    if (slotTotalMinutes < openTotalMinutes) return false;
 
-    // Appointment end time (start + duration) must be before or at closing time
     const appointmentEndTime = slotTotalMinutes + APPOINTMENT_DURATION_MINUTES;
-    if (appointmentEndTime > closeTotalMinutes) {
-      return false;
-    }
+    if (appointmentEndTime > closeTotalMinutes) return false;
+
+    if (isTimeSlotPastForDate(dateString, slotTime, now)) return false;
 
     return true;
   });
@@ -129,13 +161,14 @@ export const getAvailableSlotsForDate = (dateString) => {
  * @returns {object} Validation result: { valid: boolean, error?: string }
  */
 export const validateAppointmentTime = (dateString, timeString) => {
-  const availableSlots = getAvailableSlotsForDate(dateString);
+  if (!dateString || !timeString) {
+    return { valid: false, error: 'A valid appointment date and time are required.' };
+  }
 
-  // Convert 12-hour format (if provided) back to 24-hour for comparison
-  let time24Hr = timeString;
-  if (timeString.includes('AM') || timeString.includes('PM')) {
-    // This is 12-hour format - convert it to 24-hour
-    time24Hr = convert12HourTo24Hour(timeString);
+  const availableSlots = getAvailableSlotsForDate(dateString, new Date());
+  let time24Hr = String(timeString).trim();
+  if (time24Hr.includes('AM') || time24Hr.includes('PM')) {
+    time24Hr = convert12HourTo24Hour(time24Hr);
   }
 
   if (!availableSlots.includes(time24Hr)) {

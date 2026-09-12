@@ -1,20 +1,30 @@
 import { rateLimit } from 'express-rate-limit';
 
-const createLimiter = (windowMs, limit, message) => rateLimit({
+const createLimiter = (windowMs, limit, message, options = {}) => rateLimit({
   windowMs,
   limit,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
+  ...options,
   handler: (_req, res) => res.status(429).json({
     success: false,
     message,
   }),
 });
 
+const getLoginRateLimitKey = (req) => {
+  const email = String(req.body?.email || req.query?.email || '').trim().toLowerCase();
+  return `${req.ip || 'unknown'}:${email || 'anonymous'}`;
+};
+
 export const loginLimiter = createLimiter(
   15 * 60 * 1000,
   5,
-  'Too many login attempts. Please try again later.'
+  'Too many failed login attempts for this account. Please try again later.',
+  {
+    keyGenerator: (req) => getLoginRateLimitKey(req),
+    skipSuccessfulRequests: true,
+  }
 );
 
 export const registrationLimiter = createLimiter(

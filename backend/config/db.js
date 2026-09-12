@@ -10,6 +10,8 @@ const connectDB = async () => {
   try {
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 10000,
+      waitQueueTimeoutMS: 10000,
       maxPoolSize: 10,
     });
     console.log(`MongoDB connected successfully (${mongoUri.startsWith('mongodb+srv://') ? 'Atlas' : 'local'}).`);

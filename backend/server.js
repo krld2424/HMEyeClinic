@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
+import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import followUpRoutes from './routes/followUpRoutes.js';
@@ -29,7 +30,13 @@ const configuredOrigins = (process.env.CORS_ORIGIN || '')
   .filter(Boolean);
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? configuredOrigins
-  : [...new Set(['http://localhost:4321', ...configuredOrigins])];
+  : [...new Set([
+      'http://localhost:4321',
+      'http://localhost:4322',
+      'http://127.0.0.1:4321',
+      'http://127.0.0.1:4322',
+      ...configuredOrigins,
+    ])];
 
 const io = setupRealtime(httpServer, allowedOrigins);
 app.set('io', io);
@@ -57,11 +64,19 @@ app.get('/', (_req, res) => {
 
 app.get('/api/health', (req, res) => {
   const mongoUri = process.env.MONGODB_URI || (process.env.NODE_ENV === 'production' ? '' : 'mongodb://127.0.0.1:27017/hm_visionsync');
+  const databaseReady = mongoose.connection.readyState === 1;
   res.status(200).json({
-    status: 'ok',
+    status: databaseReady ? 'ok' : 'degraded',
     service: 'Hernandez Mercado Eye Clinic API',
-    database: mongoUri ? (mongoUri.startsWith('mongodb+srv://') ? 'Atlas configured' : 'Local MongoDB configured') : 'No MongoDB URI configured',
+    database: databaseReady ? (mongoUri.startsWith('mongodb+srv://') ? 'Atlas connected' : 'Local MongoDB connected') : 'MongoDB unavailable',
   });
+});
+
+app.use('/api', (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ message: 'Database is temporarily unavailable.' });
+  }
+  return next();
 });
 
 app.use('/api/auth', authRoutes);

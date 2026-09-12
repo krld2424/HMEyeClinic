@@ -81,8 +81,18 @@ const navItems = [
 </header>
 
 <script>
+  const clearSessionState = () => {
+    ['hmVisionToken', 'hmVisionUser'].forEach((key) => localStorage.removeItem(key));
+  };
+
   const token = localStorage.getItem('hmVisionToken');
-  const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+  } catch {
+    clearSessionState();
+  }
+
   if (token && user && user.role) {
     const loginBtn = document.querySelector('.nav-menu .btn-primary[href="/login"]');
     const signUpBtn = document.querySelector('.nav-menu .btn-secondary[href="/register"]');
@@ -95,9 +105,8 @@ const navItems = [
       signUpBtn.setAttribute('href', '#');
       signUpBtn.addEventListener('click', (event) => {
         event.preventDefault();
-        localStorage.removeItem('hmVisionToken');
-        localStorage.removeItem('hmVisionUser');
-        window.location.reload();
+        clearSessionState();
+        window.location.href = '/login';
       });
     }
   }

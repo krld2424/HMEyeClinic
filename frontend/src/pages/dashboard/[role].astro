@@ -173,7 +173,7 @@ const groupIcons = {
       </div>
       <div class="list-toolbar">
         <input id="overview-appointment-search" type="search" placeholder="Search patient or service" />
-        <select id="overview-appointment-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Rejected</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select>
+        <select id="overview-appointment-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select>
         <input id="overview-appointment-date" type="date" aria-label="Filter by appointment date" />
       </div>
       <div id="appointment-list" class="appointment-list"></div>
@@ -328,6 +328,7 @@ const groupIcons = {
       try {
         const response = await fetch(`${api}${endpoint}`, {
           headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
         });
         const result = await response.json();
 
@@ -403,15 +404,19 @@ const groupIcons = {
       }
     });
 
+    const clearSessionState = () => {
+      ['hmVisionToken', 'hmVisionUser'].forEach((key) => localStorage.removeItem(key));
+    };
+
     document.getElementById('logout-button')?.addEventListener('click', () => {
-      localStorage.removeItem('hmVisionToken');
-      localStorage.removeItem('hmVisionUser');
+      clearSessionState();
       window.location.href = '/auth';
     });
 
     document.getElementById('sidebar-logout')?.addEventListener('click', (event) => {
       event.preventDefault();
-      document.getElementById('logout-button')?.click();
+      clearSessionState();
+      window.location.href = '/auth';
     });
 
     const notificationButton = document.getElementById('notification-button');
@@ -426,7 +431,7 @@ const groupIcons = {
     const loadNotifications = async () => {
       if (!notificationList) return;
       const headers = { Authorization: `Bearer ${token}` };
-      const appointmentResponse = await fetch(`${api}/api/appointments${role === 'patient' ? '/mine' : ''}`, { headers });
+      const appointmentResponse = await fetch(`${api}/api/appointments${role === 'patient' ? '/mine' : ''}`, { headers, cache: 'no-store' });
       const appointmentResult = await appointmentResponse.json();
       const notifications = [];
       const today = new Date().toISOString().slice(0, 10);

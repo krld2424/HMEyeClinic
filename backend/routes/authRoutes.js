@@ -124,6 +124,11 @@ router.post('/register', registrationLimiter, async (req, res) => {
       return res.status(400).json({ message: 'Name, email, and password are required.' });
     }
 
+    const numericAge = Number(age);
+    if (!Number.isInteger(numericAge) || numericAge < 0 || numericAge > 120) {
+      return res.status(400).json({ message: 'Age must be a whole number between 0 and 120.' });
+    }
+
     if (phone && !/^\+63 \d{3}-\d{3}-\d{4}$/.test(phone)) {
       return res.status(400).json({ message: 'Contact number must use +63 000-000-0000 format.' });
     }
@@ -141,7 +146,7 @@ router.post('/register', registrationLimiter, async (req, res) => {
       lastName,
       middleInitial,
       suffix,
-      age,
+      age: numericAge,
       gender,
       email: email.toLowerCase(),
       password: hashedPassword,

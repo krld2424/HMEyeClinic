@@ -30,16 +30,36 @@ import Layout from '../layouts/Layout.astro';
   </main>
 
   <script type="module">
+    const clearSessionState = () => {
+      ['hmVisionToken', 'hmVisionUser'].forEach((key) => localStorage.removeItem(key));
+    };
+
     const token = localStorage.getItem('hmVisionToken');
-    const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+    let user = null;
+    try {
+      user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+    } catch {
+      clearSessionState();
+    }
+
     if (token && user && user.role) {
       window.location.href = `/dashboard/${user.role}/dashboard`;
+    } else if (token || user) {
+      clearSessionState();
     }
 
     const form = document.getElementById('login-form');
     const status = document.getElementById('login-status');
+    const submitButton = form.querySelector('button[type="submit"]');
 
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+
+    const setSubmittingState = (isSubmitting) => {
+      form.dataset.submitting = String(isSubmitting);
+      submitButton.disabled = isSubmitting;
+      submitButton.setAttribute('aria-busy', String(isSubmitting));
+      submitButton.textContent = isSubmitting ? 'Signing in...' : 'Sign In';
+    };
 
     document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
       toggle.addEventListener('click', () => {
@@ -53,6 +73,9 @@ import Layout from '../layouts/Layout.astro';
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
+      if (form.dataset.submitting === 'true') return;
+
+      setSubmittingState(true);
       status.textContent = 'Signing in...';
       status.classList.remove('error');
 
@@ -70,6 +93,7 @@ import Layout from '../layouts/Layout.astro';
       } catch (error) {
         status.textContent = error.message;
         status.classList.add('error');
+        setSubmittingState(false);
       }
     });
 

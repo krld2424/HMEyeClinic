@@ -20,7 +20,7 @@ import Layout from '../layouts/Layout.astro';
           <div class="field-group"><label for="suffix">Suffix</label><input id="suffix" name="suffix" type="text" placeholder="Jr., Sr., III" /></div>
         </div>
         <div class="field-row">
-          <div class="field-group"><label for="age">Age</label><input id="age" name="age" type="number" min="0" max="120" required /></div>
+          <div class="field-group"><label for="age">Age</label><input id="age" name="age" type="number" inputmode="numeric" min="0" max="120" step="1" pattern="[0-9]*" required /></div>
           <div class="field-group"><label for="gender">Gender</label><select id="gender" name="gender" required><option value="">Select gender</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select></div>
         </div>
         <div class="field-group"><label for="register-email">Email</label><input id="register-email" name="email" type="email" placeholder="name@example.com" required /></div>
@@ -44,13 +44,15 @@ import Layout from '../layouts/Layout.astro';
     const form = document.getElementById('register-form');
     const status = document.getElementById('register-status');
     const phone = document.getElementById('register-phone');
+    const age = document.getElementById('age');
 
     const formatPhone = (value) => {
       const digits = value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
       const groups = [digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean);
-      return `+63 ${groups.join('-')}`;
+      return groups.length ? `+63 ${groups.join('-')}` : '';
     };
     phone.addEventListener('input', () => { phone.value = formatPhone(phone.value); });
+    age.addEventListener('input', () => { age.value = age.value.replace(/\D/g, '').slice(0, 3); });
 
     document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
       toggle.addEventListener('click', () => {
@@ -68,6 +70,17 @@ import Layout from '../layouts/Layout.astro';
       event.preventDefault();
       if (!form.checkValidity()) { form.reportValidity(); return; }
       const payload = Object.fromEntries(new FormData(form).entries());
+      const ageValue = Number(payload.age);
+      if (!Number.isInteger(ageValue) || ageValue < 0 || ageValue > 120) {
+        status.textContent = 'Age must be a whole number between 0 and 120.';
+        status.classList.add('error');
+        return;
+      }
+      if (payload.phone && !/^\+63 \d{3}-\d{3}-\d{4}$/.test(payload.phone)) {
+        status.textContent = 'Phone number must use +63 000-000-0000 format.';
+        status.classList.add('error');
+        return;
+      }
       if (payload.password !== payload.confirmPassword) { status.textContent = 'Passwords do not match.'; status.classList.add('error'); return; }
       delete payload.confirmPassword;
       payload.name = [payload.firstName, payload.middleInitial ? `${payload.middleInitial}.` : '', payload.lastName, payload.suffix].filter(Boolean).join(' ');

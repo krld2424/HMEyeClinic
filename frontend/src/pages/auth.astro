@@ -62,13 +62,18 @@ import Layout from '../layouts/Layout.astro';
           </div>
 
           <div class="field-group">
+            <label for="register-age">Age</label>
+            <input id="register-age" name="age" type="number" inputmode="numeric" min="0" max="120" step="1" placeholder="Age" required />
+          </div>
+
+          <div class="field-group">
             <label for="register-email">Email</label>
             <input id="register-email" name="email" type="email" placeholder="name@example.com" required />
           </div>
 
           <div class="field-group">
             <label for="register-phone">Phone</label>
-            <input id="register-phone" name="phone" type="tel" placeholder="(555) 123-4567" />
+            <input id="register-phone" name="phone" type="tel" placeholder="+63 000-000-0000" inputmode="tel" pattern="\\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" required />
           </div>
 
           <div class="field-group">
@@ -94,10 +99,22 @@ import Layout from '../layouts/Layout.astro';
   </main>
 
   <script type="module">
+    const clearSessionState = () => {
+      ['hmVisionToken', 'hmVisionUser'].forEach((key) => localStorage.removeItem(key));
+    };
+
     const token = localStorage.getItem('hmVisionToken');
-    const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+    let user = null;
+    try {
+      user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+    } catch {
+      clearSessionState();
+    }
+
     if (token && user && user.role) {
       window.location.href = `/dashboard/${user.role}/dashboard`;
+    } else if (token || user) {
+      clearSessionState();
     }
 
     const tabs = document.querySelectorAll('[data-auth-tab]');
@@ -117,6 +134,18 @@ import Layout from '../layouts/Layout.astro';
     });
 
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+    const ageInput = document.getElementById('register-age');
+    const phoneInput = document.getElementById('register-phone');
+
+    ageInput?.addEventListener('input', () => {
+      ageInput.value = ageInput.value.replace(/\D/g, '').slice(0, 3);
+    });
+
+    phoneInput?.addEventListener('input', () => {
+      const digits = phoneInput.value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
+      const groups = [digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean);
+      phoneInput.value = groups.length ? `+63 ${groups.join('-')}` : '';
+    });
 
     document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
       toggle.addEventListener('click', () => {
@@ -131,6 +160,14 @@ import Layout from '../layouts/Layout.astro';
     const handleLogin = async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
+      const submitButton = form.querySelector('button[type="submit"]');
+
+      if (form.dataset.submitting === 'true') return;
+      form.dataset.submitting = 'true';
+      submitButton.disabled = true;
+      submitButton.setAttribute('aria-busy', 'true');
+      submitButton.textContent = 'Signing in...';
+
       const payload = Object.fromEntries(new FormData(form).entries());
 
       try {
@@ -151,13 +188,29 @@ import Layout from '../layouts/Layout.astro';
         window.location.href = `/dashboard/${result.user.role}/dashboard`;
       } catch (error) {
         alert(error.message);
+        form.dataset.submitting = 'false';
+        submitButton.disabled = false;
+        submitButton.setAttribute('aria-busy', 'false');
+        submitButton.textContent = 'Sign In';
       }
     };
 
     const handleRegister = async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+
       const payload = Object.fromEntries(new FormData(form).entries());
+      const ageValue = Number(payload.age);
+      if (!Number.isInteger(ageValue) || ageValue < 0 || ageValue > 120) {
+        alert('Age must be a whole number between 0 and 120.');
+        return;
+      }
+
+      if (payload.phone && !/^\+63 \d{3}-\d{3}-\d{4}$/.test(payload.phone)) {
+        alert('Phone number must use +63 000-000-0000 format.');
+        return;
+      }
 
       if (payload.password !== payload.confirmPassword) {
         alert('Passwords do not match.');

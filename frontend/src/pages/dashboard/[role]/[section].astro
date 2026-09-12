@@ -141,7 +141,7 @@ export function getStaticPaths() {
 const pageCopy = {
   dashboard: 'A focused overview of today\'s work, priorities, and activity.',
   'book-exam': 'Choose a service, preferred date, and available time for your visit.',
-  appointments: 'Review upcoming and previous visits, status, and appointment details.',
+  appointments: 'Check and manage patient appointments and examination schedules.',
   'follow-ups': 'Request a follow-up visit and track its progress with the clinic team.',
   'medical-records': 'Review your examination and consultation history.',
   prescriptions: 'View prescriptions shared with your account.',
@@ -183,7 +183,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 ---
 
 <Layout title={`${pageTitle} | HM VisionSync`}>
-  <main class="dashboard-page dashboard-layout">
+  <main class="dashboard-page dashboard-layout" data-hmec-logo={hmecLogoUrl}>
     <button class="mobile-sidebar-toggle" type="button" id="mobile-sidebar-toggle" aria-label="Open dashboard navigation" aria-expanded="false" title="Open dashboard navigation"><SidebarIcon name="panel-left" /></button>
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
     <aside class={`dashboard-sidebar ${role === 'owner' ? 'owner-sidebar' : ''}`}>
@@ -250,7 +250,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                   <span class="eyebrow">Live overview</span>
                   <h2>{role === 'owner' ? 'Clinic overview' : copy}</h2>
                 </div>
-                <button class="btn btn-secondary" type="button" id="dashboard-retry" hidden>Try again</button>
+                {role === 'patient' && <a class="bento-action bento-action-header" href="/dashboard/patient/book-exam">Book an appointment <span aria-hidden="true">+</span></a>}
               </div>
               <div id="dashboard-bento-content" class={`bento-grid ${role === 'owner' ? 'owner-bento-grid' : ''}`} aria-live="polite">
                 <div class="bento-loading" aria-label="Loading dashboard analytics"><span></span><span></span><span></span><span></span></div>
@@ -266,7 +266,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               </div>
               <div class="list-toolbar">
                 <input id="overview-appointment-search" type="search" placeholder="Search patient or service" />
-                <select id="overview-appointment-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Rejected</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select>
+                <select id="overview-appointment-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select>
                 <input id="overview-appointment-date" type="date" aria-label="Filter by appointment date" />
               </div>
               <div id="appointment-list" class="appointment-list"></div>
@@ -275,7 +275,18 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             )}
           </>
         ) : (
-          <section class="container task-page-card card">
+          <>
+          {section === 'appointments' && (
+            <section class="container card appointments-calendar-card" aria-label="Appointments calendar">
+              <div class="appointment-calendar-panel">
+                <div class="booking-calendar appointment-calendar">
+                  <div class="calendar-heading"><strong id="appointment-calendar-month">Appointments calendar</strong><div class="calendar-nav"><button type="button" id="appointment-calendar-prev" aria-label="Previous month">&lt;</button><button type="button" id="appointment-calendar-next" aria-label="Next month">&gt;</button></div></div>
+                  <div class="calendar-grid" id="appointment-calendar-grid"></div>
+                </div>
+                    </div>
+              </section>
+            )}
+          <section class={`container task-page-card card ${section === 'appointments' ? 'appointments-task-page' : ''}`}>
             <p class="task-page-description">{copy}</p>
             <div class="task-state" id="task-state">
               <span class="loading-dot"></span>
@@ -297,25 +308,25 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                           <h3 id="operation-form-title">Create {pageTitle}</h3>
                           <button type="button" class="btn btn-secondary btn-icon" id="operation-form-close" aria-label="Close form dialog">×</button>
                         </div>
-                        <form id="operation-form" class="workflow-form">
-                          {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-name">Supplier name</label><input id="operation-name" name="name" required /></div><div class="field-group"><label for="operation-contact">Contact person</label><input id="operation-contact" name="contactPerson" /></div></div>}
-                          {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-phone">Contact number</label><input id="operation-phone" name="phone" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" /></div><div class="field-group"><label for="operation-email">Email</label><input id="operation-email" name="email" type="email" /></div></div>}
-                          {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-address">Address</label><input id="operation-address" name="address" /></div><div class="field-group"><label for="operation-status">Status</label><select id="operation-status" name="status"><option>active</option><option>inactive</option></select></div></div>}
-                          {section === 'suppliers' && <div class="field-group"><label for="operation-products">Products supplied</label><textarea id="operation-products" name="products" rows="3"></textarea></div>}
-                          {section === 'purchase-orders' && <div class="field-row"><div class="field-group"><label for="operation-supplier">Supplier name or ID</label><input id="operation-supplier" name="supplierName" required /></div><div class="field-group"><label for="operation-order-number">Purchase order number</label><input id="operation-order-number" name="orderNumber" required /></div></div>}
-                          {section === 'purchase-orders' && <div class="field-row"><div class="field-group"><label for="operation-order-date">Order date</label><input id="operation-order-date" name="orderDate" type="date" required /></div><div class="field-group"><label for="operation-order-status">Order status</label><select id="operation-order-status" name="status"><option>draft</option><option>ordered</option><option>partially-received</option><option>received</option><option>cancelled</option></select></div></div>}
-                          {['purchase-orders', 'receiving', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section) && <div class="operation-items-editor"><div class="section-header split"><div><h3>Items</h3><p>Add each item and quantity for this transaction.</p></div><button type="button" class="btn btn-primary operation-add-item" id="add-operation-item">Add item</button></div><div class="appointment-table-wrap"><table class="appointment-table operation-items-table"><thead><tr><th scope="col">SKU</th><th scope="col">Quantity</th><th scope="col">Action</th></tr></thead><tbody id="operation-items-body"><tr><td><input name="itemSku" aria-label="Item SKU" placeholder="ITEM-001" required /></td><td><input name="itemQuantity" type="number" min="1" step="1" aria-label="Item quantity" required /></td><td><button type="button" class="btn btn-secondary remove-operation-item" aria-label="Remove item">Remove</button></td></tr></tbody></table></div></div>}
-                          {section === 'receiving' && <div class="field-row"><div class="field-group"><label for="operation-reference">Receiving reference</label><input id="operation-reference" name="reference" required /></div><div class="field-group"><label for="operation-received-date">Receiving date</label><input id="operation-received-date" name="receivedDate" type="date" /></div></div>}
-                          {section === 'receiving' && <div class="field-group"><label for="operation-purchase-order">Purchase order ID</label><input id="operation-purchase-order" name="purchaseOrderId" /></div>}
+                  <form id="operation-form" class="workflow-form">
+                    {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-name">Supplier name</label><input id="operation-name" name="name" required /></div><div class="field-group"><label for="operation-contact">Contact person</label><input id="operation-contact" name="contactPerson" /></div></div>}
+                    {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-phone">Contact number</label><input id="operation-phone" name="phone" inputmode="tel" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" placeholder="+63 000-000-0000" /></div><div class="field-group"><label for="operation-email">Email</label><input id="operation-email" name="email" type="email" /></div></div>}
+                    {section === 'suppliers' && <div class="field-row"><div class="field-group"><label for="operation-address">Address</label><input id="operation-address" name="address" /></div><div class="field-group"><label for="operation-status">Status</label><select id="operation-status" name="status"><option>active</option><option>inactive</option></select></div></div>}
+                    {section === 'suppliers' && <div class="field-group"><label for="operation-products">Products supplied</label><textarea id="operation-products" name="products" rows="3"></textarea></div>}
+                    {section === 'purchase-orders' && <div class="field-row"><div class="field-group"><label for="operation-supplier">Supplier name or ID</label><input id="operation-supplier" name="supplierName" required /></div><div class="field-group"><label for="operation-order-number">Purchase order number</label><input id="operation-order-number" name="orderNumber" required /></div></div>}
+                    {section === 'purchase-orders' && <div class="field-row"><div class="field-group"><label for="operation-order-date">Order date</label><input id="operation-order-date" name="orderDate" type="date" required /></div><div class="field-group"><label for="operation-order-status">Order status</label><select id="operation-order-status" name="status"><option>draft</option><option>ordered</option><option>partially-received</option><option>received</option><option>cancelled</option></select></div></div>}
+                    {['purchase-orders', 'receiving', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section) && <div class="operation-items-editor"><div class="section-header split"><div><h3>Items</h3><p>Add each item and quantity for this transaction.</p></div><button type="button" class="btn btn-primary operation-add-item" id="add-operation-item">Add item</button></div><div class="appointment-table-wrap"><table class="appointment-table operation-items-table"><thead><tr><th scope="col">SKU</th><th scope="col">Quantity</th><th scope="col">Action</th></tr></thead><tbody id="operation-items-body"><tr><td><input name="itemSku" aria-label="Item SKU" placeholder="ITEM-001" required /></td><td><input name="itemQuantity" type="number" min="1" step="1" aria-label="Item quantity" required /></td><td><button type="button" class="btn btn-secondary remove-operation-item" aria-label="Remove item">Remove</button></td></tr></tbody></table></div></div>}
+                    {section === 'receiving' && <div class="field-row"><div class="field-group"><label for="operation-reference">Receiving reference</label><input id="operation-reference" name="reference" required /></div><div class="field-group"><label for="operation-received-date">Receiving date</label><input id="operation-received-date" name="receivedDate" type="date" /></div></div>}
+                    {section === 'receiving' && <div class="field-group"><label for="operation-purchase-order">Purchase order ID</label><input id="operation-purchase-order" name="purchaseOrderId" /></div>}
                           {section === 'receiving' && <div class="field-row"><div class="field-group"><label for="operation-batch">Batch / lot number</label><input id="operation-batch" name="batchLotNumber" /></div><div class="field-group"><label for="operation-expiration">Expiration date</label><input id="operation-expiration" name="expirationDate" type="date" /></div></div>}
                           {section === 'inventory' && <><div class="field-row"><div class="field-group"><label for="operation-category">Category</label><select id="operation-category" name="category" required><option value="">Select a category</option><option>Eyeglass Frame</option><option>Lens</option><option>Contact Lens</option><option>Clinic Supply</option></select></div><div class="field-group"><label for="operation-sku">SKU</label><input id="operation-sku" name="sku" placeholder="FR-RB-001" pattern="(FR|LEN|CL|SUP)-[A-Za-z0-9]+(-[A-Za-z0-9]+)*" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-name">Item name</label><input id="operation-name" name="name" required /></div><div class="field-group"><label for="operation-brand">Brand</label><input id="operation-brand" name="brand" /></div></div><div class="field-row"><div class="field-group"><label for="operation-quantity">Quantity</label><input id="operation-quantity" name="quantity" type="number" min="0" required /></div><div class="field-group"><label for="operation-minimum">Minimum stock</label><input id="operation-minimum" name="minimumStock" type="number" min="0" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-cost">Purchase price</label><input id="operation-cost" name="cost" type="number" min="0" step="0.01" required /></div><div class="field-group"><label for="operation-selling-price">Selling price</label><input id="operation-selling-price" name="sellingPrice" type="number" min="0" step="0.01" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-supplier">Supplier</label><input id="operation-supplier" name="supplier" /></div><div class="field-group"><label for="operation-location">Location / rack</label><input id="operation-location" name="location" placeholder="Rack A-03" /></div></div><div class="field-row"><div class="field-group"><label for="operation-status">Status</label><select id="operation-status" name="status"><option value="active">Available</option><option value="inactive">Inactive</option></select></div><div class="field-group"><label for="operation-unit">Unit</label><input id="operation-unit" name="unit" placeholder="piece, box, pair" /></div></div><div class="inventory-category-fields" data-inventory-category="Eyeglass Frame"><div class="field-row"><div class="field-group"><label for="operation-model">Model</label><input id="operation-model" name="model" /></div><div class="field-group"><label for="operation-color">Color</label><input id="operation-color" name="color" /></div></div><div class="field-row"><div class="field-group"><label for="operation-size">Size</label><input id="operation-size" name="size" /></div><div class="field-group"><label for="operation-gender">Gender / category</label><input id="operation-gender" name="gender" /></div></div></div><div class="inventory-category-fields" data-inventory-category="Lens"><div class="field-row"><div class="field-group"><label for="operation-lens-type">Lens type</label><input id="operation-lens-type" name="lensType" /></div><div class="field-group"><label for="operation-material">Material / index</label><input id="operation-material" name="materialIndex" /></div></div><div class="field-row"><div class="field-group"><label for="operation-coating">Coating</label><input id="operation-coating" name="coating" /></div><div class="field-group"><label for="operation-prescription-range">Prescription range</label><input id="operation-prescription-range" name="prescriptionRange" /></div></div></div><div class="inventory-category-fields" data-inventory-category="Contact Lens"><div class="field-row"><div class="field-group"><label for="operation-base-curve">Base curve</label><input id="operation-base-curve" name="baseCurve" /></div><div class="field-group"><label for="operation-diameter">Diameter</label><input id="operation-diameter" name="diameter" /></div></div><div class="field-row"><div class="field-group"><label for="operation-power">Power</label><input id="operation-power" name="power" /></div><div class="field-group"><label for="operation-expiration">Expiration date</label><input id="operation-expiration" name="expirationDate" type="date" /></div></div><div class="field-group"><label for="operation-batch">Batch / lot number</label><input id="operation-batch" name="batchLotNumber" /></div></div><div class="inventory-category-fields" data-inventory-category="Clinic Supply"><div class="field-row"><div class="field-group"><label for="operation-supply-type">Supply type</label><input id="operation-supply-type" name="supplyType" /></div><div class="field-group"><label for="operation-description">Description</label><input id="operation-description" name="description" /></div></div></div></>}
                           {['stock-movements', 'stock-in', 'stock-out', 'stock-adjustment'].includes(section) && <div class="field-row stock-movement-fields"><div class="field-group"><label for="operation-movement-type">{section === 'stock-adjustment' ? 'Adjustment type' : 'Movement type'}</label><select id="operation-movement-type" name={section === 'stock-adjustment' ? 'adjustmentType' : 'movementType'}>{section === 'stock-adjustment' ? <><option value="increase">Increase stock</option><option value="decrease">Decrease stock</option><option value="set">Set physical count</option></> : <><option value="stock-in">Stock In</option><option value="stock-out">Stock Out</option></>}</select></div><div class="field-group"><label for="operation-reason">Reason</label><input id="operation-reason" name="reason" required /></div><div class="field-group"><label for="operation-reference">Reference</label><input id="operation-reference" name="reference" /></div></div>}
                           <div class="confirmation-actions confirmation-actions--stacked">
                             <button type="button" class="btn btn-secondary" id="operation-form-cancel">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save {pageTitle}</button>
+                    <button type="submit" class="btn btn-primary">Save {pageTitle}</button>
                           </div>
-                          <p id="operation-status" class="form-status" aria-live="polite"></p>
-                        </form>
+                    <p id="operation-status" class="form-status" aria-live="polite"></p>
+                  </form>
                       </div>
                     </dialog>
                     <dialog id="operation-confirm-modal" class="confirmation-dialog">
@@ -475,16 +486,27 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
 
           {section === 'book-exam' && (
+            <>
+              <div class="booking-launch">
+                <button type="button" class="btn btn-primary" id="booking-form-toggle" aria-controls="booking-modal" aria-expanded="false">Book Appointment</button>
+              </div>
+              <dialog id="booking-modal" class="confirmation-dialog booking-dialog">
+                <div class="confirmation-dialog__content">
+                  <div class="dialog-header-row">
+                    <h3>Book Appointment</h3>
+                    <button type="button" class="btn btn-secondary btn-icon" id="booking-form-close" aria-label="Close booking form">×</button>
+                  </div>
             <form id="booking-workflow" class="workflow-form">
               <div class="booking-calendar">
                 <div class="calendar-heading"><strong id="calendar-month">Booking calendar</strong><div class="calendar-nav"><button type="button" id="calendar-prev" aria-label="Previous month">&lt;</button><button type="button" id="calendar-next" aria-label="Next month">&gt;</button></div></div>
                 <div class="calendar-grid" id="calendar-grid"></div>
               </div>
+                    <div class="booking-details">
               <div class="field-row">
                 <div class="field-group"><label for="workflow-service">Service</label><select id="workflow-service" name="service" required><option value="">Select a service</option><option>Comprehensive Eye Examination</option><option>Vision Assessment</option><option>Eye Health Screening</option><option>Optical Consultation</option></select></div>
                 <div class="field-group"><label for="workflow-date">Preferred date</label><input id="workflow-date" name="preferredDate" type="date" required /></div>
               </div>
-              <div id="clinic-hours-display" style="font-size: 0.9rem; color: #666; margin: -0.5rem 0 0.5rem 0; display: none;"></div>
+                      <div id="clinic-hours-display" style="font-size: 0.9rem; color: #666; margin: -0.5rem 0 0.5rem 0; display: none;"></div>
               <div class="field-row">
                 <div class="field-group"><label for="workflow-time">Available time</label><select id="workflow-time" name="preferredTime" required><option value="">Select a date first</option></select></div>
                 <div class="field-group"><label for="workflow-message">Appointment information</label><input id="workflow-message" name="message" placeholder="Reason for your visit" /></div>
@@ -492,28 +514,69 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <div class="review-panel"><strong>Review before confirmation</strong><span id="booking-review">Choose a service, date, and time.</span></div>
               <button type="submit" class="btn btn-primary">Confirm booking</button>
               <p class="form-status" id="booking-status" aria-live="polite"></p>
+                    </div>
             </form>
+                </div>
+              </dialog>
+              <dialog id="booking-result-modal" class="confirmation-dialog booking-result-dialog" aria-labelledby="booking-result-title">
+                <div class="confirmation-dialog__content">
+                  <div class="dialog-header-row">
+                    <h3 id="booking-result-title">Booking Confirmed</h3>
+                    <button type="button" class="btn btn-secondary btn-icon" id="booking-result-close" aria-label="Close booking result">×</button>
+                  </div>
+                  <div id="booking-result-message" class="booking-result-message"></div>
+                  <div id="booking-result-details" class="booking-result-details"></div>
+                  <div class="confirmation-actions booking-result-actions">
+                    <button type="button" class="btn btn-secondary" id="booking-result-secondary">Close</button>
+                    <button type="button" class="btn btn-primary" id="booking-result-primary">OK</button>
+                  </div>
+                </div>
+              </dialog>
+            </>
           )}
 
           {section === 'appointments' && (
-            <div class="workflow-list">
-              <div class="booking-calendar appointment-calendar">
-                <div class="calendar-heading"><strong id="appointment-calendar-month">Appointments calendar</strong><div class="calendar-nav"><button type="button" id="appointment-calendar-prev" aria-label="Previous month">&lt;</button><button type="button" id="appointment-calendar-next" aria-label="Next month">&gt;</button></div></div>
-                <div class="calendar-grid" id="appointment-calendar-grid"></div>
-              </div>
-              <div class="list-toolbar">
+            <div class="workflow-list appointments-workspace">
+              <div class="appointments-results">
+                <div class="appointments-filter-bar">
                 <input id="appointment-search" type="search" placeholder="Search patient or service" />
-                <select id="appointment-status-filter"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Rejected</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select>
+                <select id="appointment-status-filter"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select>
                 <input id="appointment-date-filter" type="date" aria-label="Filter by appointment date" />
               </div>
               <div id="appointment-list" class="appointment-list"><p class="empty-appointments">Loading appointments...</p></div>
               <div id="appointment-pagination" class="pagination" aria-label="Appointment pages"></div>
+                <p id="appointment-action-status" class="task-state" aria-live="polite" hidden></p>
+                <dialog id="appointment-reschedule-dialog" class="confirmation-dialog appointment-reschedule-dialog">
+                  <div class="confirmation-dialog__content">
+                    <div class="dialog-header-row"><h3>Reschedule appointment</h3><button type="button" class="btn btn-secondary btn-icon" id="appointment-reschedule-close" aria-label="Close reschedule dialog">×</button></div>
+                    <p id="appointment-reschedule-summary" class="booking-result-message"></p>
+                    <div class="field-row"><div class="field-group"><label for="appointment-reschedule-date">New appointment date</label><input id="appointment-reschedule-date" type="date" required /></div><div class="field-group"><label for="appointment-reschedule-time">New appointment time</label><select id="appointment-reschedule-time" required disabled><option value="">Select a date first</option></select></div></div>
+                    <p id="appointment-reschedule-error" class="form-status error" aria-live="polite"></p>
+                    <div class="confirmation-actions"><button type="button" class="btn btn-secondary" id="appointment-reschedule-cancel">Cancel</button><button type="button" class="btn btn-primary" id="appointment-reschedule-confirm">Confirm reschedule</button></div>
+                  </div>
+                </dialog>
+                <dialog id="appointment-detail-dialog" class="confirmation-dialog appointment-detail-dialog">
+                  <div class="confirmation-dialog__content">
+                    <div class="dialog-header-row"><h3 id="appointment-detail-title">Appointment details</h3><button type="button" class="btn btn-secondary btn-icon" id="appointment-detail-close" aria-label="Close appointment details">×</button></div>
+                    <div id="appointment-detail-content" class="appointment-detail-content"></div>
+                  </div>
+                </dialog>
+                <dialog id="appointment-correction-dialog" class="confirmation-dialog appointment-correction-dialog">
+                  <div class="confirmation-dialog__content">
+                    <div class="dialog-header-row"><h3>Correct completed record</h3><button type="button" class="btn btn-secondary btn-icon" id="appointment-correction-close" aria-label="Close correction dialog">×</button></div>
+                    <p class="booking-result-message">This will unlock the appointment for editing and log the reason for the correction.</p>
+                    <div class="field-row"><div class="field-group"><label for="appointment-correction-reason">Reason for correction</label><textarea id="appointment-correction-reason" rows="4" required placeholder="Explain why this completed appointment needs to be corrected."></textarea></div></div>
+                    <p id="appointment-correction-error" class="form-status error" aria-live="polite"></p>
+                    <div class="confirmation-actions"><button type="button" class="btn btn-secondary" id="appointment-correction-cancel">Cancel</button><button type="button" class="btn btn-primary" id="appointment-correction-confirm">Correct record</button></div>
+                  </div>
+                </dialog>
+              </div>
             </div>
           )}
 
           {section === 'today-patients' && ['owner', 'optometrist'].includes(role) && (
             <div class="workflow-list">
-              <div class="list-toolbar"><input id="today-patient-search" type="search" placeholder="Search patient or service" /><select id="today-patient-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Rejected</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select><input id="today-patient-date" type="date" aria-label="Today's patient date" /></div>
+              <div class="list-toolbar"><input id="today-patient-search" type="search" placeholder="Search patient or service" /><select id="today-patient-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select><input id="today-patient-date" type="date" aria-label="Today's patient date" /></div>
               <div id="today-patient-list" class="appointment-list"><p class="empty-appointments">Loading today's patients...</p></div>
               <div id="today-patient-pagination" class="pagination" aria-label="Today's patient pages"></div>
             </div>
@@ -542,7 +605,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             <div class="team-management-layout">
               <div class="team-management-create">
                 <div class="team-management-header">
-                  <h2>Create Clinic Staff Account</h2>
+                <h2>Create Clinic Staff Account</h2>
                   <button type="button" class="btn btn-secondary" id="admin-form-toggle" aria-expanded="false">Create account</button>
                 </div>
                 <dialog id="admin-create-modal" class="confirmation-dialog admin-form-dialog">
@@ -551,7 +614,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                       <h3>Create Clinic Staff Account</h3>
                       <button type="button" class="btn btn-secondary btn-icon" id="admin-create-close" aria-label="Close create account form">×</button>
                     </div>
-                    <form id="admin-user-form" class="workflow-form">
+                <form id="admin-user-form" class="workflow-form">
                       <div class="field-row">
                         <div class="field-group"><label for="admin-first-name">First Name</label><input id="admin-first-name" name="firstName" required /></div>
                         <div class="field-group"><label for="admin-middle-name">Middle Name</label><input id="admin-middle-name" name="middleName" /></div>
@@ -564,8 +627,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                         <button type="button" class="btn btn-secondary" id="admin-form-cancel">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save account</button>
                       </div>
-                      <p id="admin-status" class="form-status" aria-live="polite"></p>
-                    </form>
+                  <p id="admin-status" class="form-status" aria-live="polite"></p>
+                </form>
                   </div>
                 </dialog>
                 <dialog id="admin-confirm-modal" class="confirmation-dialog">
@@ -624,7 +687,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                       <section class="patient-form-section patient-form-step" data-step="5"><h4>Test</h4><textarea name="otherTests" rows="5" placeholder="Diagnosis, recommendation/s, next visit, and other tests"></textarea><h4>Job Order</h4><div class="field-row"><input name="jobOrderNo" placeholder="Job Order No." /><input name="orderDate" type="date" aria-label="Order Date" /><input name="invoiceNo" placeholder="Invoice No." /><input name="dueDate" type="date" aria-label="Due Date" /></div><div class="field-row"><input name="jobLens" placeholder="Lens" /><input name="jobFrame" placeholder="Frame" /></div><div class="record-form-grid job-order-grid"><strong></strong><strong>Sph</strong><strong>Cyl</strong><strong>Ax</strong><strong>Add</strong><strong>MPD</strong><strong>SH/FH</strong><strong>H:</strong><strong>Diag:</strong><strong>Cor:</strong><strong>OD</strong><input name="jobOdSph" /><input name="jobOdCyl" /><input name="jobOdAx" /><input name="jobOdAdd" /><input name="jobOdMpd" /><input name="jobOdShFh" /><input name="jobOdH" /><input name="jobOdDiag" /><input name="jobOdCor" /><strong>OS</strong><input name="jobOsSph" /><input name="jobOsCyl" /><input name="jobOsAx" /><input name="jobOsAdd" /><input name="jobOsMpd" /><input name="jobOsShFh" /><input name="jobOsH" /><input name="jobOsDiag" /><input name="jobOsCor" /></div><textarea name="jobNotes" rows="2" placeholder="Notes"></textarea><div class="field-row"><input name="claimDate" type="date" aria-label="Claim Date" /><input name="signature" placeholder="Name & Signature" /></div></section>
                       <section class="patient-form-section patient-form-step claim-stub-step" data-step="6"><h4>C L A I M&nbsp;&nbsp; S T U B</h4><div class="field-row"><input name="claimPatientName" placeholder="Patient Name" /><input name="visitDate" type="date" aria-label="Visit Date" /><input name="claimDueDate" type="date" aria-label="Due Date" /></div><div class="record-form-grid claim-grid"><strong>Item</strong><strong>From</strong><strong>Less</strong><strong>To</strong>{['Professional Fee','Frame','Lens','Contact Lens','Ophthalmic Drops','Others'].map((item) => <><label>{item}:</label><input name={`claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_from`} /><input name={`claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_less`} /><input name={`claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_to`} /></>)}<label>Down Payment:</label><input name="claimDownPayment" /><label>Balance:</label><input name="claimBalance" /></div><div class="claim-notes"><strong>NOTES:</strong><p>- Paid items not collected within <u>90 days</u> from the date of purchase will be <u>voided</u>.</p><p>- Please ensure all items are <u>FULLY PAID</u> before claiming.</p><p>- Present this form upon claiming your order.</p></div></section>
                       <div class="patient-step-actions"><button type="button" class="btn btn-secondary" id="patient-record-back">Back</button><button type="button" class="btn btn-secondary" id="patient-record-print">Print Patient Record</button><button type="button" class="btn btn-primary" id="patient-record-next">Next</button><button type="submit" class="btn btn-primary" id="patient-record-save">Save Patient Record</button></div><p id="patient-record-status" class="form-status" aria-live="polite"></p>
-                      <div class="confirmation-actions"><button type="button" class="btn btn-secondary" id="patient-record-cancel">Cancel</button><button type="submit" class="btn btn-primary">Save Patient Record</button></div><p id="patient-record-status" class="form-status" aria-live="polite"></p>
                     </form>
                   </div>
                 </dialog>
@@ -662,6 +724,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             </div>
           )}
         </section>
+          </>
         )
       )}
     </div>
@@ -671,8 +734,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     .patient-records-toolbar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: 1rem; }
     .patient-records-toolbar h2 { margin: 0; }
     .patient-records-toolbar p { margin: .25rem 0 0; color: var(--muted); }
-    .patient-record-dialog { width: min(1100px, calc(100vw - 2rem)); max-height: 92vh; }
-    .patient-record-form { max-height: calc(92vh - 5rem); overflow-y: auto; padding-right: .25rem; }
+    .patient-record-dialog { width: min(1100px, calc(100vw - 2rem)); max-height: min(92vh, calc(100vh - 2rem)); overflow: hidden; }
+    .patient-record-form { max-height: none; overflow: visible; padding-right: .25rem; }
     .patient-form-section { border: 1px solid var(--line); padding: 1rem; margin-bottom: .9rem; background: var(--surface); }
     .patient-form-step[hidden] { display: none; }
     .patient-progress { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .35rem; margin-bottom: 1rem; }
@@ -710,9 +773,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     @media (max-width: 760px) { .patient-records-toolbar, .patient-form-columns { display: grid; grid-template-columns: 1fr; } .patient-progress { grid-template-columns: repeat(7, minmax(100px, 1fr)); overflow-x: auto; } .refraction-grid, .ocular-grid, .job-order-grid { overflow-x: auto; min-width: 650px; } .record-form-grid { overflow-x: auto; } }
   </style>
 
-  <script define:vars={{ hmecLogoUrl }}>
+  <script>
     import { connectClinicRealtime } from '../../../scripts/realtimeClient.js';
     import * as XLSX from 'xlsx';
+
+    const hmecLogoUrl = document.querySelector('main')?.dataset.hmecLogo || '';
 
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const role = pathParts[1];
@@ -720,6 +785,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const token = localStorage.getItem('hmVisionToken');
     const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+    const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), timeout);
+      try {
+        return await fetch(url, { ...options, signal: options.signal || controller.signal });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    };
     const navigationData = {
       patient: { dashboard: 'Patient Dashboard', 'book-exam': 'Book an Appointment', appointments: 'Appointments', 'follow-ups': 'Follow-ups', 'medical-records': 'Medical Records', prescriptions: 'Prescriptions', notifications: 'Notifications', profile: 'Profile' },
       optometrist: { dashboard: 'Optometrist Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'patient-records': 'Patient Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups' },
@@ -764,10 +838,13 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       sidebarCollapseToggle.setAttribute('title', `${isCollapsed ? 'Expand' : 'Collapse'} sidebar`);
     });
 
+    const clearSessionState = () => {
+      ['hmVisionToken', 'hmVisionUser'].forEach((key) => localStorage.removeItem(key));
+    };
+
     const logout = (event) => {
       event.preventDefault();
-      localStorage.removeItem('hmVisionToken');
-      localStorage.removeItem('hmVisionUser');
+      clearSessionState();
       window.location.href = '/login';
     };
     document.getElementById('sidebar-logout')?.addEventListener('click', logout);
@@ -783,7 +860,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const loadNotifications = async () => {
       if (!notificationList) return;
       const headers = { Authorization: `Bearer ${token}` };
-      const appointmentResponse = await fetch(`${api}/api/appointments${role === 'patient' ? '/mine' : ''}`, { headers });
+      const appointmentResponse = await fetchWithTimeout(`${api}/api/appointments${role === 'patient' ? '/mine' : ''}`, { headers });
       const appointmentResult = await appointmentResponse.json();
       const notifications = [];
       const today = new Date().toISOString().slice(0, 10);
@@ -791,11 +868,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         if (item.preferredDate >= today && ['pending', 'confirmed'].includes(item.status)) notifications.push({ id: `appointment-${item._id}-${item.status}`, text: `${role === 'patient' ? 'Appointment' : `Appointment request from ${item.name}`} ${item.status} for ${item.preferredDate}.`, href: `/dashboard/${role}/appointments` });
       });
       if (['owner', 'optometrist'].includes(role)) {
-        const followUpResponse = await fetch(`${api}/api/follow-ups`, { headers });
+        const followUpResponse = await fetchWithTimeout(`${api}/api/follow-ups`, { headers });
         const followUpResult = await followUpResponse.json();
         (followUpResult.followUps || []).forEach((item) => { if (['requested', 'scheduled'].includes(item.status)) notifications.push({ id: `follow-up-${item._id}-${item.status}`, text: `Follow-up ${item.status} for ${item.patientName}.`, href: `/dashboard/${role}/follow-ups` }); });
       } else if (role === 'patient') {
-        const followUpResponse = await fetch(`${api}/api/follow-ups/mine`, { headers });
+        const followUpResponse = await fetchWithTimeout(`${api}/api/follow-ups/mine`, { headers });
         const followUpResult = await followUpResponse.json();
         (followUpResult.followUps || []).forEach((item) => { if (['requested', 'scheduled'].includes(item.status)) notifications.push({ id: `follow-up-${item._id}-${item.status}`, text: `Your follow-up is ${item.status}.`, href: `/dashboard/${role}/follow-ups` }); });
       }
@@ -841,6 +918,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const dashboardDate = (value) => value ? new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Date to be confirmed';
     const formatPeso = (value) => `₱${Number(value || 0).toLocaleString('en-PH', { maximumFractionDigits: 0 })}`;
     const formatWhen = (value) => value ? new Date(value).toLocaleString(undefined, { month: 'short', day: 'numeric' }) : '';
+    const formatTo12Hour = (time24) => {
+      if (!time24) return 'Time to be confirmed';
+      const trimmed = String(time24).trim();
+      if (!/^\d{1,2}:\d{2}$/.test(trimmed)) return trimmed;
+      const [hour, minute] = trimmed.split(':').map(Number);
+      const period = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+      return `${hour12}:${String(minute).padStart(2, '0')} ${period}`;
+    };
     const renderOwnerDashboard = (summary) => {
       const metrics = summary.metrics || {};
       const owner = summary.ownerMetrics || {};
@@ -849,7 +935,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const trendBars = trend.length
         ? trend.map((item) => `<div class="trend-bar" title="${item._id}: ${item.count} appointment${item.count === 1 ? '' : 's'}"><span style="height: ${(item.count / maximum) * 100}%"></span><small>${dashboardDate(item._id)}</small></div>`).join('')
         : '<p class="bento-empty">No appointment data for this period.</p>';
-      const upcomingRows = (summary.upcomingAppointments || []).slice(0, 4).map((appointment) => `<li><span><strong>${escapeHtml(appointment.preferredTime || 'TBD')}</strong><small>${escapeHtml(appointment.name || appointment.service)}</small></span><time>${dashboardDate(appointment.preferredDate)}</time></li>`).join('');
+      const upcomingRows = (summary.upcomingAppointments || []).slice(0, 4).map((appointment) => `<li><span><strong>${escapeHtml(formatTo12Hour(appointment.preferredTime))}</strong><small>${escapeHtml(appointment.name || appointment.service)}</small></span><time>${dashboardDate(appointment.preferredDate)}</time></li>`).join('');
       const alertRows = (owner.inventoryAlerts || []).map((item) => `<li><span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.sku || 'No SKU')}</small></span><strong>${item.quantity}</strong></li>`).join('');
       const transactionRows = (owner.recentTransactions || []).map((item) => `<li><span><strong>${escapeHtml(item.method || 'Payment')}</strong><small>${formatWhen(item.createdAt)}</small></span><strong>${formatPeso(item.amount)}</strong></li>`).join('');
       const activityRows = (owner.recentActivity || []).map((item) => `<li><span><strong>${escapeHtml(item.action)}</strong><small>${escapeHtml(item.actor)}</small></span><time>${formatWhen(item.createdAt)}</time></li>`).join('');
@@ -915,15 +1001,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       if (!dashboardBento) return;
       const metrics = summary.metrics || {};
       const isPatient = summary.role === 'patient';
-      const appointmentRows = (summary.upcomingAppointments || []).map((appointment) => `<li><span><strong>${escapeHtml(appointment.preferredTime || 'Time pending')}</strong><small>${escapeHtml(appointment.service)}</small></span><time datetime="${escapeHtml(appointment.preferredDate)}">${dashboardDate(appointment.preferredDate)}</time></li>`).join('');
+      const appointmentRows = (summary.upcomingAppointments || []).map((appointment) => `<li><span><strong>${escapeHtml(formatTo12Hour(appointment.preferredTime || 'Time pending'))}</strong><small>${escapeHtml(appointment.service)}</small></span><time datetime="${escapeHtml(appointment.preferredDate)}">${dashboardDate(appointment.preferredDate)}</time></li>`).join('');
       if (isPatient) {
         dashboardBento.innerHTML = `
-          <a class="bento-card bento-card-wide" href="/dashboard/${role}/appointments"><span class="bento-label">Upcoming appointment</span><strong class="bento-number">${appointmentRows ? escapeHtml(summary.upcomingAppointments[0].service) : 'No data available'}</strong><span class="bento-meta">${appointmentRows ? `${dashboardDate(summary.upcomingAppointments[0].preferredDate)} · ${escapeHtml(summary.upcomingAppointments[0].preferredTime || 'Time pending')}` : 'Book a visit when you are ready.'}</span></a>
+          <a class="bento-card bento-card-wide" href="/dashboard/${role}/appointments"><span class="bento-label">Upcoming appointment</span><strong class="bento-number">${appointmentRows ? escapeHtml(summary.upcomingAppointments[0].service) : 'No data available'}</strong><span class="bento-meta">${appointmentRows ? `${dashboardDate(summary.upcomingAppointments[0].preferredDate)} · ${escapeHtml(formatTo12Hour(summary.upcomingAppointments[0].preferredTime || 'Time pending'))}` : 'Book a visit when you are ready.'}</span></a>
           <a class="bento-card" href="/dashboard/${role}/appointments"><span class="bento-label">Appointments</span><strong class="bento-number">${dashboardValue(metrics.appointments)}</strong><span class="bento-meta">${dashboardValue(metrics.upcomingAppointments)} upcoming</span></a>
           <a class="bento-card" href="/dashboard/${role}/medical-records"><span class="bento-label">Clinical records</span><strong class="bento-number">${dashboardValue(metrics.clinicalRecords)}</strong><span class="bento-meta">Your care history</span></a>
           <a class="bento-card" href="/dashboard/${role}/follow-ups"><span class="bento-label">Follow-ups</span><strong class="bento-number">${dashboardValue(metrics.followUps)}</strong><span class="bento-meta">Open requests</span></a>
           <section class="bento-card bento-card-large"><div class="bento-card-heading"><span class="bento-label">Your next visits</span><a href="/dashboard/${role}/appointments">View all</a></div>${appointmentRows ? `<ul class="bento-list">${appointmentRows}</ul>` : '<p class="bento-empty">No upcoming appointments.</p>'}</section>
-          <a class="bento-action" href="/dashboard/${role}/book-exam">Book an appointment <span aria-hidden="true">+</span></a>`;
+          `;
         return;
       }
       if (role === 'owner') {
@@ -950,19 +1036,17 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
     const loadDashboard = async () => {
       if (!dashboardBento || section !== 'dashboard') return;
-      dashboardRetry.hidden = true;
+      if (dashboardRetry) dashboardRetry.hidden = true;
       dashboardBento.innerHTML = '<div class="bento-loading" aria-label="Loading dashboard analytics"><span></span><span></span><span></span><span></span></div>';
       try {
-        const response = await fetch(`${api}/api/workspace/dashboard-summary`, { headers: { Authorization: `Bearer ${token}` } });
+        const response = await fetchWithTimeout(`${api}/api/workspace/dashboard-summary`, { headers: { Authorization: `Bearer ${token}` } });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to load analytics.');
         renderDashboard(result);
       } catch {
         dashboardBento.innerHTML = '<div class="bento-error"><strong>Unable to load analytics.</strong><span>Try again to refresh this overview.</span></div>';
-        dashboardRetry.hidden = false;
       }
     };
-    dashboardRetry?.addEventListener('click', loadDashboard);
     loadDashboard();
     const appointmentList = document.getElementById('appointment-list') || document.getElementById('today-patient-list');
     const appointmentSearch = document.getElementById('appointment-search') || document.getElementById('today-patient-search');
@@ -971,43 +1055,506 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const appointmentPagination = document.getElementById('appointment-pagination') || document.getElementById('today-patient-pagination');
     const appointmentCalendarGrid = document.getElementById('appointment-calendar-grid');
     const appointmentCalendarMonth = document.getElementById('appointment-calendar-month');
+    const appointmentMainCalendarGrid = document.getElementById('appointment-main-calendar-grid');
+    const appointmentCalendarViewTitle = document.getElementById('appointment-calendar-view-title');
+    const appointmentStatList = document.getElementById('appointment-stat-list');
+    const appointmentDatePicker = document.querySelector('.appointment-date-picker');
+    const appointmentDateTrigger = document.getElementById('appointment-date-trigger');
+    const appointmentDateLabel = document.getElementById('appointment-date-label');
+    const appointmentCalendarPopover = document.getElementById('appointment-calendar-popover');
+    const appointmentCalendarClear = document.getElementById('appointment-calendar-clear');
+    const appointmentCalendarApply = document.getElementById('appointment-calendar-apply');
+    const appointmentActionStatus = document.getElementById('appointment-action-status');
+    const rescheduleDialog = document.getElementById('appointment-reschedule-dialog');
+    const rescheduleDateInput = document.getElementById('appointment-reschedule-date');
+    const rescheduleTimeInput = document.getElementById('appointment-reschedule-time');
+    const rescheduleSummary = document.getElementById('appointment-reschedule-summary');
+    const rescheduleError = document.getElementById('appointment-reschedule-error');
+    const rescheduleConfirm = document.getElementById('appointment-reschedule-confirm');
+    const appointmentDetailDialog = document.getElementById('appointment-detail-dialog');
+    const appointmentDetailTitle = document.getElementById('appointment-detail-title');
+    const appointmentDetailContent = document.getElementById('appointment-detail-content');
+    const appointmentCorrectionDialog = document.getElementById('appointment-correction-dialog');
+    const appointmentCorrectionReason = document.getElementById('appointment-correction-reason');
+    const appointmentCorrectionError = document.getElementById('appointment-correction-error');
+    const appointmentCorrectionConfirm = document.getElementById('appointment-correction-confirm');
     let appointments = [];
     let appointmentPage = 1;
+    let pendingReschedule = null;
+    let pendingCompletedCorrection = null;
+    let appointmentCalendarSelection = '';
+    let appointmentCalendarView = 'month';
+    let appointmentSort = { key: 'preferredDate', direction: 'desc' };
     const pageSize = 5;
+
+    const renderAppointmentStats = () => {
+      if (!appointmentStatList) return;
+      const today = new Date().toISOString().slice(0, 10);
+      const active = appointments.filter((item) => item.status !== 'cancelled');
+      const stats = [
+        ['Today', active.filter((item) => item.preferredDate === today).length, 'calendar'],
+        ['Upcoming', active.filter((item) => item.preferredDate >= today && !['completed', 'no-show'].includes(item.status)).length, 'clock'],
+        ['Completed', appointments.filter((item) => item.status === 'completed').length, 'check'],
+        ['Cancelled', appointments.filter((item) => item.status === 'cancelled').length, 'x'],
+      ];
+      appointmentStatList.innerHTML = stats.map(([label, value, icon]) => `<div class="appointment-stat-card"><span class="appointment-stat-icon" aria-hidden="true">${icon === 'check' ? '✓' : icon === 'x' ? '×' : icon === 'clock' ? '◷' : '▣'}</span><span class="appointment-stat-label">${label}</span><strong>${value}</strong></div>`).join('');
+    };
+
+    const normalizePatientValue = (value) => String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    const formatAppointmentDate = (value) => value ? new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'All dates';
+    const updateAppointmentDateUi = () => {
+      const value = appointmentDateFilter?.value || '';
+      if (appointmentDateLabel) appointmentDateLabel.textContent = formatAppointmentDate(value);
+    };
+
+    const closeAppointmentCalendar = () => {
+      if (appointmentCalendarPopover) appointmentCalendarPopover.hidden = true;
+      appointmentDateTrigger?.setAttribute('aria-expanded', 'false');
+    };
+
+    const showAppointmentActionStatus = (message, type) => {
+      if (!appointmentActionStatus) return;
+      appointmentActionStatus.textContent = message;
+      appointmentActionStatus.className = `task-state ${type}`;
+      appointmentActionStatus.hidden = false;
+      window.clearTimeout(showAppointmentActionStatus.timeout);
+      showAppointmentActionStatus.timeout = window.setTimeout(() => { appointmentActionStatus.hidden = true; }, 5000);
+    };
+
+    const closeRescheduleDialog = () => {
+      pendingReschedule = null;
+      rescheduleError && (rescheduleError.textContent = '');
+      rescheduleDialog?.close();
+    };
+
+    const closeCorrectionDialog = () => {
+      pendingCompletedCorrection = null;
+      if (appointmentCorrectionReason) appointmentCorrectionReason.value = '';
+      if (appointmentCorrectionError) appointmentCorrectionError.textContent = '';
+      appointmentCorrectionDialog?.close();
+    };
+
+    const openCorrectionDialog = (button) => {
+      const appointment = appointments.find((item) => item._id === button.dataset.appointmentId);
+      if (!appointment || !appointmentCorrectionDialog) return;
+      pendingCompletedCorrection = appointment;
+      if (appointmentCorrectionError) appointmentCorrectionError.textContent = '';
+      if (appointmentCorrectionReason) appointmentCorrectionReason.value = '';
+      appointmentCorrectionDialog.showModal();
+      appointmentCorrectionReason?.focus();
+    };
+
+    const loadRescheduleTimes = async (date, preferredTime = '') => {
+      if (!rescheduleTimeInput) return;
+      rescheduleTimeInput.disabled = true;
+      rescheduleTimeInput.innerHTML = '<option value="">Loading clinic hours...</option>';
+      if (!date) return;
+      try {
+        const response = await fetch(`${api}/api/appointments/availability?date=${encodeURIComponent(date)}`);
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to load clinic hours.');
+        const slots = result.slots || [];
+        if (!slots.length) {
+          rescheduleTimeInput.innerHTML = `<option value="">${result.scheduleInfo?.operatingDay ? 'No available times' : 'Clinic closed on this date'}</option>`;
+          if (rescheduleError && !result.scheduleInfo?.operatingDay) rescheduleError.textContent = 'Choose an operating clinic date.';
+          return;
+        }
+        rescheduleTimeInput.innerHTML = '<option value="">Select a time</option>' + slots.map((slot) => `<option value="${slot.time24Hr}">${slot.time}</option>`).join('');
+        rescheduleTimeInput.disabled = false;
+        if (preferredTime && slots.some((slot) => slot.time24Hr === preferredTime)) rescheduleTimeInput.value = preferredTime;
+      } catch (error) {
+        rescheduleTimeInput.innerHTML = '<option value="">Unable to load times</option>';
+        if (rescheduleError) rescheduleError.textContent = error.message || 'Unable to load clinic hours.';
+      }
+    };
+
+    const openRescheduleDialog = (button) => {
+      const appointment = appointments.find((item) => item._id === button.dataset.appointmentId);
+      if (!appointment || !rescheduleDialog || !rescheduleDateInput) return;
+      pendingReschedule = { appointment, button };
+      const today = new Date().toISOString().slice(0, 10);
+      rescheduleDateInput.min = today;
+      rescheduleDateInput.value = appointment.preferredDate >= today ? appointment.preferredDate : '';
+      if (rescheduleError) rescheduleError.textContent = '';
+      if (rescheduleSummary) rescheduleSummary.textContent = `Choose a new date for ${appointment.name}'s ${appointment.service}.`;
+      rescheduleDialog.showModal();
+      rescheduleDateInput.focus();
+      loadRescheduleTimes(rescheduleDateInput.value, appointment.preferredTime || '');
+    };
+
+    const openAppointmentDetails = (button) => {
+      const appointment = appointments.find((item) => item._id === button.dataset.appointmentId);
+      if (!appointment || !appointmentDetailDialog || !appointmentDetailContent) return;
+      appointmentDetailTitle.textContent = 'Patient Record';
+      const patientName = appointment.name || 'Patient';
+      const patientFirstName = patientName.split(' ')[0] || 'Patient';
+      const statusValue = appointment.status || 'pending';
+      const statusLabel = appointmentStatusLabel(statusValue);
+      const timeText = formatTo12Hour(appointment.preferredTime || 'Time to be confirmed');
+      const appointmentDate = appointment.preferredDate ? new Date(`${appointment.preferredDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date to be confirmed';
+      const recentVisits = [
+        { label: 'Last visit', value: appointmentDate },
+        { label: 'Concern', value: appointment.service || 'General eye assessment' },
+        { label: 'Status', value: statusLabel },
+      ];
+      const clinicalNote = escapeHtml((appointment.notes || 'No visit notes recorded yet.').replace(/\s+/g, ' ').trim());
+      const patientEmail = escapeHtml(appointment.email || 'No email provided');
+      const patientPhone = escapeHtml(appointment.phone || 'No phone number on file');
+      appointmentDetailContent.innerHTML = `
+        <div class="patient-record-shell">
+          <div class="patient-record-header">
+            <div class="patient-record-avatar" aria-hidden="true">${escapeHtml(patientFirstName.charAt(0).toUpperCase() || 'P')}</div>
+            <div class="patient-record-header-copy">
+              <h4>${escapeHtml(patientName)}</h4>
+              <p>${escapeHtml(appointment.service || 'Eye care consultation')}</p>
+            </div>
+          </div>
+
+          <div class="patient-record-grid">
+            <section class="patient-record-panel">
+              <h5>Patient details</h5>
+              <dl>
+                <div><dt>Email</dt><dd>${patientEmail}</dd></div>
+                <div><dt>Phone</dt><dd>${patientPhone}</dd></div>
+                <div><dt>Preferred service</dt><dd>${escapeHtml(appointment.service || 'Eye consultation')}</dd></div>
+              </dl>
+            </section>
+
+            <section class="patient-record-panel">
+              <h5>Current visit</h5>
+              <dl>
+                <div><dt>Date</dt><dd>${escapeHtml(appointmentDate)}</dd></div>
+                <div><dt>Time</dt><dd>${escapeHtml(timeText)}</dd></div>
+                <div><dt>Status</dt><dd><span class="appointment-status status-${escapeHtml(statusValue)}">${escapeHtml(statusLabel)}</span></dd></div>
+              </dl>
+            </section>
+          </div>
+
+          <section class="patient-record-panel">
+            <h5>Clinical snapshot</h5>
+            <ul class="patient-record-list">
+              ${recentVisits.map((entry) => `<li><strong>${escapeHtml(entry.label)}:</strong> <span>${escapeHtml(entry.value)}</span></li>`).join('')}
+              <li><strong>Care notes:</strong> <span>${clinicalNote}</span></li>
+            </ul>
+          </section>
+
+        </div>
+      `;
+
+      appointmentDetailContent.querySelector('.patient-record-reschedule')?.addEventListener('click', () => openRescheduleDialog({ dataset: { appointmentId: appointment._id } }));
+      appointmentDetailContent.querySelectorAll('.patient-record-action').forEach((actionButton) => {
+        actionButton.addEventListener('click', async () => {
+          const nextStatus = actionButton.dataset.status;
+          if (!nextStatus) return;
+          actionButton.disabled = true;
+          try {
+            const response = await fetch(`${api}/api/appointments/${appointment._id}/status`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ status: nextStatus }),
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.message || 'The appointment action failed.');
+            appointments = appointments.map((item) => item._id === appointment._id ? { ...item, status: nextStatus } : item);
+            showAppointmentActionStatus('Patient record updated successfully.', 'success');
+            renderAppointmentStats();
+            renderMainAppointmentCalendar();
+            renderAppointmentPage();
+            appointmentDetailDialog.close();
+          } catch (error) {
+            showAppointmentActionStatus(error.message || 'The appointment action failed.', 'error');
+          } finally {
+            actionButton.disabled = false;
+          }
+        });
+      });
+
+      appointmentDetailDialog.showModal();
+    };
 
     if (section === 'today-patients' && appointmentDateFilter) appointmentDateFilter.value = new Date().toISOString().slice(0, 10);
 
-    const appointmentActions = (appointment) => {
-      if (role === 'patient') return '<span class="appointment-action-empty">-</span>';
-      const actions = {
-        pending: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
-        confirmed: [['completed', 'Mark completed'], ['rescheduled', 'Reschedule'], ['cancelled', 'Cancel']],
-        rescheduled: [['confirmed', 'Confirm patient'], ['cancelled', 'Reject']],
+    const appointmentIcons = {
+      clinical: '<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M6 3h9l3 3v15H6V3Zm9 0v4h3M9 12h6m-6 4h4" /></svg>',
+      view: '<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="2.5" /></svg>',
+      profile: '<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M7 18a5 5 0 0 1 10 0M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" /></svg>',
+      reschedule: '<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M7 3v4m10-4v4M4 9h16M5 5h14a1 1 0 0 1 1 1v13H4V6a1 1 0 0 1 1-1Zm12 9-2 2-2-2m2 2v-4" /></svg>',
+      cancel: '<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="m6 6 12 12M18 6 6 18" /></svg>',
+      confirm: '<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="m5 12 4 4L19 6" /></svg>',
+      complete: '<svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="m5 12 4 4L19 6" /></svg>',
+    };
+
+    const appointmentRecordsHref = () => `/dashboard/${role}/${['owner', 'optometrist'].includes(role) ? 'patient-records' : 'clinical-records'}`;
+    const appointmentStatusLabel = (status) => ({
+      pending: 'Pending',
+      confirmed: 'Scheduled',
+      completed: 'Completed',
+      cancelled: 'Cancelled',
+      rescheduled: 'Rescheduled',
+      'no-show': 'No-show',
+    }[status] || status);
+    const appointmentWhenLabel = (item) => {
+      const today = new Date().toISOString().slice(0, 10);
+      const next = new Date();
+      next.setDate(next.getDate() + 1);
+      const tomorrow = next.toISOString().slice(0, 10);
+      const datePart = !item.preferredDate ? 'Date TBD' : item.preferredDate === today ? 'Today' : item.preferredDate === tomorrow ? 'Tomorrow' : formatAppointmentDate(item.preferredDate);
+      return `${datePart} • ${formatTo12Hour(item.preferredTime || 'Time TBD')}`;
+    };
+    const kebabButton = () => '<button type="button" class="btn appointment-kebab-trigger" aria-haspopup="true" aria-expanded="false" aria-label="More actions" title="More actions"><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" /></svg></button>';
+    const goToBookingFlow = (service = '') => {
+      const params = new URLSearchParams();
+      if (service) params.set('service', service);
+      const url = `/dashboard/patient/book-exam${params.size ? `?${params.toString()}` : ''}`;
+      window.location.href = url;
+    };
+    const patientAppointmentMenu = (appointment) => {
+      const menuOptions = {
+        pending: [
+          ['reschedule', 'Reschedule'],
+          ['cancelled', 'Cancel'],
+        ],
+        confirmed: [
+          ['reschedule', 'Reschedule'],
+        ],
+        rescheduled: [
+          ['reschedule', 'Reschedule'],
+        ],
+        completed: [
+          ['follow-up', 'Book follow-up'],
+        ],
+        cancelled: [
+          ['book-again', 'Book again'],
+        ],
       }[appointment.status] || [];
-      if (appointment.status === 'completed' || appointment.status === 'cancelled') return `<a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/${['owner', 'optometrist'].includes(role) ? 'patient-records' : 'clinical-records'}">View</a><a class="btn btn-secondary appointment-action-link" href="/dashboard/${role}/${['owner', 'optometrist'].includes(role) ? 'patient-records' : 'clinical-records'}">View Clinical Record</a>${appointment.status === 'cancelled' ? '<button type="button" class="btn btn-secondary appointment-action action-rescheduled" data-appointment-id="' + escapeHtml(appointment._id) + '" data-status="rescheduled">Reschedule</button>' : ''}`;
-      return actions.map(([status, label]) => `<button type="button" class="btn btn-secondary appointment-action action-${status}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${status}">${label}</button>`).join('');
+
+      const items = menuOptions.map(([status, label]) => {
+        const isDanger = status === 'cancelled';
+        const actionType = status === 'reschedule' ? 'reschedule' : status === 'cancelled' ? 'cancelled' : status === 'follow-up' ? 'follow-up' : status === 'book-again' ? 'book-again' : status;
+        const buttonText = status === 'cancelled'
+          ? 'Cancel'
+          : status === 'reschedule'
+            ? 'Reschedule'
+            : status === 'follow-up'
+              ? 'Book follow-up'
+              : 'Book again';
+        return `<button type="button" class="btn btn-secondary appointment-action ${isDanger ? 'is-danger' : ''} action-${actionType}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${actionType}" data-service="${escapeHtml(appointment.service || '')}">${buttonText}</button>`;
+      }).join('');
+
+      return `<div class="appointment-inline-actions">${items}</div>`;
+    };
+    const appointmentKebabMenu = (appointment) => {
+      if (role === 'patient') return patientAppointmentMenu(appointment);
+      const actions = {
+        pending: [['confirmed', `${appointmentIcons.confirm}Confirm patient`], ['cancelled', `${appointmentIcons.cancel}Reject`], ['rescheduled', `${appointmentIcons.reschedule}Reschedule`]],
+        confirmed: [['completed', `${appointmentIcons.complete}Mark completed`], ['rescheduled', `${appointmentIcons.reschedule}Reschedule`], ['cancelled', `${appointmentIcons.cancel}Cancel`]],
+        rescheduled: [['confirmed', `${appointmentIcons.confirm}Confirm patient`], ['cancelled', `${appointmentIcons.cancel}Reject`], ['rescheduled', `${appointmentIcons.reschedule}Reschedule`]],
+        completed: [],
+        cancelled: [['confirmed', `${appointmentIcons.confirm}Confirm patient`], ['rescheduled', `${appointmentIcons.reschedule}Reschedule`], ['completed', `${appointmentIcons.complete}Mark completed`]],
+      }[appointment.status] || [];
+      const correctionAction = role === 'owner'
+        ? `<button type="button" class="appointment-kebab-item appointment-action action-correct-completed" data-appointment-id="${escapeHtml(appointment._id)}" data-status="correct-completed">${appointmentIcons.cancel}Void / Correct record</button>`
+        : '';
+      const defaultActions = appointment.status === 'completed'
+        ? correctionAction
+        : actions.map(([status, label]) => `<button type="button" class="appointment-kebab-item appointment-action action-${status}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${status}">${label}</button>`).join('');
+      return `<div class="appointment-kebab-menu">${kebabButton()}<div class="appointment-kebab-dropdown" role="menu" hidden>${defaultActions}</div></div>`;
+    };
+    const appointmentPrimaryAction = (appointment) => {
+      if (role === 'patient') return '';
+      if (appointment.status === 'completed' || appointment.status === 'cancelled') {
+        return `<a class="btn appointment-action-link appointment-clinical-record-action" href="${appointmentRecordsHref()}">${appointmentIcons.clinical}View Clinical Record</a>`;
+      }
+      return `<button type="button" class="btn appointment-overview-action appointment-detail-action" data-appointment-id="${escapeHtml(appointment._id)}">${appointmentIcons.profile}View Patient Record</button>`;
+    };
+
+    const appointmentActions = (appointment) => {
+      if (role === 'patient') return patientAppointmentMenu(appointment);
+      return `${appointmentPrimaryAction(appointment)}${appointmentKebabMenu(appointment)}`;
+    };
+    const appointmentCardMarkup = (item) => {
+      const dimmed = item.status === 'cancelled' ? ' appointment-row-cancelled' : '';
+      const primary = appointmentPrimaryAction(item);
+      const patientActions = role === 'patient' ? appointmentActions(item) : '';
+      return `<article class="appointment-mobile-card${dimmed}"><div class="appointment-mobile-card-header"><strong>${escapeHtml(item.name || 'Patient')}</strong>${role !== 'patient' ? appointmentKebabMenu(item) : ''}</div><p class="appointment-mobile-card-service">${escapeHtml(item.service || 'Appointment')}</p><p class="appointment-mobile-card-when">${escapeHtml(appointmentWhenLabel(item))}</p><p class="appointment-mobile-card-status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(appointmentStatusLabel(item.status))}</span></p>${primary ? `<div class="appointment-mobile-card-actions">${primary}</div>` : ''}${patientActions ? `<div class="appointment-mobile-card-actions">${patientActions}</div>` : ''}</article>`;
     };
 
     const renderAppointmentPage = () => {
-      const query = (appointmentSearch?.value || '').toLowerCase().trim();
+      const query = normalizePatientValue(appointmentSearch?.value);
       const status = appointmentStatusFilter?.value || '';
       const date = appointmentDateFilter?.value || '';
-      const filtered = appointments.filter((item) => (!status || item.status === status) && (!date || item.preferredDate === date) && (!query || `${item.name} ${item.email} ${item.service}`.toLowerCase().includes(query)));
+      const filtered = appointments.filter((item) => (!status || item.status === status) && (!date || item.preferredDate === date) && (!query || `${normalizePatientValue(item.name)} ${normalizePatientValue(item.email)} ${normalizePatientValue(item.service)}`.includes(query)));
+      filtered.sort((left, right) => {
+        const leftDate = String(left.preferredDate || '').trim();
+        const rightDate = String(right.preferredDate || '').trim();
+        const dateCompare = (leftDate === rightDate ? 0 : leftDate > rightDate ? 1 : -1) * (appointmentSort.direction === 'asc' ? 1 : -1);
+        if (leftDate || rightDate) return dateCompare || (new Date(right.createdAt || 0).getTime() - new Date(left.createdAt || 0).getTime());
+        const leftValue = normalizePatientValue(left[appointmentSort.key]);
+        const rightValue = normalizePatientValue(right[appointmentSort.key]);
+        return leftValue.localeCompare(rightValue) * (appointmentSort.direction === 'asc' ? 1 : -1);
+      });
       const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
       appointmentPage = Math.min(appointmentPage, pages);
       const visible = filtered.slice((appointmentPage - 1) * pageSize, appointmentPage * pageSize);
-      appointmentList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Examination / Appointment</th><th scope="col">Patient</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service)}</strong></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></td><td data-label="Actions"><div class="appointment-actions">${appointmentActions(item)}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No appointments match these filters.</p>';
+      const tableHeaders = role === 'patient'
+        ? '<tr><th scope="col" data-sort-key="service">Examination / Appointment</th><th scope="col" data-sort-key="preferredDate">Date</th><th scope="col">Time</th><th scope="col">Status</th><th scope="col">Actions</th></tr>'
+        : '<tr><th scope="col" data-sort-key="service">Examination / Appointment</th><th scope="col" data-sort-key="name">Patient</th><th scope="col" data-sort-key="preferredDate">Date</th><th scope="col">Time</th><th scope="col">Status</th><th scope="col">Actions</th></tr>';
+      appointmentList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead>${tableHeaders}</thead><tbody>${visible.map((item) => { const hasKebab = role !== 'patient'; const dimmed = item.status === 'cancelled' ? ' appointment-row-cancelled' : ''; const patientRow = role === 'patient'
+          ? `<tr class="${dimmed}"><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service || 'Appointment')}</strong><small>${escapeHtml(item.name || 'Patient')}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Time">${escapeHtml(formatTo12Hour(item.preferredTime || 'Time to be confirmed'))}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(appointmentStatusLabel(item.status))}</span></td><td class="${hasKebab ? 'appointment-actions-cell-with-kebab' : ''}" data-label="Actions"><div class="appointment-actions ${hasKebab ? 'appointment-actions-with-kebab' : ''}">${appointmentActions(item)}</div></td></tr>`
+          : `<tr class="${dimmed}"><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service)}</strong></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Time">${escapeHtml(formatTo12Hour(item.preferredTime || 'Time to be confirmed'))}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(appointmentStatusLabel(item.status))}</span></td><td class="${hasKebab ? 'appointment-actions-cell-with-kebab' : ''}" data-label="Actions"><div class="appointment-actions ${hasKebab ? 'appointment-actions-with-kebab' : ''}">${appointmentActions(item)}</div></td></tr>`;
+          return patientRow; }).join('')}</tbody></table></div><div class="appointment-mobile-list">${visible.map(appointmentCardMarkup).join('')}</div>` : '<p class="empty-appointments">No appointments match these filters.</p>';
+      appointmentList.querySelectorAll('[data-sort-key]').forEach((header) => header.addEventListener('click', () => { const key = header.dataset.sortKey; appointmentSort = { key, direction: appointmentSort.key === key && appointmentSort.direction === 'asc' ? 'desc' : 'asc' }; renderAppointmentPage(); }));
       appointmentPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : '';
       appointmentPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { appointmentPage -= 1; renderAppointmentPage(); });
       appointmentPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { appointmentPage += 1; renderAppointmentPage(); });
+      appointmentList.querySelectorAll('.appointment-detail-action').forEach((button) => button.addEventListener('click', () => openAppointmentDetails(button)));
       appointmentList.querySelectorAll('.appointment-action').forEach((button) => button.addEventListener('click', async () => {
+        const actionStatus = button.dataset.status;
+        if (actionStatus === 'reschedule' || actionStatus === 'rescheduled') {
+          openRescheduleDialog(button);
+          return;
+        }
+        if (actionStatus === 'follow-up') {
+          goToBookingFlow(button.dataset.service || '');
+          return;
+        }
+        if (actionStatus === 'book-again') {
+          goToBookingFlow(button.dataset.service || '');
+          return;
+        }
+        if (actionStatus === 'correct-completed') {
+          openCorrectionDialog(button);
+          return;
+        }
         button.disabled = true;
-        const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: button.dataset.status }) });
-        if (!response.ok) { button.disabled = false; return; }
-        appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? { ...item, status: button.dataset.status } : item);
-        renderAppointmentPage();
+        try {
+          if (role === 'patient' && actionStatus === 'cancelled') {
+            const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: 'cancelled' }) });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.message || 'The appointment action failed.');
+            appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? { ...item, status: 'cancelled' } : item);
+            showAppointmentActionStatus('Appointment cancelled.', 'success');
+            renderAppointmentStats();
+            renderMainAppointmentCalendar();
+            renderAppointmentPage();
+            return;
+          }
+          const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: actionStatus }) });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(result.message || 'The appointment action failed.');
+          appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? { ...item, status: actionStatus } : item);
+          showAppointmentActionStatus('Appointment updated successfully.', 'success');
+          renderAppointmentStats();
+          renderMainAppointmentCalendar();
+          renderAppointmentPage();
+        } catch (error) {
+          button.disabled = false;
+          showAppointmentActionStatus(error.message || 'The appointment action failed.', 'error');
+        }
       }));
     };
+
+    rescheduleConfirm?.addEventListener('click', async () => {
+      if (!pendingReschedule || !rescheduleDateInput?.value || !rescheduleTimeInput?.value) {
+        if (rescheduleError) rescheduleError.textContent = 'Select a new appointment date and time.';
+        return;
+      }
+      const { appointment } = pendingReschedule;
+      const newDate = rescheduleDateInput.value;
+      const newTime = rescheduleTimeInput.value;
+      rescheduleConfirm.disabled = true;
+      try {
+        const response = await fetch(`${api}/api/appointments/${appointment._id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: 'rescheduled', preferredDate: newDate, preferredTime: newTime }) });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || 'The appointment could not be rescheduled.');
+        appointments = appointments.map((item) => item._id === appointment._id ? { ...item, status: 'rescheduled', preferredDate: newDate, preferredTime: newTime } : item);
+        closeRescheduleDialog();
+        showAppointmentActionStatus('Appointment rescheduled successfully.', 'success');
+        renderAppointmentStats();
+        appointmentCalendarCursor = new Date(`${newDate}T00:00:00`);
+        renderMainAppointmentCalendar();
+        renderAppointmentPage();
+      } catch (error) {
+        if (rescheduleError) rescheduleError.textContent = error.message || 'The appointment could not be rescheduled.';
+        showAppointmentActionStatus(error.message || 'The appointment could not be rescheduled.', 'error');
+      } finally {
+        rescheduleConfirm.disabled = false;
+      }
+    });
+    document.getElementById('appointment-reschedule-close')?.addEventListener('click', closeRescheduleDialog);
+    document.getElementById('appointment-reschedule-cancel')?.addEventListener('click', closeRescheduleDialog);
+    rescheduleDialog?.addEventListener('cancel', closeRescheduleDialog);
+    document.getElementById('appointment-detail-close')?.addEventListener('click', () => appointmentDetailDialog?.close());
+    document.getElementById('appointment-detail-action-close')?.addEventListener('click', () => appointmentDetailDialog?.close());
+    appointmentDetailDialog?.addEventListener('cancel', () => appointmentDetailDialog.close());
+    document.getElementById('appointment-correction-close')?.addEventListener('click', closeCorrectionDialog);
+    document.getElementById('appointment-correction-cancel')?.addEventListener('click', closeCorrectionDialog);
+    appointmentCorrectionDialog?.addEventListener('cancel', closeCorrectionDialog);
+    appointmentCorrectionConfirm?.addEventListener('click', async () => {
+      if (!pendingCompletedCorrection) return;
+      const reason = appointmentCorrectionReason?.value.trim() || '';
+      if (!reason) {
+        if (appointmentCorrectionError) appointmentCorrectionError.textContent = 'A reason is required to correct this record.';
+        appointmentCorrectionReason?.focus();
+        return;
+      }
+      appointmentCorrectionConfirm.disabled = true;
+      try {
+        const response = await fetch(`${api}/api/appointments/${pendingCompletedCorrection._id}/correct-status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: 'pending', reason }) });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || 'The record correction failed.');
+        appointments = appointments.map((item) => item._id === pendingCompletedCorrection._id ? { ...item, status: 'pending' } : item);
+        closeCorrectionDialog();
+        showAppointmentActionStatus('Completed record corrected successfully.', 'success');
+        renderAppointmentStats();
+        renderMainAppointmentCalendar();
+        renderAppointmentPage();
+      } catch (error) {
+        if (appointmentCorrectionError) appointmentCorrectionError.textContent = error.message || 'The record correction failed.';
+        showAppointmentActionStatus(error.message || 'The record correction failed.', 'error');
+      } finally {
+        appointmentCorrectionConfirm.disabled = false;
+      }
+    });
+    rescheduleDateInput?.addEventListener('change', () => {
+      if (rescheduleError) rescheduleError.textContent = '';
+      loadRescheduleTimes(rescheduleDateInput.value);
+    });
+
+    const closeAppointmentMenus = (restoreFocus = false) => {
+      appointmentList?.querySelectorAll('.appointment-kebab-dropdown:not([hidden])').forEach((menu) => {
+        menu.hidden = true;
+        const trigger = menu.previousElementSibling;
+        trigger?.setAttribute('aria-expanded', 'false');
+        if (restoreFocus) trigger?.focus();
+      });
+    };
+
+    appointmentList?.addEventListener('click', (event) => {
+      const trigger = event.target.closest('.appointment-kebab-trigger');
+      if (!trigger) return;
+      const menu = trigger.nextElementSibling;
+      const isOpen = menu && !menu.hidden;
+      closeAppointmentMenus();
+      if (menu && !isOpen) {
+        menu.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+        if (trigger.dataset.openedByKeyboard === 'true') {
+          menu.querySelector('.appointment-kebab-item')?.focus();
+          delete trigger.dataset.openedByKeyboard;
+        }
+      }
+    });
+
+    appointmentList?.addEventListener('keydown', (event) => {
+      const trigger = event.target.closest('.appointment-kebab-trigger');
+      if (trigger && (event.key === 'Enter' || event.key === ' ')) trigger.dataset.openedByKeyboard = 'true';
+      if (event.key === 'Escape') closeAppointmentMenus(true);
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.appointment-kebab-menu')) closeAppointmentMenus();
+    });
 
     let appointmentCalendarCursor = new Date();
     const renderAppointmentCalendar = () => {
@@ -1023,32 +1570,108 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       for (let day = 1; day <= daysInMonth; day += 1) {
         const date = new Date(year, month, day);
         const value = isoDate(date);
-        const selected = appointmentDateFilter?.value === value;
+        const selected = appointmentCalendarSelection === value;
         const hasAppointments = appointmentDates.has(value);
         appointmentCalendarGrid.insertAdjacentHTML('beforeend', `<button type="button" class="calendar-day ${selected ? 'selected' : ''} ${hasAppointments ? 'has-appointments' : ''}" data-appointment-calendar-date="${value}">${day}</button>`);
       }
       appointmentCalendarGrid.querySelectorAll('[data-appointment-calendar-date]').forEach((button) => button.addEventListener('click', () => {
-        appointmentDateFilter.value = button.dataset.appointmentCalendarDate;
+        appointmentCalendarSelection = button.dataset.appointmentCalendarDate;
+        if (appointmentDateFilter) appointmentDateFilter.value = appointmentCalendarSelection;
         appointmentPage = 1;
         renderAppointmentCalendar();
         renderAppointmentPage();
       }));
     };
 
+    const calendarDayStart = (date) => { const value = new Date(date); value.setHours(0, 0, 0, 0); return value; };
+    const calendarDateLabel = (date) => date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    const appointmentEventMarkup = (appointment) => `<button type="button" class="appointment-calendar-event status-${escapeHtml(appointment.status)}" data-calendar-appointment-id="${escapeHtml(appointment._id)}"><strong>${escapeHtml(formatTo12Hour(appointment.preferredTime || 'Time TBD'))}</strong><span>${escapeHtml(appointment.name || 'Patient')}</span><small>${escapeHtml(appointment.service || 'Appointment')}</small></button>`;
+    const renderMainAppointmentCalendar = () => {
+      if (!appointmentMainCalendarGrid) return;
+      const visibleAppointments = appointments;
+      const cursor = calendarDayStart(appointmentCalendarCursor);
+      if (appointmentCalendarView === 'day') {
+        const value = isoDate(cursor);
+        appointmentCalendarViewTitle.textContent = calendarDateLabel(cursor);
+        appointmentMainCalendarGrid.className = 'appointment-main-calendar-grid is-day-view';
+        appointmentMainCalendarGrid.innerHTML = `<div class="appointment-calendar-day-column"><strong>${calendarDateLabel(cursor)}</strong>${visibleAppointments.filter((item) => item.preferredDate === value).map(appointmentEventMarkup).join('')}</div>`;
+        return;
+      }
+      const start = new Date(cursor);
+      if (appointmentCalendarView === 'week') start.setDate(start.getDate() - start.getDay());
+      else start.setDate(1);
+      const count = appointmentCalendarView === 'week' ? 7 : new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate();
+      appointmentCalendarViewTitle.textContent = appointmentCalendarView === 'week' ? `Week of ${calendarDateLabel(start)}` : start.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      appointmentMainCalendarGrid.className = `appointment-main-calendar-grid is-${appointmentCalendarView}-view`;
+      const leading = appointmentCalendarView === 'month' ? start.getDay() : 0;
+      const cells = Array.from({ length: leading + count }, (_, index) => {
+        if (index < leading) return '<div class="appointment-calendar-cell is-empty"></div>';
+        const date = new Date(start);
+        date.setDate(date.getDate() + index - leading);
+        const value = isoDate(date);
+        const events = visibleAppointments.filter((item) => item.preferredDate === value);
+        return `<div class="appointment-calendar-cell"><strong>${date.getDate()}</strong><div>${events.slice(0, 3).map(appointmentEventMarkup).join('')}${events.length > 3 ? `<button type="button" class="appointment-calendar-more" data-calendar-date="${value}">+${events.length - 3} more</button>` : ''}</div></div>`;
+      });
+      appointmentMainCalendarGrid.innerHTML = appointmentCalendarView === 'month' ? `<div class="appointment-calendar-weekdays">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => `<span>${day}</span>`).join('')}</div><div class="appointment-calendar-cells">${cells.join('')}</div>` : `<div class="appointment-calendar-cells appointment-calendar-week-cells">${cells.join('')}</div>`;
+    };
+
     document.getElementById('appointment-calendar-prev')?.addEventListener('click', () => { appointmentCalendarCursor.setMonth(appointmentCalendarCursor.getMonth() - 1); renderAppointmentCalendar(); });
     document.getElementById('appointment-calendar-next')?.addEventListener('click', () => { appointmentCalendarCursor.setMonth(appointmentCalendarCursor.getMonth() + 1); renderAppointmentCalendar(); });
+    appointmentDateTrigger?.addEventListener('click', () => {
+      const isOpen = appointmentCalendarPopover && !appointmentCalendarPopover.hidden;
+      if (!isOpen) {
+        appointmentCalendarSelection = appointmentDateFilter?.value || '';
+        renderAppointmentCalendar();
+      }
+      if (appointmentCalendarPopover) appointmentCalendarPopover.hidden = Boolean(isOpen);
+      appointmentDateTrigger.setAttribute('aria-expanded', String(!isOpen));
+    });
+    appointmentCalendarApply?.addEventListener('click', () => {
+      if (appointmentDateFilter) appointmentDateFilter.value = appointmentCalendarSelection;
+      appointmentPage = 1;
+      updateAppointmentDateUi();
+      closeAppointmentCalendar();
+      renderAppointmentPage();
+    });
+    appointmentCalendarClear?.addEventListener('click', () => {
+      appointmentCalendarSelection = '';
+      if (appointmentDateFilter) appointmentDateFilter.value = '';
+      appointmentPage = 1;
+      updateAppointmentDateUi();
+      closeAppointmentCalendar();
+      renderAppointmentPage();
+    });
+    document.addEventListener('click', (event) => {
+      if (appointmentDatePicker && !appointmentDatePicker.contains(event.target)) closeAppointmentCalendar();
+    });
+    document.getElementById('appointment-calendar-today')?.addEventListener('click', () => { appointmentCalendarCursor = new Date(); renderMainAppointmentCalendar(); });
+    document.getElementById('appointment-calendar-view-prev')?.addEventListener('click', () => { const amount = appointmentCalendarView === 'day' ? 1 : appointmentCalendarView === 'week' ? 7 : 30; appointmentCalendarCursor.setDate(appointmentCalendarCursor.getDate() - amount); renderMainAppointmentCalendar(); });
+    document.getElementById('appointment-calendar-view-next')?.addEventListener('click', () => { const amount = appointmentCalendarView === 'day' ? 1 : appointmentCalendarView === 'week' ? 7 : 30; appointmentCalendarCursor.setDate(appointmentCalendarCursor.getDate() + amount); renderMainAppointmentCalendar(); });
+    document.querySelectorAll('[data-appointment-calendar-view]').forEach((button) => button.addEventListener('click', () => { appointmentCalendarView = button.dataset.appointmentCalendarView; document.querySelectorAll('[data-appointment-calendar-view]').forEach((item) => item.classList.toggle('is-active', item === button)); renderMainAppointmentCalendar(); }));
+    appointmentMainCalendarGrid?.addEventListener('click', (event) => {
+      const eventButton = event.target.closest('[data-calendar-appointment-id]');
+      const moreButton = event.target.closest('[data-calendar-date]');
+      if (eventButton) openAppointmentDetails({ dataset: { appointmentId: eventButton.dataset.calendarAppointmentId } });
+      if (moreButton && appointmentDateFilter) {
+        appointmentDateFilter.value = moreButton.dataset.calendarDate;
+        refreshAppointmentFilters();
+      }
+    });
 
     const loadAppointments = async () => {
       if (!appointmentList) return;
       const endpoint = role === 'patient' ? '/api/appointments/mine' : '/api/appointments';
       try {
-        const response = await fetch(`${api}${endpoint}`, { headers: { Authorization: `Bearer ${token}` } });
+        const response = await fetchWithTimeout(`${api}${endpoint}`, { headers: { Authorization: `Bearer ${token}` } });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message);
-        showState(`${result.appointments?.length || 0} appointment${result.appointments?.length === 1 ? '' : 's'} found.`, 'success');
-        appointments = result.appointments || [];
-        renderAppointmentCalendar();
-        renderAppointmentPage();
+          showState(`${result.appointments?.length || 0} appointment${result.appointments?.length === 1 ? '' : 's'} found.`, 'success');
+          appointments = result.appointments || [];
+        renderAppointmentStats();
+        updateAppointmentDateUi();
+          renderAppointmentCalendar();
+        renderMainAppointmentCalendar();
+          renderAppointmentPage();
       } catch (error) {
         showState(error.message || 'Unable to load appointments.', 'error');
         appointmentList.innerHTML = '<p class="empty-appointments">Try again when the clinic API is available.</p>';
@@ -1061,9 +1684,30 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       showState('Workspace ready. No records require attention right now.', 'success');
     }
 
-    [appointmentSearch, appointmentStatusFilter, appointmentDateFilter].forEach((control) => control?.addEventListener('input', () => { appointmentPage = 1; renderAppointmentCalendar(); renderAppointmentPage(); }));
+    const refreshAppointmentFilters = () => {
+      appointmentPage = 1;
+      appointmentCalendarSelection = appointmentDateFilter?.value || '';
+      updateAppointmentDateUi();
+      renderAppointmentCalendar();
+      renderMainAppointmentCalendar();
+      renderAppointmentPage();
+    };
+
+    appointmentSearch?.addEventListener('input', refreshAppointmentFilters);
+    appointmentStatusFilter?.addEventListener('change', refreshAppointmentFilters);
+    appointmentDateFilter?.addEventListener('change', refreshAppointmentFilters);
 
     const bookingForm = document.getElementById('booking-workflow');
+    const bookingModal = document.getElementById('booking-modal');
+    const bookingFormToggle = document.getElementById('booking-form-toggle');
+    const bookingFormClose = document.getElementById('booking-form-close');
+    const bookingResultModal = document.getElementById('booking-result-modal');
+    const bookingResultTitle = document.getElementById('booking-result-title');
+    const bookingResultMessage = document.getElementById('booking-result-message');
+    const bookingResultDetails = document.getElementById('booking-result-details');
+    const bookingResultClose = document.getElementById('booking-result-close');
+    const bookingResultPrimary = document.getElementById('booking-result-primary');
+    const bookingResultSecondary = document.getElementById('booking-result-secondary');
     const bookingReview = document.getElementById('booking-review');
     const bookingStatus = document.getElementById('booking-status');
     const workflowDate = document.getElementById('workflow-date');
@@ -1072,6 +1716,44 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const calendarMonth = document.getElementById('calendar-month');
     let calendarCursor = new Date();
     let selectedDate = '';
+    let lastBookingData = null;
+
+    const closeBookingModal = () => {
+      bookingModal?.close();
+      bookingFormToggle?.setAttribute('aria-expanded', 'false');
+    };
+
+    bookingFormToggle?.addEventListener('click', () => {
+      bookingModal?.showModal();
+      bookingFormToggle.setAttribute('aria-expanded', 'true');
+      requestAnimationFrame(() => bookingForm?.querySelector('select, input')?.focus());
+    });
+    bookingFormClose?.addEventListener('click', closeBookingModal);
+    bookingModal?.addEventListener('close', () => bookingFormToggle?.setAttribute('aria-expanded', 'false'));
+    bookingModal?.addEventListener('click', (event) => {
+      if (event.target === bookingModal) closeBookingModal();
+    });
+
+    const closeBookingResult = () => bookingResultModal?.close();
+    const focusBookingPicker = () => {
+      closeBookingResult();
+      bookingModal?.showModal();
+      bookingFormToggle?.setAttribute('aria-expanded', 'true');
+      requestAnimationFrame(() => {
+        workflowTime?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        workflowTime?.focus();
+      });
+    };
+
+    bookingResultClose?.addEventListener('click', closeBookingResult);
+    bookingResultModal?.addEventListener('click', (event) => {
+      if (event.target === bookingResultModal) closeBookingResult();
+    });
+
+    const getLocalDateValue = (date = new Date()) => {
+      const offsetDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+      return offsetDate.toISOString().slice(0, 10);
+    };
 
     const isoDate = (date) => {
       const year = date.getFullYear();
@@ -1080,21 +1762,32 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       return `${year}-${month}-${day}`;
     };
 
+    const isPastSlotForToday = (selectedDateValue, selectedTimeValue, now = new Date()) => {
+      if (!selectedDateValue || !selectedTimeValue) return false;
+      const todayDate = getLocalDateValue(now);
+      if (selectedDateValue !== todayDate) return false;
+
+      const [hours, minutes] = String(selectedTimeValue).split(':').map(Number);
+      const slotMinutes = (hours * 60) + minutes;
+      const nowMinutes = (now.getHours() * 60) + now.getMinutes();
+      const bufferMinutes = 15;
+
+      return slotMinutes <= nowMinutes + bufferMinutes;
+    };
+
     const loadAvailability = async (date) => {
       if (!workflowTime) return;
       workflowTime.innerHTML = '<option value="">Loading available times...</option>';
       try {
-        const response = await fetch(`${api}/api/appointments/availability?date=${date}`);
+        const response = await fetchWithTimeout(`${api}/api/appointments/availability?date=${date}`);
         const result = await response.json();
 
-        // Display clinic hours if available
         const clinicHoursDisplay = document.getElementById('clinic-hours-display');
         if (clinicHoursDisplay && result.clinicHours) {
           clinicHoursDisplay.textContent = `Clinic hours: ${result.clinicHours}`;
           clinicHoursDisplay.style.display = 'block';
         }
 
-        // If clinic is not operating on this day (like Sunday)
         if (!result.slots || result.slots.length === 0) {
           if (result.scheduleInfo && !result.scheduleInfo.operatingDay) {
             workflowTime.innerHTML = '<option value="">By Appointment Only - Please contact clinic</option>';
@@ -1108,9 +1801,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           return;
         }
 
-        // Build options from available slots
         workflowTime.innerHTML = result.slots?.some((slot) => slot.available)
-          ? '<option value="">Select a time</option>' + result.slots.map((slot) => `<option value="${slot.time}" ${slot.available ? '' : 'disabled'}>${slot.time}${slot.available ? '' : ' - booked'}</option>`).join('')
+          ? '<option value="">Select a time</option>' + result.slots.map((slot) => {
+              const isDisabled = slot.available === false || isPastSlotForToday(date, slot.time24Hr);
+              return `<option value="${slot.time24Hr}" ${isDisabled ? 'disabled' : ''}>${slot.time}${isDisabled ? ' - unavailable' : ''}</option>`;
+            }).join('')
           : '<option value="">No times available</option>';
       } catch {
         workflowTime.innerHTML = '<option value="">Availability unavailable</option>';
@@ -1143,9 +1838,14 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
 
     if (workflowDate) {
-      workflowDate.min = new Date().toISOString().slice(0, 10);
+      workflowDate.min = getLocalDateValue();
       workflowDate.addEventListener('change', () => {
         selectedDate = workflowDate.value;
+        console.log('[booking date debug]', {
+          selectedDate,
+          todayDate: getLocalDateValue(),
+          isFutureDate: !!selectedDate && selectedDate > getLocalDateValue(),
+        });
         loadAvailability(selectedDate);
         renderCalendar();
       });
@@ -1155,20 +1855,113 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     renderCalendar();
     bookingForm?.addEventListener('input', () => {
       const data = Object.fromEntries(new FormData(bookingForm).entries());
-      bookingReview.textContent = data.service && data.preferredDate && data.preferredTime ? `${data.service} on ${data.preferredDate} at ${data.preferredTime}` : 'Choose a service, date, and time.';
+      bookingReview.textContent = data.service && data.preferredDate && data.preferredTime ? `${data.service} on ${data.preferredDate} at ${formatTo12Hour(data.preferredTime)}` : 'Choose a service, date, and time.';
     });
-    bookingForm?.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const data = Object.fromEntries(new FormData(bookingForm).entries());
+    const submitBooking = async (data) => {
       const currentUser = JSON.parse(localStorage.getItem('hmVisionUser') || '{}');
+      const authToken = localStorage.getItem('hmVisionToken');
+      const selectedDate = String(data.preferredDate || '');
+      const selectedTime = String(data.preferredTime || '');
+      const todayDate = getLocalDateValue();
+      const isBookable = selectedDate !== todayDate || !isPastSlotForToday(selectedDate, selectedTime, new Date());
+
+      if (!authToken) {
+        bookingStatus.textContent = 'Your session has expired. Please sign in again.';
+        bookingResultTitle.textContent = 'Session expired';
+        bookingResultMessage.textContent = 'Please sign in again to book an appointment.';
+        bookingResultDetails.textContent = '';
+        bookingResultPrimary.textContent = 'Go to login';
+        bookingResultPrimary.hidden = false;
+        bookingResultPrimary.onclick = () => { window.location.href = '/login'; };
+        bookingResultSecondary.textContent = 'Close';
+        bookingResultSecondary.onclick = closeBookingResult;
+        bookingResultModal?.showModal();
+        return;
+      }
+
+      if (!isBookable) {
+        bookingStatus.textContent = 'This time has passed. Please choose a future time.';
+        return;
+      }
+
       bookingStatus.textContent = 'Submitting booking...';
       try {
-        const response = await fetch(`${api}/api/appointments`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ ...data, name: currentUser.name, email: currentUser.email }) });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || 'Unable to book appointment.');
-        bookingStatus.textContent = 'Booking submitted. Status: Pending.';
+        const response = await fetch(`${api}/api/appointments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            ...data,
+            name: currentUser.name || data.name || '',
+            email: currentUser.email || data.email || '',
+          }),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const error = new Error(result.message || 'Unable to book appointment.');
+          error.status = response.status;
+          throw error;
+        }
+        bookingStatus.textContent = '';
         bookingForm.reset();
-      } catch (error) { bookingStatus.textContent = error.message; bookingStatus.classList.add('error'); }
+        closeBookingModal();
+        const patientName = currentUser.name || 'There';
+        const patientFirstName = patientName.split(' ')[0] || 'There';
+        const formattedDate = new Date(`${data.preferredDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+        bookingResultTitle.textContent = 'Booking Confirmed';
+        bookingResultMessage.innerHTML = `
+          <div class="appointment-confirmation-card">
+            <div class="appointment-confirmation-visual" aria-hidden="true">
+              <svg viewBox="0 0 64 64" role="presentation" focusable="false">
+                <rect x="9" y="12" width="46" height="38" rx="6" class="appointment-confirmation-calendar-base"></rect>
+                <path d="M14 22h36M20 12V8m24 4V8M22 34l8 8 15-18" class="appointment-confirmation-calendar-mark"></path>
+              </svg>
+            </div>
+            <p class="appointment-confirmation-headline">${escapeHtml(patientFirstName)}, we've got you booked for your appointment.</p>
+            <div class="appointment-confirmation-summary-row">
+              <span class="appointment-confirmation-time">${escapeHtml(formatTo12Hour(data.preferredTime || 'Time to be confirmed'))}</span>
+              <span class="appointment-confirmation-divider">|</span>
+              <span class="appointment-confirmation-service">${escapeHtml(data.service || 'Appointment')}</span>
+            </div>
+            <div class="appointment-confirmation-meta-row">
+              <span class="appointment-confirmation-meta">${escapeHtml(formattedDate)}</span>
+            </div>
+            <div class="appointment-confirmation-detail-row">
+              <span class="appointment-status status-confirmed">Scheduled</span>
+            </div>
+          </div>
+        `;
+        bookingResultDetails.textContent = 'Please arrive 10 minutes before your scheduled appointment time.';
+        bookingResultPrimary.textContent = 'OK';
+        bookingResultPrimary.hidden = false;
+        bookingResultSecondary.textContent = 'Close';
+        bookingResultPrimary.onclick = closeBookingResult;
+        bookingResultSecondary.onclick = closeBookingResult;
+        bookingResultModal?.showModal();
+      } catch (error) {
+        bookingStatus.textContent = '';
+        const isConflict = error.status === 409 || /already|booked|available|conflict/i.test(error.message || '');
+        const isAuthError = error.status === 401 || /authentication|required|expired|token/i.test(error.message || '');
+        bookingResultTitle.textContent = isAuthError ? 'Session expired' : 'Booking Unsuccessful';
+        bookingResultMessage.textContent = isAuthError
+          ? 'Your login session is invalid or has expired. Please sign in again.'
+          : "Sorry, we couldn't complete your booking. The selected date/time may no longer be available. Please choose another date or time.";
+        bookingResultDetails.textContent = isConflict ? 'That appointment slot is no longer available.' : '';
+        bookingResultPrimary.textContent = isAuthError ? 'Go to login' : 'Choose Another Date/Time';
+        bookingResultPrimary.hidden = false;
+        bookingResultPrimary.onclick = isAuthError ? () => { window.location.href = '/login'; } : focusBookingPicker;
+        bookingResultSecondary.textContent = isAuthError ? 'Close' : (isConflict ? 'Close' : 'Try Again');
+        bookingResultSecondary.onclick = isAuthError ? closeBookingResult : (isConflict ? closeBookingResult : () => { closeBookingResult(); submitBooking(lastBookingData); });
+        bookingResultModal?.showModal();
+      }
+    };
+
+    bookingForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      lastBookingData = Object.fromEntries(new FormData(bookingForm).entries());
+      await submitBooking(lastBookingData);
     });
 
     const followUpForm = document.getElementById('follow-up-form');
@@ -1271,10 +2064,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const timeout = window.setTimeout(() => controller.abort(), 10000);
       try {
         const response = await fetch(`${api}/api/clinical-records${query}`, { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal });
-        const result = await response.json();
+      const result = await response.json();
         if (!response.ok) throw new Error(result.message || `Unable to load records (${response.status}).`);
-        clinicalRecords = result.records || [];
-        renderRecords(clinicalRecords, clinicalRecordList);
+      clinicalRecords = result.records || [];
+      renderRecords(clinicalRecords, clinicalRecordList);
       } catch (error) {
         if (error.name === 'AbortError') throw new Error('The records request timed out. Check that the clinic API is running, then refresh.');
         throw error;
@@ -1306,7 +2099,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const patientRecordModal = document.getElementById('patient-record-modal');
     const patientRecordCreateToggle = document.getElementById('patient-record-create-toggle');
     const patientRecordClose = document.getElementById('patient-record-close');
-    const patientRecordCancel = document.getElementById('patient-record-cancel');
     const patientAccountSearch = document.getElementById('patient-account-search');
     const patientAccountResults = document.getElementById('patient-account-results');
     const patientAccountId = document.getElementById('patient-account-id');
@@ -1400,7 +2192,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const closePatientRecordModal = () => { patientRecordModal?.close(); patientRecordForm?.reset(); clearPatientAccount(); if (patientRecordStatus) patientRecordStatus.textContent = ''; showPatientStep(0); };
     patientRecordCreateToggle?.addEventListener('click', () => patientRecordModal?.showModal());
     patientRecordClose?.addEventListener('click', closePatientRecordModal);
-    patientRecordCancel?.addEventListener('click', closePatientRecordModal);
     patientRecordForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
       const values = Object.fromEntries(new FormData(patientRecordForm).entries());
@@ -1987,7 +2778,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const loadOperations = async () => {
       if (!operationList || !['owner', 'eye-care-assistant'].includes(role)) return;
       const query = operationTypesForPage.length === 1 ? `?type=${operationTypesForPage[0]}` : '';
-      const response = await fetch(`${api}/api/clinic-operations${query}`, { headers: { Authorization: `Bearer ${token}` } });
+      const response = await fetchWithTimeout(`${api}/api/clinic-operations${query}`, { headers: { Authorization: `Bearer ${token}` } });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || 'Unable to load clinic records.');
       const records = (result.records || []).filter((record) => operationTypesForPage.includes(record.recordType));
@@ -2509,11 +3300,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       };
       const loadBilling = async () => {
         const [invoiceResponse, paymentResponse, userResponse, templateResponse, settingsResponse] = await Promise.all([
-          fetch(`${api}/api/clinic-operations?type=invoice`, { headers: billingHeaders }),
-          fetch(`${api}/api/clinic-operations?type=payment`, { headers: billingHeaders }),
-          fetch(`${api}/api/admin/users`, { headers: billingHeaders }),
-          fetch(`${api}/api/invoice-templates`, { headers: billingHeaders }),
-          fetch(`${api}/api/workspace/clinic-settings`, { headers: billingHeaders }).catch(() => null),
+          fetchWithTimeout(`${api}/api/clinic-operations?type=invoice`, { headers: billingHeaders }),
+          fetchWithTimeout(`${api}/api/clinic-operations?type=payment`, { headers: billingHeaders }),
+          fetchWithTimeout(`${api}/api/admin/users`, { headers: billingHeaders }),
+          fetchWithTimeout(`${api}/api/invoice-templates`, { headers: billingHeaders }),
+          fetchWithTimeout(`${api}/api/workspace/clinic-settings`, { headers: billingHeaders }).catch(() => null),
         ]);
         const invoices = await invoiceResponse.json();
         const payments = await paymentResponse.json();
