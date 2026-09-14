@@ -38,6 +38,29 @@ const genericResetResponse = {
 
 const hashValue = (value) => crypto.createHash('sha256').update(value).digest('hex');
 
+const verifyTurnstileToken = async (turnstileToken, remoteIp) => {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret || !turnstileToken) return false;
+
+  try {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        secret,
+        response: turnstileToken,
+        remoteip: remoteIp,
+      }),
+    });
+
+    const verification = await response.json();
+    return Boolean(verification.success);
+  } catch (error) {
+    console.error('Turnstile verification error:', error.message);
+    return false;
+  }
+};
+
 router.post('/forgot-password', forgotPasswordLimiter, async (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
   if (!email) return res.status(200).json(genericResetResponse);
@@ -184,7 +207,12 @@ router.post('/register', registrationLimiter, async (req, res) => {
 
 router.post('/login', loginLimiter, async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password, role, turnstileToken } = req.body;
+
+    const isTurnstileValid = await verifyTurnstileToken(turnstileToken, req.ip);
+    if (!isTurnstileValid) {
+      return res.status(400).json({ message: 'Verification failed, please try again.' });
+    }
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required.' });

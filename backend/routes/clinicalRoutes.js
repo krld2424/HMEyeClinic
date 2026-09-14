@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import ClinicalRecord from '../models/ClinicalRecord.js';
+import FollowUp from '../models/FollowUp.js';
 import User from '../models/User.js';
 import mongoose from 'mongoose';
 import { requireAuth, allowRoles } from '../middleware/auth.js';
@@ -91,7 +92,7 @@ router.post('/patient-record', requireAuth, allowRoles(...clinicalRoles), async 
 });
 
 router.post('/', requireAuth, allowRoles(...clinicalRoles), async (req, res) => {
-  const { patientId, type, title, details, status, issuedAt } = req.body;
+  const { patientId, type, title, details, status, issuedAt, followUpDate, followUpReason, reminderDaysBefore } = req.body;
   if (!patientId || !recordTypes.includes(type) || !title || !details) return res.status(400).json({ message: 'Patient, record type, title, and details are required.' });
   const patient = await User.findOne({
     role: 'patient',
@@ -102,6 +103,22 @@ router.post('/', requireAuth, allowRoles(...clinicalRoles), async (req, res) => 
   });
   if (!patient) return res.status(404).json({ message: 'Patient not found.' });
   const record = await ClinicalRecord.create({ patientId: patient._id, authorId: req.user.id, type, title, details, status, issuedAt });
+
+  if (followUpDate && ['consultation', 'prescription'].includes(type)) {
+    const followUp = await FollowUp.create({
+      patientId: patient._id,
+      patientName: patient.name,
+      patientEmail: patient.email,
+      reason: followUpReason || title || 'Follow-up review',
+      scheduledDate: followUpDate,
+      relatedRecordId: record._id,
+      reminderDaysBefore: Number(reminderDaysBefore || 3),
+      reminderScheduledFor: followUpDate,
+      status: 'scheduled',
+    });
+    record.followUpId = String(followUp._id);
+  }
+
   broadcastRealtimeEvent(req.app.get('io'), {
     type: 'clinical-record',
     action: 'created',

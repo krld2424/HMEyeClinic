@@ -244,7 +244,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       {isValidRoute && (
         section === 'dashboard' ? (
           <>
-            <section class={`container dashboard-bento ${role === 'owner' ? 'owner-dashboard-bento' : ''}`} id="dashboard-bento" data-role={role}>
+            <section class={`container dashboard-bento ${role === 'owner' ? 'owner-dashboard-bento' : ''} ${role === 'optometrist' ? 'optometrist-dashboard-panel' : ''} ${role === 'eye-care-assistant' ? 'eye-care-assistant-dashboard-panel' : ''} ${role === 'patient' ? 'patient-dashboard-panel' : ''}`} id="dashboard-bento" data-role={role}>
               <div class="bento-heading">
                 <div>
                   <span class="eyebrow">Live overview</span>
@@ -273,11 +273,44 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <div id="overview-appointment-pagination" class="pagination" aria-label="Appointment pages"></div>
             </section>
             )}
+
+            {role === 'patient' && (
+              <>
+                <dialog id="booking-result-modal" class="confirmation-dialog booking-result-dialog" aria-labelledby="booking-result-title">
+                  <div class="confirmation-dialog__content">
+                    <div class="dialog-header-row">
+                      <h3 id="booking-result-title">Booking Request Sent</h3>
+                      <button type="button" class="btn btn-secondary btn-icon" id="booking-result-close" aria-label="Close booking result">×</button>
+                    </div>
+                    <div id="booking-result-message" class="booking-result-message"></div>
+                    <div id="booking-result-details" class="booking-result-details"></div>
+                    <div class="confirmation-actions booking-result-actions">
+                      <button type="button" class="btn btn-secondary" id="booking-result-secondary">Close</button>
+                      <button type="button" class="btn btn-primary" id="booking-result-primary">OK</button>
+                    </div>
+                  </div>
+                </dialog>
+                <dialog id="booking-confirmed-modal" class="confirmation-dialog booking-result-dialog" aria-labelledby="booking-confirmed-title">
+                  <div class="confirmation-dialog__content">
+                    <div class="dialog-header-row">
+                      <h3 id="booking-confirmed-title">Booking Confirmed</h3>
+                      <button type="button" class="btn btn-secondary btn-icon" id="booking-confirmed-close" aria-label="Close confirmed booking result">×</button>
+                    </div>
+                    <div id="booking-confirmed-message" class="booking-result-message"></div>
+                    <div id="booking-confirmed-details" class="booking-result-details"></div>
+                    <div class="confirmation-actions booking-result-actions">
+                      <button type="button" class="btn btn-secondary" id="booking-confirmed-secondary">Close</button>
+                      <button type="button" class="btn btn-primary" id="booking-confirmed-primary">OK</button>
+                    </div>
+                  </div>
+                </dialog>
+              </>
+            )}
           </>
         ) : (
           <>
           {section === 'appointments' && (
-            <section class="container card appointments-calendar-card" aria-label="Appointments calendar">
+            <section class={`container card appointments-calendar-card ${role === 'patient' ? 'patient-calendar-card' : ''}`} aria-label="Appointments calendar">
               <div class="appointment-calendar-panel">
                 <div class="booking-calendar appointment-calendar">
                   <div class="calendar-heading"><strong id="appointment-calendar-month">Appointments calendar</strong><div class="calendar-nav"><button type="button" id="appointment-calendar-prev" aria-label="Previous month">&lt;</button><button type="button" id="appointment-calendar-next" aria-label="Next month">&gt;</button></div></div>
@@ -286,7 +319,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                     </div>
               </section>
             )}
-          <section class={`container task-page-card card ${section === 'appointments' ? 'appointments-task-page' : ''}`}>
+          <section class={`container task-page-card card ${section === 'appointments' ? 'appointments-task-page' : ''} ${role === 'owner' ? 'owner-task-page' : ''} ${role === 'optometrist' ? 'optometrist-task-page' : ''} ${role === 'eye-care-assistant' ? 'eye-care-assistant-task-page' : ''} ${role === 'patient' ? 'patient-task-page' : ''}`}>
             <p class="task-page-description">{copy}</p>
             <div class="task-state" id="task-state">
               <span class="loading-dot"></span>
@@ -521,7 +554,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <dialog id="booking-result-modal" class="confirmation-dialog booking-result-dialog" aria-labelledby="booking-result-title">
                 <div class="confirmation-dialog__content">
                   <div class="dialog-header-row">
-                    <h3 id="booking-result-title">Booking Confirmed</h3>
+                    <h3 id="booking-result-title">Booking Request Sent</h3>
                     <button type="button" class="btn btn-secondary btn-icon" id="booking-result-close" aria-label="Close booking result">×</button>
                   </div>
                   <div id="booking-result-message" class="booking-result-message"></div>
@@ -529,6 +562,20 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                   <div class="confirmation-actions booking-result-actions">
                     <button type="button" class="btn btn-secondary" id="booking-result-secondary">Close</button>
                     <button type="button" class="btn btn-primary" id="booking-result-primary">OK</button>
+                  </div>
+                </div>
+              </dialog>
+              <dialog id="booking-confirmed-modal" class="confirmation-dialog booking-result-dialog" aria-labelledby="booking-confirmed-title">
+                <div class="confirmation-dialog__content">
+                  <div class="dialog-header-row">
+                    <h3 id="booking-confirmed-title">Booking Confirmed</h3>
+                    <button type="button" class="btn btn-secondary btn-icon" id="booking-confirmed-close" aria-label="Close confirmed booking result">×</button>
+                  </div>
+                  <div id="booking-confirmed-message" class="booking-result-message"></div>
+                  <div id="booking-confirmed-details" class="booking-result-details"></div>
+                  <div class="confirmation-actions booking-result-actions">
+                    <button type="button" class="btn btn-secondary" id="booking-confirmed-secondary">Close</button>
+                    <button type="button" class="btn btn-primary" id="booking-confirmed-primary">OK</button>
                   </div>
                 </div>
               </dialog>
@@ -546,6 +593,38 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <div id="appointment-list" class="appointment-list"><p class="empty-appointments">Loading appointments...</p></div>
               <div id="appointment-pagination" class="pagination" aria-label="Appointment pages"></div>
                 <p id="appointment-action-status" class="task-state" aria-live="polite" hidden></p>
+                {role === 'patient' && (
+                  <>
+                    <dialog id="booking-result-modal" class="confirmation-dialog booking-result-dialog" aria-labelledby="booking-result-title">
+                      <div class="confirmation-dialog__content">
+                        <div class="dialog-header-row">
+                          <h3 id="booking-result-title">Booking Request Sent</h3>
+                          <button type="button" class="btn btn-secondary btn-icon" id="booking-result-close" aria-label="Close booking result">×</button>
+                        </div>
+                        <div id="booking-result-message" class="booking-result-message"></div>
+                        <div id="booking-result-details" class="booking-result-details"></div>
+                        <div class="confirmation-actions booking-result-actions">
+                          <button type="button" class="btn btn-secondary" id="booking-result-secondary">Close</button>
+                          <button type="button" class="btn btn-primary" id="booking-result-primary">OK</button>
+                        </div>
+                      </div>
+                    </dialog>
+                    <dialog id="booking-confirmed-modal" class="confirmation-dialog booking-result-dialog" aria-labelledby="booking-confirmed-title">
+                      <div class="confirmation-dialog__content">
+                        <div class="dialog-header-row">
+                          <h3 id="booking-confirmed-title">Booking Confirmed</h3>
+                          <button type="button" class="btn btn-secondary btn-icon" id="booking-confirmed-close" aria-label="Close confirmed booking result">×</button>
+                        </div>
+                        <div id="booking-confirmed-message" class="booking-result-message"></div>
+                        <div id="booking-confirmed-details" class="booking-result-details"></div>
+                        <div class="confirmation-actions booking-result-actions">
+                          <button type="button" class="btn btn-secondary" id="booking-confirmed-secondary">Close</button>
+                          <button type="button" class="btn btn-primary" id="booking-confirmed-primary">OK</button>
+                        </div>
+                      </div>
+                    </dialog>
+                  </>
+                )}
                 <dialog id="appointment-reschedule-dialog" class="confirmation-dialog appointment-reschedule-dialog">
                   <div class="confirmation-dialog__content">
                     <div class="dialog-header-row"><h3>Reschedule appointment</h3><button type="button" class="btn btn-secondary btn-icon" id="appointment-reschedule-close" aria-label="Close reschedule dialog">×</button></div>
@@ -575,7 +654,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           )}
 
           {section === 'today-patients' && ['owner', 'optometrist'].includes(role) && (
-            <div class="workflow-list">
+            <div class="workflow-list appointments-workspace">
               <div class="list-toolbar"><input id="today-patient-search" type="search" placeholder="Search patient or service" /><select id="today-patient-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select><input id="today-patient-date" type="date" aria-label="Today's patient date" /></div>
               <div id="today-patient-list" class="appointment-list"><p class="empty-appointments">Loading today's patients...</p></div>
               <div id="today-patient-pagination" class="pagination" aria-label="Today's patient pages"></div>
@@ -686,7 +765,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                       <section class="patient-form-section patient-form-step" data-step="4"><h4>Management</h4><div class="field-row"><input name="lens" placeholder="Lens" /><input name="frame" placeholder="Frame" /></div><div class="field-row"><input name="contactLens" placeholder="Contact Lens" /><input name="dropsAccessories" placeholder="Drops/Accs" /></div><div class="field-row"><input name="pf" placeholder="PF" /><input name="grossTotal" placeholder="Gross Total" /></div><div class="field-row"><input name="discount" placeholder="Discount" /><input name="netTotal" placeholder="Net Total" /></div><div class="field-row"><input name="downPayment" placeholder="DP" /><input name="balance" placeholder="Bal" /></div></section>
                       <section class="patient-form-section patient-form-step" data-step="5"><h4>Test</h4><textarea name="otherTests" rows="5" placeholder="Diagnosis, recommendation/s, next visit, and other tests"></textarea><h4>Job Order</h4><div class="field-row"><input name="jobOrderNo" placeholder="Job Order No." /><input name="orderDate" type="date" aria-label="Order Date" /><input name="invoiceNo" placeholder="Invoice No." /><input name="dueDate" type="date" aria-label="Due Date" /></div><div class="field-row"><input name="jobLens" placeholder="Lens" /><input name="jobFrame" placeholder="Frame" /></div><div class="record-form-grid job-order-grid"><strong></strong><strong>Sph</strong><strong>Cyl</strong><strong>Ax</strong><strong>Add</strong><strong>MPD</strong><strong>SH/FH</strong><strong>H:</strong><strong>Diag:</strong><strong>Cor:</strong><strong>OD</strong><input name="jobOdSph" /><input name="jobOdCyl" /><input name="jobOdAx" /><input name="jobOdAdd" /><input name="jobOdMpd" /><input name="jobOdShFh" /><input name="jobOdH" /><input name="jobOdDiag" /><input name="jobOdCor" /><strong>OS</strong><input name="jobOsSph" /><input name="jobOsCyl" /><input name="jobOsAx" /><input name="jobOsAdd" /><input name="jobOsMpd" /><input name="jobOsShFh" /><input name="jobOsH" /><input name="jobOsDiag" /><input name="jobOsCor" /></div><textarea name="jobNotes" rows="2" placeholder="Notes"></textarea><div class="field-row"><input name="claimDate" type="date" aria-label="Claim Date" /><input name="signature" placeholder="Name & Signature" /></div></section>
                       <section class="patient-form-section patient-form-step claim-stub-step" data-step="6"><h4>C L A I M&nbsp;&nbsp; S T U B</h4><div class="field-row"><input name="claimPatientName" placeholder="Patient Name" /><input name="visitDate" type="date" aria-label="Visit Date" /><input name="claimDueDate" type="date" aria-label="Due Date" /></div><div class="record-form-grid claim-grid"><strong>Item</strong><strong>From</strong><strong>Less</strong><strong>To</strong>{['Professional Fee','Frame','Lens','Contact Lens','Ophthalmic Drops','Others'].map((item) => <><label>{item}:</label><input name={`claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_from`} /><input name={`claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_less`} /><input name={`claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_to`} /></>)}<label>Down Payment:</label><input name="claimDownPayment" /><label>Balance:</label><input name="claimBalance" /></div><div class="claim-notes"><strong>NOTES:</strong><p>- Paid items not collected within <u>90 days</u> from the date of purchase will be <u>voided</u>.</p><p>- Please ensure all items are <u>FULLY PAID</u> before claiming.</p><p>- Present this form upon claiming your order.</p></div></section>
-                      <div class="patient-step-actions"><button type="button" class="btn btn-secondary" id="patient-record-back">Back</button><button type="button" class="btn btn-secondary" id="patient-record-print">Print Patient Record</button><button type="button" class="btn btn-primary" id="patient-record-next">Next</button><button type="submit" class="btn btn-primary" id="patient-record-save">Save Patient Record</button></div><p id="patient-record-status" class="form-status" aria-live="polite"></p>
+                      <div class="patient-step-actions"><button type="button" class="btn btn-secondary" id="patient-record-back">Back</button><button type="button" class="btn btn-primary" id="patient-record-next">Next</button><button type="submit" class="btn btn-primary" id="patient-record-save">Save Patient Record</button></div><p id="patient-record-status" class="form-status" aria-live="polite"></p>
                     </form>
                   </div>
                 </dialog>
@@ -694,6 +773,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               {section !== 'clinical-records' && section !== 'patient-records' && <form id="clinical-record-form" class="workflow-form">
                 <div class="field-row"><div class="field-group"><label for="record-patient">Patient ID</label><input id="record-patient" name="patientId" placeholder="HME-000127" pattern="HME-[0-9]{6}" required /></div><div class="field-group"><label for="record-title">Title</label><input id="record-title" name="title" required /></div></div>
                 <div class="field-group"><label for="record-details">Clinical encounter details</label><textarea id="record-details" name="details" rows="7" placeholder="Chief complaint, history, eye examination, assessment, clinical notes, treatment recommendations, and follow-up plan" required></textarea></div>
+                <div class="field-row clinical-followup-row">
+                  <div class="field-group"><label for="record-followup-date">Set follow-up date</label><input id="record-followup-date" name="followUpDate" type="date" /></div>
+                  <div class="field-group"><label for="record-followup-reason">Follow-up reason</label><input id="record-followup-reason" name="followUpReason" placeholder="Optional reason for follow-up" /></div>
+                </div>
                 <button type="submit" class="btn btn-primary">Save {section === 'consultations' ? 'consultation' : 'prescription'}</button><p id="record-status" class="form-status" aria-live="polite"></p>
               </form>}
               {(section === 'clinical-records' || section === 'patient-records') && <div class="list-toolbar"><input id="clinical-record-search" type="search" placeholder="Search patient, diagnosis, or record" aria-label="Search patient records" /></div>}
@@ -1667,6 +1750,35 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         if (!response.ok) throw new Error(result.message);
           showState(`${result.appointments?.length || 0} appointment${result.appointments?.length === 1 ? '' : 's'} found.`, 'success');
           appointments = result.appointments || [];
+          if (role === 'patient') {
+            const pendingAppointment = [...appointments]
+              .filter((appointment) => String(appointment.status || '').toLowerCase() === 'pending')
+              .sort((left, right) => {
+                const leftValue = new Date(`${left.preferredDate || '1970-01-01'}T${left.preferredTime || '00:00'}:00`).getTime();
+                const rightValue = new Date(`${right.preferredDate || '1970-01-01'}T${right.preferredTime || '00:00'}:00`).getTime();
+                return rightValue - leftValue;
+              })[0];
+            if (pendingAppointment) {
+              showPendingBookingConfirmation(pendingAppointment);
+              renderAppointmentStats();
+              updateAppointmentDateUi();
+              renderAppointmentCalendar();
+              renderMainAppointmentCalendar();
+              renderAppointmentPage();
+              return;
+            }
+
+            const confirmedAppointment = [...appointments]
+              .filter((appointment) => ['confirmed', 'scheduled', 'accepted'].includes(String(appointment.status || '').toLowerCase()))
+              .sort((left, right) => {
+                const leftValue = new Date(`${left.preferredDate || '1970-01-01'}T${left.preferredTime || '00:00'}:00`).getTime();
+                const rightValue = new Date(`${right.preferredDate || '1970-01-01'}T${right.preferredTime || '00:00'}:00`).getTime();
+                return rightValue - leftValue;
+              })[0];
+            if (confirmedAppointment) {
+              showAcceptedBookingConfirmation(confirmedAppointment);
+            }
+          }
         renderAppointmentStats();
         updateAppointmentDateUi();
           renderAppointmentCalendar();
@@ -1708,6 +1820,13 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const bookingResultClose = document.getElementById('booking-result-close');
     const bookingResultPrimary = document.getElementById('booking-result-primary');
     const bookingResultSecondary = document.getElementById('booking-result-secondary');
+    const bookingConfirmedModal = document.getElementById('booking-confirmed-modal');
+    const bookingConfirmedTitle = document.getElementById('booking-confirmed-title');
+    const bookingConfirmedMessage = document.getElementById('booking-confirmed-message');
+    const bookingConfirmedDetails = document.getElementById('booking-confirmed-details');
+    const bookingConfirmedClose = document.getElementById('booking-confirmed-close');
+    const bookingConfirmedPrimary = document.getElementById('booking-confirmed-primary');
+    const bookingConfirmedSecondary = document.getElementById('booking-confirmed-secondary');
     const bookingReview = document.getElementById('booking-review');
     const bookingStatus = document.getElementById('booking-status');
     const workflowDate = document.getElementById('workflow-date');
@@ -1735,6 +1854,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     });
 
     const closeBookingResult = () => bookingResultModal?.close();
+    const closeConfirmedBookingResult = () => bookingConfirmedModal?.close();
     const focusBookingPicker = () => {
       closeBookingResult();
       bookingModal?.showModal();
@@ -1745,9 +1865,118 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       });
     };
 
+    const bookingAcceptedStorageKey = 'hmVisionLastAcceptedAppointment';
+    const getStoredAcceptedBooking = () => {
+      try {
+        const stored = localStorage.getItem(bookingAcceptedStorageKey);
+        return stored ? JSON.parse(stored) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const setStoredAcceptedBooking = (appointmentKey) => {
+      localStorage.setItem(bookingAcceptedStorageKey, JSON.stringify({ id: appointmentKey, seenAt: Date.now() }));
+    };
+
+    const showPendingBookingConfirmation = (appointment) => {
+      if (!appointment || role !== 'patient' || !bookingResultModal || !bookingResultTitle || !bookingResultMessage || !bookingResultDetails) return;
+      if (String(appointment.status || '').toLowerCase() !== 'pending') return;
+
+      const patientName = user?.name || 'There';
+      const patientFirstName = patientName.split(' ')[0] || 'There';
+      const formattedDate = appointment.preferredDate
+        ? new Date(`${appointment.preferredDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()
+        : 'DATE TBD';
+
+      bookingResultTitle.textContent = 'Booking Request Sent';
+      bookingResultMessage.innerHTML = `
+        <div class="appointment-confirmation-card">
+          <div class="appointment-confirmation-visual appointment-confirmation-visual--pending" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="presentation" focusable="false" class="appointment-confirmation-clock">
+              <circle cx="32" cy="32" r="18" class="appointment-confirmation-clock-base"></circle>
+              <path d="M32 22v12l8 5" class="appointment-confirmation-clock-mark"></path>
+              <path d="M32 14v4M50 32h-4M32 50v-4M14 32h4" class="appointment-confirmation-clock-tick"></path>
+            </svg>
+          </div>
+          <p class="appointment-confirmation-headline">${escapeHtml(patientFirstName)}, your appointment request has been submitted.</p>
+          <div class="appointment-confirmation-summary-row">
+            <span class="appointment-confirmation-time">${escapeHtml(formatTo12Hour(appointment.preferredTime || 'Time to be confirmed'))}</span>
+            <span class="appointment-confirmation-divider">|</span>
+            <span class="appointment-confirmation-service">${escapeHtml(appointment.service || 'Appointment')}</span>
+          </div>
+          <div class="appointment-confirmation-meta-row">
+            <span class="appointment-confirmation-meta">${escapeHtml(formattedDate)}</span>
+          </div>
+          <div class="appointment-confirmation-detail-row">
+            <span class="appointment-status status-pending" style="text-transform: uppercase;">PENDING</span>
+          </div>
+        </div>
+      `;
+      bookingResultDetails.textContent = 'You\'ll be notified once the clinic confirms your appointment.';
+      bookingResultPrimary.textContent = 'OK';
+      bookingResultPrimary.hidden = false;
+      bookingResultPrimary.onclick = closeBookingResult;
+      bookingResultSecondary.textContent = 'Close';
+      bookingResultSecondary.onclick = closeBookingResult;
+      bookingResultModal.showModal();
+    };
+
+    const showAcceptedBookingConfirmation = (appointment) => {
+      if (!appointment || role !== 'patient' || !bookingConfirmedModal || !bookingConfirmedTitle || !bookingConfirmedMessage || !bookingConfirmedDetails) return;
+      const normalizedStatus = String(appointment.status || '').toLowerCase();
+      if (!['confirmed', 'scheduled', 'accepted'].includes(normalizedStatus)) return;
+
+      const patientName = user?.name || 'There';
+      const patientFirstName = patientName.split(' ')[0] || 'There';
+      const appointmentKey = `${appointment._id || appointment.service || 'appointment'}:${appointment.preferredDate || ''}:${appointment.preferredTime || ''}`;
+      const stored = getStoredAcceptedBooking();
+      if (stored && stored.id === appointmentKey) return;
+
+      const formattedDate = appointment.preferredDate
+        ? new Date(`${appointment.preferredDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()
+        : 'DATE TBD';
+
+      bookingConfirmedTitle.textContent = 'Booking Confirmed';
+      bookingConfirmedMessage.innerHTML = `
+        <div class="appointment-confirmation-card">
+          <div class="appointment-confirmation-visual appointment-confirmation-visual--success" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="presentation" focusable="false">
+              <rect x="9" y="12" width="46" height="38" rx="6" class="appointment-confirmation-calendar-base"></rect>
+              <path d="M14 22h36M20 12V8m24 4V8M22 34l8 8 15-18" class="appointment-confirmation-calendar-mark"></path>
+            </svg>
+          </div>
+          <p class="appointment-confirmation-headline">${escapeHtml(patientFirstName)}, your appointment has been confirmed.</p>
+          <div class="appointment-confirmation-summary-row">
+            <span class="appointment-confirmation-time">${escapeHtml(formatTo12Hour(appointment.preferredTime || 'Time to be confirmed'))}</span>
+            <span class="appointment-confirmation-divider">|</span>
+            <span class="appointment-confirmation-service">${escapeHtml(appointment.service || 'Appointment')}</span>
+          </div>
+          <div class="appointment-confirmation-meta-row">
+            <span class="appointment-confirmation-meta">${escapeHtml(formattedDate)}</span>
+          </div>
+          <div class="appointment-confirmation-detail-row">
+            <span class="appointment-status status-confirmed" style="text-transform: uppercase;">SCHEDULED</span>
+          </div>
+        </div>
+      `;
+      bookingConfirmedDetails.textContent = 'Please arrive 10 minutes before your scheduled appointment time.';
+      bookingConfirmedPrimary.textContent = 'OK';
+      bookingConfirmedPrimary.hidden = false;
+      bookingConfirmedPrimary.onclick = closeConfirmedBookingResult;
+      bookingConfirmedSecondary.textContent = 'Close';
+      bookingConfirmedSecondary.onclick = closeConfirmedBookingResult;
+      bookingConfirmedModal.showModal();
+      setStoredAcceptedBooking(appointmentKey);
+    };
+
     bookingResultClose?.addEventListener('click', closeBookingResult);
     bookingResultModal?.addEventListener('click', (event) => {
       if (event.target === bookingResultModal) closeBookingResult();
+    });
+    bookingConfirmedClose?.addEventListener('click', closeConfirmedBookingResult);
+    bookingConfirmedModal?.addEventListener('click', (event) => {
+      if (event.target === bookingConfirmedModal) closeConfirmedBookingResult();
     });
 
     const getLocalDateValue = (date = new Date()) => {
@@ -1910,16 +2139,17 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const patientName = currentUser.name || 'There';
         const patientFirstName = patientName.split(' ')[0] || 'There';
         const formattedDate = new Date(`${data.preferredDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
-        bookingResultTitle.textContent = 'Booking Confirmed';
+        bookingResultTitle.textContent = 'Booking Request Sent';
         bookingResultMessage.innerHTML = `
           <div class="appointment-confirmation-card">
-            <div class="appointment-confirmation-visual" aria-hidden="true">
-              <svg viewBox="0 0 64 64" role="presentation" focusable="false">
-                <rect x="9" y="12" width="46" height="38" rx="6" class="appointment-confirmation-calendar-base"></rect>
-                <path d="M14 22h36M20 12V8m24 4V8M22 34l8 8 15-18" class="appointment-confirmation-calendar-mark"></path>
+            <div class="appointment-confirmation-visual appointment-confirmation-visual--pending" aria-hidden="true">
+              <svg viewBox="0 0 64 64" role="presentation" focusable="false" class="appointment-confirmation-clock">
+                <circle cx="32" cy="32" r="18" class="appointment-confirmation-clock-base"></circle>
+                <path d="M32 22v12l8 5" class="appointment-confirmation-clock-mark"></path>
+                <path d="M32 14v4M50 32h-4M32 50v-4M14 32h4" class="appointment-confirmation-clock-tick"></path>
               </svg>
             </div>
-            <p class="appointment-confirmation-headline">${escapeHtml(patientFirstName)}, we've got you booked for your appointment.</p>
+            <p class="appointment-confirmation-headline">${escapeHtml(patientFirstName)}, your appointment request has been submitted.</p>
             <div class="appointment-confirmation-summary-row">
               <span class="appointment-confirmation-time">${escapeHtml(formatTo12Hour(data.preferredTime || 'Time to be confirmed'))}</span>
               <span class="appointment-confirmation-divider">|</span>
@@ -1929,11 +2159,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <span class="appointment-confirmation-meta">${escapeHtml(formattedDate)}</span>
             </div>
             <div class="appointment-confirmation-detail-row">
-              <span class="appointment-status status-confirmed">Scheduled</span>
+              <span class="appointment-status status-pending" style="text-transform: uppercase;">PENDING</span>
             </div>
           </div>
         `;
-        bookingResultDetails.textContent = 'Please arrive 10 minutes before your scheduled appointment time.';
+        bookingResultDetails.textContent = 'You\'ll be notified once the clinic confirms your appointment.';
         bookingResultPrimary.textContent = 'OK';
         bookingResultPrimary.hidden = false;
         bookingResultSecondary.textContent = 'Close';
@@ -2045,9 +2275,48 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         return record.details;
       }
     };
+    const exportPatientRecord = (values) => {
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) return;
+      const printEscape = (value) => escapeHtml(value || '');
+      const logoUrl = hmecLogoUrl;
+      const printField = (label, key) => `<div class="field"><strong>${label}</strong><span>${printEscape(values[key]) || '________________'}</span></div>`;
+      const printSection = (title, content) => `<section><h2>${title}</h2>${content}</section>`;
+      const refractionRow = (eye) => `<tr><th>${eye}</th>${['Present', 'Hva', 'Uva', 'Full', 'Bcva', 'Final', 'Mpd'].map((key) => `<td>${printEscape(values[`${eye.toLowerCase()}${key}`])}</td>`).join('')}</tr>`;
+      const claimItems = ['Professional Fee', 'Frame', 'Lens', 'Contact Lens', 'Ophthalmic Drops', 'Others'];
+      const claimKey = (item, suffix) => `claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_${suffix}`;
+      const managementKeys = { Lens: 'lens', Frame: 'frame', 'Contact Lens': 'contactLens', 'Drops/Accs': 'dropsAccessories', PF: 'pf', 'Gross Total': 'grossTotal', Discount: 'discount', 'Net Total': 'netTotal', DP: 'downPayment', Bal: 'balance' };
+      const ocularLabels = ['Media', 'CD Ratio', 'AV Ratio', 'Macula', 'Pupil'];
+      const externalLabels = ['Lids/Lashes', 'Conjunctiva', 'Cornea', 'VH', 'Tears'];
+      const ocularPrintRows = () => ocularLabels.map((label, index) => `<tr><td>${label}</td><td>${printEscape(values[`ocular_${label.replace(/[^A-Za-z]/g, '').toLowerCase()}`])}</td><td></td><td>${externalLabels[index]}</td><td>${printEscape(values[`ocular_${externalLabels[index].replace(/[^A-Za-z]/g, '').toLowerCase()}`])}</td><td></td></tr>`).join('');
+      const printHtml = `<!doctype html><html><head><meta charset="utf-8"><title>Patient Record - ${printEscape(values.name)} ${printEscape(values.surname)}</title><style>
+        @page{size:8.5in 13in;margin:.35in .45in}*{box-sizing:border-box}body{margin:0;color:#111;font:10px Arial,sans-serif}h1{font-size:20px;text-align:center;margin:0}.brand{display:flex;align-items:center;gap:12px;border-bottom:2px solid #111;padding-bottom:6px}.brand img{width:90px;height:30px;object-fit:contain}.brand strong{font-size:15px;color:#0b5960}.record-title{display:flex;align-items:center;gap:12px;margin:5px 0}.record-title img{width:80px;height:34px;object-fit:contain}.record-title h1{flex:1;text-align:center}.job-brand{text-align:center;margin:8px 0}.job-brand img{width:105px;height:38px;object-fit:contain}.job-lines{font-size:11px;display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px}.job-lines span:nth-child(even){text-align:right}.claim-title{display:flex;align-items:center;gap:14px;margin:4px 0}.claim-title img{width:80px;height:34px;object-fit:contain}.claim-title h1{flex:1}.claim-title h1{letter-spacing:8px;font-size:18px}section{margin:8px 0;break-inside:avoid}h2{font-size:12px;text-align:center;background:#d9d9d9;border:1px solid #111;padding:4px;margin:0}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #111;padding:4px;min-height:22px;vertical-align:top;word-break:break-word}th{font-weight:bold}.fields{display:grid;grid-template-columns:repeat(4,1fr);border-left:1px solid #111}.field{display:flex;gap:3px;min-height:24px;padding:4px;border:1px solid #111;border-left:0;border-top:0}.field span{flex:1;border-bottom:1px solid #777;min-height:12px}.field strong{white-space:nowrap}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.two textarea{width:100%;height:70px;border:1px solid #111}.icons{height:45px;border:1px solid #111;text-align:center;padding:12px;letter-spacing:35px}.separator{border-top:2px dashed #111;margin:12px 0}.notes{border:1px solid #111;padding:6px}.notes p{margin:4px 0}.small{font-size:9px}
+      </style></head><body><div class="record-title"><img src="${logoUrl}"><h1>Patient Record</h1><span>No: ______________</span></div>
+      ${printSection('Patient Information', `<div class="fields">${printField('Surname:', 'surname')}${printField('Name:', 'name')}${printField('Date:', 'date')}${printField('Referred by:', 'referredBy')}${printField('Brgy:', 'brgy')}${printField('Town:', 'town')}${printField('Age:', 'age')}${printField('Person:', 'person')}${printField('Online FB/IG:', 'online')}${printField('Contact Number:', 'phone')}${printField('Gender:', 'gender')}${printField('Hospital:', 'hospital')}${printField('Passed by:', 'passedBy')}</div>`)}
+      ${printSection('History', `<div class="fields">${printField('Complaints:', 'complaints')}${printField('Activities:', 'activities')}${printField('Ocular:', 'ocularHistory')}${printField('Health:', 'health')}${printField('Aller:', 'allergies')}${printField('BP:', 'bp')}</div>`)}
+      ${printSection('Refraction', `<table><tr><th></th><th>Present</th><th>HVA</th><th>UVA</th><th>Full</th><th>BCVA</th><th>Final</th><th>MPD</th></tr>${refractionRow('OD')}${refractionRow('OS')}<tr><td colspan="4"></td><td>${printEscape(values.refractionN)}</td><td>${printEscape(values.refractionAt)}</td><td>${printEscape(values.refractionCm)}</td><td></td></tr></table>`)}
+      ${printSection('Ocular Health', `<table><tr><th>OD</th><th>Internal</th><th>OS</th><th>OD</th><th>External</th><th>OS</th></tr>${ocularPrintRows()}</table><div class="icons">OD ○ &nbsp;&nbsp; OS ○ &nbsp;&nbsp; OD ◉ &nbsp;&nbsp; OS ◉</div>`)}
+      ${printSection('Management and Tests', `<div class="two"><div><table>${Object.keys(managementKeys).map((label) => `<tr><th>${label}</th><td>${printEscape(values[managementKeys[label]])}</td></tr>`).join('')}</table></div><div class="notes"><strong>Other Tests</strong><p>${printEscape(values.otherTests)}</p><p><strong>Diagnosis:</strong> __________________________</p><p><strong>Recommendation/s:</strong> __________________</p><p><strong>Next Visit:</strong> ________________________</p></div></div>`)}
+      <div class="separator"></div><div class="job-brand"><img src="${logoUrl}"></div><div class="job-lines"><span>Job Order No.: ______________</span><span>Order Date: ______________</span><span>Invoice No.: ______________</span><span>Due Date: ______________</span></div>${printSection('Job Order', `<div class="fields">${printField('Lens:','jobLens')}${printField('Frame:','jobFrame')}${printField('Claim Date:','claimDate')}${printField('Name & Signature:','signature')}</div><p>${printEscape(values.jobNotes)}</p>`)}
+      <div class="separator"></div><section class="claim"><div class="claim-title"><img src="${logoUrl}"><h1>C L A I M&nbsp;&nbsp; S T U B</h1></div><div class="fields">${printField('Patient Name:','claimPatientName')}${printField('Visit Date:','visitDate')}${printField('Due Date:','claimDueDate')}</div><table><tr><th>Item</th><th>From</th><th>Less</th><th>To</th></tr>${claimItems.map((item) => `<tr><th>${item}:</th><td>${printEscape(values[claimKey(item,'from')])}</td><td>${printEscape(values[claimKey(item,'less')])}</td><td>${printEscape(values[claimKey(item,'to')])}</td></tr>`).join('')}<tr><th>Down Payment:</th><td>${printEscape(values.claimDownPayment)}</td><th>Balance:</th><td>${printEscape(values.claimBalance)}</td></tr></table><div class="notes"><strong>NOTES:</strong><p>- Paid items not collected within <u>90 days</u> from the date of purchase will be <u>voided</u>.</p><p>- Please ensure all items are <u>FULLY PAID</u> before claiming.</p><p>- Present this form upon claiming your order.</p></div></section></body></html>`;
+      printWindow.document.write(printHtml);
+      printWindow.document.close();
+      printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
+    };
     const renderRecords = (records, target) => {
       if (!target) return;
-      target.innerHTML = records.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Record</th><th scope="col">Type</th><th scope="col">Date</th><th scope="col">Details</th><th scope="col">Status</th></tr></thead><tbody>${records.map((record) => `<tr><td data-label="Record"><strong>${escapeHtml(record.title)}</strong></td><td data-label="Type">${escapeHtml(record.type || 'Clinical record')}</td><td data-label="Date">${escapeHtml(record.issuedAt || new Date(record.createdAt).toLocaleDateString())}</td><td data-label="Details">${escapeHtml(recordSummary(record))}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(record.status)}">${escapeHtml(record.status)}</span></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No records found.</p>';
+      const includeActions = section === 'patient-records' && target === clinicalRecordList;
+      target.innerHTML = records.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Record</th><th scope="col">Type</th><th scope="col">Date</th><th scope="col">Details</th><th scope="col">Status</th>${includeActions ? '<th scope="col">Action</th>' : ''}</tr></thead><tbody>${records.map((record) => `<tr><td data-label="Record"><strong>${escapeHtml(record.title)}</strong></td><td data-label="Type">${escapeHtml(record.type || 'Clinical record')}</td><td data-label="Date">${escapeHtml(record.issuedAt || new Date(record.createdAt).toLocaleDateString())}</td><td data-label="Details">${escapeHtml(recordSummary(record))}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(record.status)}">${escapeHtml(record.status)}</span></td>${includeActions ? `<td data-label="Action"><button type="button" class="btn appointment-overview-action patient-record-export-action" data-record-id="${escapeHtml(record._id)}"><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M12 3v10m0 0 4-4m-4 4-4-4M5 17v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2" /></svg>Export Record</button></td>` : ''}</tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No records found.</p>';
+      if (!includeActions) return;
+      target.querySelectorAll('.patient-record-export-action').forEach((button) => {
+        button.addEventListener('click', () => {
+          const recordId = button.dataset.recordId;
+          const record = clinicalRecords.find((item) => item._id === recordId) || records.find((item) => item._id === recordId);
+          if (!record) return;
+          const values = typeof record.details === 'string' ? JSON.parse(record.details || '{}') : (record.details || {});
+          exportPatientRecord(values);
+        });
+      });
     };
     const loadPatientRecords = async () => {
       if (!patientRecordList) return;
@@ -2082,11 +2351,14 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     });
     const clinicalRecordForm = document.getElementById('clinical-record-form');
     const recordStatus = document.getElementById('record-status');
+    const followUpDateInput = document.getElementById('record-followup-date');
+    if (followUpDateInput) followUpDateInput.min = new Date().toISOString().slice(0, 10);
     clinicalRecordForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(clinicalRecordForm).entries());
       try {
-        const response = await fetch(`${api}/api/clinical-records`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ ...data, type: recordType }) });
+        const payload = { ...data, type: recordType };
+        const response = await fetch(`${api}/api/clinical-records`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to save record.');
         recordStatus.textContent = result.message;
@@ -2109,7 +2381,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const patientRecordBack = document.getElementById('patient-record-back');
     const patientRecordNext = document.getElementById('patient-record-next');
     const patientRecordSave = document.getElementById('patient-record-save');
-    const patientRecordPrint = document.getElementById('patient-record-print');
     let patientStepIndex = 0;
     const showPatientStep = (index) => {
       patientStepIndex = Math.max(0, Math.min(index, patientSteps.length - 1));
@@ -2128,34 +2399,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     patientProgressSteps.forEach((step) => step.addEventListener('click', () => showPatientStep(Number(step.dataset.stepTarget))));
     patientRecordBack?.addEventListener('click', () => showPatientStep(patientStepIndex - 1));
     patientRecordNext?.addEventListener('click', () => { if (validatePatientStep()) showPatientStep(patientStepIndex + 1); });
-    patientRecordPrint?.addEventListener('click', () => {
-      const values = Object.fromEntries(new FormData(patientRecordForm).entries());
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) return;
-      const printEscape = (value) => escapeHtml(value || '');
-      const logoUrl = hmecLogoUrl;
-      const printField = (label, key) => `<div class="field"><strong>${label}</strong><span>${printEscape(values[key]) || '________________'}</span></div>`;
-      const printSection = (title, content) => `<section><h2>${title}</h2>${content}</section>`;
-      const refractionRow = (eye) => `<tr><th>${eye}</th>${['Present', 'Hva', 'Uva', 'Full', 'Bcva', 'Final', 'Mpd'].map((key) => `<td>${printEscape(values[`${eye.toLowerCase()}${key}`])}</td>`).join('')}</tr>`;
-      const claimItems = ['Professional Fee', 'Frame', 'Lens', 'Contact Lens', 'Ophthalmic Drops', 'Others'];
-      const claimKey = (item, suffix) => `claim_${item.replace(/[^A-Za-z]/g, '').toLowerCase()}_${suffix}`;
-      const managementKeys = { Lens: 'lens', Frame: 'frame', 'Contact Lens': 'contactLens', 'Drops/Accs': 'dropsAccessories', PF: 'pf', 'Gross Total': 'grossTotal', Discount: 'discount', 'Net Total': 'netTotal', DP: 'downPayment', Bal: 'balance' };
-      const ocularLabels = ['Media', 'CD Ratio', 'AV Ratio', 'Macula', 'Pupil'];
-      const externalLabels = ['Lids/Lashes', 'Conjunctiva', 'Cornea', 'VH', 'Tears'];
-      const ocularPrintRows = () => ocularLabels.map((label, index) => `<tr><td>${label}</td><td>${printEscape(values[`ocular_${label.replace(/[^A-Za-z]/g, '').toLowerCase()}`])}</td><td></td><td>${externalLabels[index]}</td><td>${printEscape(values[`ocular_${externalLabels[index].replace(/[^A-Za-z]/g, '').toLowerCase()}`])}</td><td></td></tr>`).join('');
-      const printHtml = `<!doctype html><html><head><meta charset="utf-8"><title>Patient Record - ${printEscape(values.name)} ${printEscape(values.surname)}</title><style>
-        @page{size:8.5in 13in;margin:.35in .45in}*{box-sizing:border-box}body{margin:0;color:#111;font:10px Arial,sans-serif}h1{font-size:20px;text-align:center;margin:0}.brand{display:flex;align-items:center;gap:12px;border-bottom:2px solid #111;padding-bottom:6px}.brand img{width:90px;height:30px;object-fit:contain}.brand strong{font-size:15px;color:#0b5960}.record-title{display:flex;align-items:center;gap:12px;margin:5px 0}.record-title img{width:80px;height:34px;object-fit:contain}.record-title h1{flex:1;text-align:center}.job-brand{text-align:center;margin:8px 0}.job-brand img{width:105px;height:38px;object-fit:contain}.job-lines{font-size:11px;display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px}.job-lines span:nth-child(even){text-align:right}.claim-title{display:flex;align-items:center;gap:14px;margin:4px 0}.claim-title img{width:80px;height:34px;object-fit:contain}.claim-title h1{flex:1}.claim-title h1{letter-spacing:8px;font-size:18px}section{margin:8px 0;break-inside:avoid}h2{font-size:12px;text-align:center;background:#d9d9d9;border:1px solid #111;padding:4px;margin:0}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #111;padding:4px;min-height:22px;vertical-align:top;word-break:break-word}th{font-weight:bold} .fields{display:grid;grid-template-columns:repeat(4,1fr);border-left:1px solid #111}.field{display:flex;gap:3px;min-height:24px;padding:4px;border:1px solid #111;border-left:0;border-top:0}.field span{flex:1;border-bottom:1px solid #777;min-height:12px}.field strong{white-space:nowrap}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.two textarea{width:100%;height:70px;border:1px solid #111}.icons{height:45px;border:1px solid #111;text-align:center;padding:12px;letter-spacing:35px}.separator{border-top:2px dashed #111;margin:12px 0}.notes{border:1px solid #111;padding:6px}.notes p{margin:4px 0}.small{font-size:9px}
-      </style></head><body><div class="record-title"><img src="${logoUrl}"><h1>Patient Record</h1><span>No: ______________</span></div>
-      ${printSection('Patient Information', `<div class="fields">${printField('Surname:', 'surname')}${printField('Name:', 'name')}${printField('Date:', 'date')}${printField('Referred by:', 'referredBy')}${printField('Brgy:', 'brgy')}${printField('Town:', 'town')}${printField('Age:', 'age')}${printField('Person:', 'person')}${printField('Online FB/IG:', 'online')}${printField('Contact Number:', 'phone')}${printField('Gender:', 'gender')}${printField('Hospital:', 'hospital')}${printField('Passed by:', 'passedBy')}</div>`)}
-      ${printSection('History', `<div class="fields">${printField('Complaints:', 'complaints')}${printField('Activities:', 'activities')}${printField('Ocular:', 'ocularHistory')}${printField('Health:', 'health')}${printField('Aller:', 'allergies')}${printField('BP:', 'bp')}</div>`)}
-      ${printSection('Refraction', `<table><tr><th></th><th>Present</th><th>HVA</th><th>UVA</th><th>Full</th><th>BCVA</th><th>Final</th><th>MPD</th></tr>${refractionRow('OD')}${refractionRow('OS')}<tr><td colspan="4"></td><td>${printEscape(values.refractionN)}</td><td>${printEscape(values.refractionAt)}</td><td>${printEscape(values.refractionCm)}</td><td></td></tr></table>`)}
-      ${printSection('Ocular Health', `<table><tr><th>OD</th><th>Internal</th><th>OS</th><th>OD</th><th>External</th><th>OS</th></tr>${ocularPrintRows()}</table><div class="icons">OD ○ &nbsp;&nbsp; OS ○ &nbsp;&nbsp; OD ◉ &nbsp;&nbsp; OS ◉</div>`)}
-      ${printSection('Management and Tests', `<div class="two"><div><table>${Object.keys(managementKeys).map((label) => `<tr><th>${label}</th><td>${printEscape(values[managementKeys[label]])}</td></tr>`).join('')}</table></div><div class="notes"><strong>Other Tests</strong><p>${printEscape(values.otherTests)}</p><p><strong>Diagnosis:</strong> __________________________</p><p><strong>Recommendation/s:</strong> __________________</p><p><strong>Next Visit:</strong> ________________________</p></div></div>`)}
-      <div class="separator"></div><div class="job-brand"><img src="${logoUrl}"></div><div class="job-lines"><span>Job Order No.: ______________</span><span>Order Date: ______________</span><span>Invoice No.: ______________</span><span>Due Date: ______________</span></div>${printSection('Job Order', `<div class="fields">${printField('Lens:','jobLens')}${printField('Frame:','jobFrame')}${printField('Claim Date:','claimDate')}${printField('Name & Signature:','signature')}</div><p>${printEscape(values.jobNotes)}</p>`)}
-      <div class="separator"></div><section class="claim"><div class="claim-title"><img src="${logoUrl}"><h1>C L A I M&nbsp;&nbsp; S T U B</h1></div><div class="fields">${printField('Patient Name:','claimPatientName')}${printField('Visit Date:','visitDate')}${printField('Due Date:','claimDueDate')}</div><table><tr><th>Item</th><th>From</th><th>Less</th><th>To</th></tr>${claimItems.map((item) => `<tr><th>${item}:</th><td>${printEscape(values[claimKey(item,'from')])}</td><td>${printEscape(values[claimKey(item,'less')])}</td><td>${printEscape(values[claimKey(item,'to')])}</td></tr>`).join('')}<tr><th>Down Payment:</th><td>${printEscape(values.claimDownPayment)}</td><th>Balance:</th><td>${printEscape(values.claimBalance)}</td></tr></table><div class="notes"><strong>NOTES:</strong><p>- Paid items not collected within <u>90 days</u> from the date of purchase will be <u>voided</u>.</p><p>- Please ensure all items are <u>FULLY PAID</u> before claiming.</p><p>- Present this form upon claiming your order.</p></div></section></body></html>`;
-      printWindow.document.write(printHtml);
-      printWindow.document.close();
-      printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
+    patientRecordForm?.addEventListener('click', (event) => {
+      if (event.target && event.target.closest('#patient-record-print')) {
+        exportPatientRecord(Object.fromEntries(new FormData(patientRecordForm).entries()));
+      }
     });
     showPatientStep(0);
     const patientField = (name) => patientRecordForm?.elements.namedItem(name);

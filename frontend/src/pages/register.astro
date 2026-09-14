@@ -1,12 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import logoBlue from '../assets/logo/HMEC logo blue.png';
 ---
 
 <Layout title="Patient Registration | Hernandez Mercado Eye Clinic">
   <main class="auth-page auth-page-centered">
     <section class="auth-card auth-card-centered auth-card-register">
-      <a class="auth-back-link" href="/">Hernandez Mercado Eye Clinic</a>
-      <span class="eyebrow">Patient Registration</span>
+      <a class="auth-back-link" href="/">
+        <img src={logoBlue.src} alt="Hernandez Mercado Eye Clinic" />
+      </a>
       <h1>Create your account</h1>
       <p class="auth-intro">Your registration automatically creates a Patient account.</p>
 
@@ -34,6 +36,74 @@ import Layout from '../layouts/Layout.astro';
     </section>
   </main>
 
+  <dialog id="registration-success-dialog" class="registration-success-dialog" aria-labelledby="registration-success-title">
+    <div class="registration-success-dialog__content">
+      <div class="registration-success-icon" aria-hidden="true">✓</div>
+      <h2 id="registration-success-title">Account created</h2>
+      <p>Your patient account has been created successfully. You can sign in and continue to your patient dashboard from the login page.</p>
+      <div class="registration-success-actions">
+        <a href="/login" class="btn btn-primary">Go to sign in</a>
+        <button type="button" class="btn btn-secondary" id="close-registration-success-dialog">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <style>
+    .registration-success-dialog {
+      width: min(480px, calc(100vw - 2rem));
+      border: none;
+      border-radius: 22px;
+      padding: 0;
+      background: #ffffff;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    }
+
+    .registration-success-dialog::backdrop {
+      background: rgba(15, 23, 42, 0.48);
+    }
+
+    .registration-success-dialog__content {
+      display: grid;
+      justify-items: center;
+      gap: 1rem;
+      padding: 2rem 1.5rem 1.5rem;
+      text-align: center;
+    }
+
+    .registration-success-icon {
+      display: grid;
+      place-items: center;
+      width: 4rem;
+      height: 4rem;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.12);
+      color: #097963;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .registration-success-dialog h2 {
+      margin: 0;
+      color: var(--heading-color, #102a43);
+      font-size: clamp(1.35rem, 2vw, 1.7rem);
+    }
+
+    .registration-success-dialog p {
+      margin: 0;
+      color: var(--muted, #52607a);
+      line-height: 1.6;
+    }
+
+    .registration-success-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      width: 100%;
+      margin-top: 0.25rem;
+    }
+  </style>
+
   <script type="module">
     const token = localStorage.getItem('hmVisionToken');
     const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
@@ -45,6 +115,20 @@ import Layout from '../layouts/Layout.astro';
     const status = document.getElementById('register-status');
     const phone = document.getElementById('register-phone');
     const age = document.getElementById('age');
+    const successDialog = document.getElementById('registration-success-dialog');
+    const closeSuccessDialogButton = document.getElementById('close-registration-success-dialog');
+
+    const openSuccessDialog = () => {
+      if (successDialog && typeof successDialog.showModal === 'function') {
+        successDialog.showModal();
+      }
+    };
+
+    closeSuccessDialogButton?.addEventListener('click', () => {
+      if (successDialog && typeof successDialog.close === 'function') {
+        successDialog.close();
+      }
+    });
 
     const formatPhone = (value) => {
       const digits = value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
@@ -89,10 +173,17 @@ import Layout from '../layouts/Layout.astro';
         const response = await fetch(`${api}/api/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to create account.');
-        localStorage.setItem('hmVisionToken', result.token);
-        localStorage.setItem('hmVisionUser', JSON.stringify(result.user));
-        window.location.href = `/dashboard/${result.user.role}/dashboard`;
-      } catch (error) { status.textContent = error.message; status.classList.add('error'); }
+
+        status.textContent = 'Account created successfully.';
+        status.classList.remove('error');
+        status.classList.add('success');
+        form.reset();
+        openSuccessDialog();
+      } catch (error) {
+        status.textContent = error.message;
+        status.classList.remove('success');
+        status.classList.add('error');
+      }
     });
   </script>
 </Layout>

@@ -56,3 +56,21 @@ export const sendPaymentReminder = async ({ name, email, invoiceNumber, balance,
   });
   return { sent: true, message: `Payment reminder sent to ${email}.` };
 };
+export const sendFollowUpReminder = async ({ patientName, email, scheduledDate, reason, reminderDaysBefore }) => {
+  if (!transporter) {
+    return { sent: false, message: 'Email notifications are not configured. The follow-up reminder was logged instead.' };
+  }
+  if (!email) {
+    return { sent: false, message: 'This patient does not have an email address on file.' };
+  }
+
+  const friendlyDate = scheduledDate ? new Date(`${scheduledDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'your scheduled follow-up date';
+  await transporter.sendMail({
+    from: process.env.MAIL_FROM || process.env.SMTP_USER,
+    to: email,
+    subject: `Follow-up reminder for ${patientName || 'your next appointment'}`,
+    text: `Hello ${patientName || 'there'},\n\nThis is a reminder that your follow-up appointment is scheduled for ${friendlyDate}.\nReminder lead time: ${reminderDaysBefore ?? 3} day(s).\nReason: ${reason || 'Follow-up review'}\n\nPlease contact Hernandez Mercado Eye Clinic if you need to reschedule or cancel this appointment.\n`,
+  });
+
+  return { sent: true, message: `Follow-up reminder sent to ${email}.` };
+};

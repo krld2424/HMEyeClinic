@@ -1,11 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import logoBlue from '../assets/logo/HMEC logo blue.png';
 ---
 
 <Layout title="Login | Hernandez Mercado Eye Clinic">
   <main class="auth-page auth-page-centered">
     <section class="auth-card auth-card-centered">
-      <a class="auth-back-link" href="/">Hernandez Mercado Eye Clinic</a>
+      <a class="auth-back-link" href="/">
+        <img src={logoBlue.src} alt="Hernandez Mercado Eye Clinic" />
+      </a>
       <h1>Welcome back</h1>
       <p class="auth-intro">Sign in to continue to your clinic workspace.</p>
 
@@ -21,8 +24,17 @@ import Layout from '../layouts/Layout.astro';
             <button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="Show password">Show</button>
           </div>
         </div>
+        <div class="field-group">
+          <div
+            class="cf-turnstile"
+            data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}
+            data-callback="onTurnstileSuccess"
+            data-expired-callback="onTurnstileExpired"
+            data-error-callback="onTurnstileError"
+          ></div>
+        </div>
         <a class="auth-forgot-link" href="/reset-password">Forgot password?</a>
-        <button type="submit" class="btn btn-primary auth-submit">Sign In</button>
+        <button type="submit" class="btn btn-primary auth-submit" disabled>Sign In</button>
         <p id="login-status" class="form-status" aria-live="polite"></p>
       </form>
       <p class="auth-switch">New patient? <a href="/register">Create an account</a></p>
@@ -51,15 +63,43 @@ import Layout from '../layouts/Layout.astro';
     const form = document.getElementById('login-form');
     const status = document.getElementById('login-status');
     const submitButton = form.querySelector('button[type="submit"]');
+    const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
+    let turnstileVerified = false;
 
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
 
+    const updateSubmitState = () => {
+      const isBusy = form.dataset.submitting === 'true';
+      submitButton.disabled = isBusy || !turnstileVerified || !turnstileKey;
+      submitButton.setAttribute('aria-busy', String(isBusy));
+      submitButton.textContent = isBusy ? 'Signing in...' : 'Sign In';
+    };
+
+    window.onTurnstileSuccess = () => {
+      turnstileVerified = true;
+      updateSubmitState();
+    };
+
+    window.onTurnstileExpired = () => {
+      turnstileVerified = false;
+      updateSubmitState();
+    };
+
+    window.onTurnstileError = () => {
+      turnstileVerified = false;
+      updateSubmitState();
+    };
+
     const setSubmittingState = (isSubmitting) => {
       form.dataset.submitting = String(isSubmitting);
-      submitButton.disabled = isSubmitting;
-      submitButton.setAttribute('aria-busy', String(isSubmitting));
-      submitButton.textContent = isSubmitting ? 'Signing in...' : 'Sign In';
+      updateSubmitState();
     };
+
+    if (!turnstileKey) {
+      status.textContent = 'Security verification is not configured.';
+      status.classList.add('error');
+      submitButton.disabled = true;
+    }
 
     document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
       toggle.addEventListener('click', () => {
@@ -75,15 +115,25 @@ import Layout from '../layouts/Layout.astro';
       event.preventDefault();
       if (form.dataset.submitting === 'true') return;
 
+      const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+      if (!turnstileVerified || !turnstileToken) {
+        status.textContent = 'Please complete the security verification.';
+        status.classList.add('error');
+        return;
+      }
+
       setSubmittingState(true);
       status.textContent = 'Signing in...';
       status.classList.remove('error');
 
       try {
+        const formData = Object.fromEntries(new FormData(form).entries());
+        delete formData['cf-turnstile-response'];
+
         const response = await fetch(`${api}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(Object.fromEntries(new FormData(form).entries())),
+          body: JSON.stringify({ ...formData, turnstileToken }),
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to sign in.');

@@ -31,6 +31,42 @@ const followUpSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    relatedRecordId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ClinicalRecord',
+      default: null,
+    },
+    reminderDaysBefore: {
+      type: Number,
+      min: 0,
+      default: 3,
+    },
+    reminderScheduledFor: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    reminderStatus: {
+      type: String,
+      enum: ['pending', 'sent', 'failed', 'cancelled'],
+      default: 'pending',
+    },
+    reminderChannel: {
+      type: String,
+      default: 'email',
+    },
+    reminderSentAt: {
+      type: Date,
+      default: null,
+    },
+    reminderLog: [
+      {
+        status: { type: String, enum: ['sent', 'failed'], required: true },
+        channel: { type: String, default: 'email' },
+        sentAt: { type: Date, default: Date.now },
+        message: { type: String, trim: true },
+      },
+    ],
     notes: {
       type: String,
       trim: true,

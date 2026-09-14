@@ -1539,6 +1539,11 @@ textarea {
   height: 62px;
 }
 
+.appointment-confirmation-visual--pending {
+  background: rgba(96, 165, 250, 0.16);
+  border-color: rgba(96, 165, 250, 0.26);
+}
+
 .appointment-confirmation-calendar-base {
   fill: rgba(255, 255, 255, 0.74);
   stroke: rgba(26, 46, 64, 0.88);
@@ -1549,6 +1554,25 @@ textarea {
   fill: none;
   stroke: rgba(37, 99, 235, 0.7);
   stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.appointment-confirmation-clock {
+  overflow: visible;
+}
+
+.appointment-confirmation-clock-base {
+  fill: rgba(255, 255, 255, 0.78);
+  stroke: rgba(37, 99, 235, 0.72);
+  stroke-width: 2.6;
+}
+
+.appointment-confirmation-clock-mark,
+.appointment-confirmation-clock-tick {
+  fill: none;
+  stroke: rgba(37, 99, 235, 0.78);
+  stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -1997,17 +2021,25 @@ textarea {
   margin: 8px 0 8px;
   font-family: 'Manrope', 'Segoe UI', sans-serif;
   color: var(--text);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
   letter-spacing: -0.06em;
 }
 
 .auth-back-link {
-  display: block;
-  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 20px;
+  margin-bottom: 10px;
   color: var(--primary-dark);
   font-weight: 800;
 }
 
+.auth-back-link img {
+  display: block;
+  max-width: 220px;
+  height: auto;
+}
 .auth-intro,
 .auth-switch {
   color: var(--muted);
@@ -3572,14 +3604,28 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   padding: 28px 24px;
 }
 
+.patient-dashboard-panel,
+.owner-dashboard-panel,
+.optometrist-dashboard-panel,
+.eye-care-assistant-dashboard-panel,
+.patient-task-page,
+.owner-task-page,
+.optometrist-task-page,
+.eye-care-assistant-task-page,
+.patient-calendar-card,
+.owner-calendar-card,
+.optometrist-calendar-card,
+.eye-care-assistant-calendar-card,
 .appointments-task-page {
   width: min(1560px, calc(100% - 32px));
+}
+
+.appointments-task-page {
   padding-right: 28px;
   padding-left: 28px;
 }
 
 .appointments-calendar-card {
-  width: min(1560px, calc(100% - 32px));
   margin: 0 auto 16px;
   padding: 18px 24px;
 }
@@ -5410,8 +5456,8 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #1a1a1a;
-  border-color: #1a1a1a;
+  background: var(--primary);
+  border-color: var(--primary);
   color: #fff;
   min-height: 32px;
   padding: 0 12px;
@@ -5426,8 +5472,8 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 
 .appointments-workspace .appointment-clinical-record-action:hover,
 .appointments-workspace .appointment-clinical-record-action:focus-visible {
-  background: #333;
-  border-color: #333;
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
   color: #fff;
 }
 
@@ -5538,6 +5584,28 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   width: 20px;
   height: 20px;
   fill: currentColor;
+}
+
+.patient-record-export-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.patient-record-export-action svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .appointment-mobile-list {
@@ -5924,6 +5992,37 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   min-height: 34px;
   padding: 0 10px;
   font-size: 0.76rem;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(14, 132, 130, 0.18);
+}
+
+.appointment-inline-actions .btn.is-danger,
+.appointment-inline-actions .btn.action-cancelled {
+  background: #b42318;
+  border-color: #b42318;
+  color: #fff;
+}
+
+.appointment-inline-actions .btn:hover,
+.appointment-inline-actions .btn:focus-visible,
+.appointment-actions .btn:hover,
+.appointment-actions .btn:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--primary-dark);
+  box-shadow: 0 8px 18px rgba(14, 132, 130, 0.18);
+  background: var(--primary-dark);
+  color: #fff;
+}
+
+.appointment-inline-actions .btn.is-danger:hover,
+.appointment-inline-actions .btn.is-danger:focus-visible,
+.appointment-inline-actions .btn.action-cancelled:hover,
+.appointment-inline-actions .btn.action-cancelled:focus-visible {
+  background: #8f1d15;
+  border-color: #8f1d15;
+  color: #fff;
 }
 
 .appointment-actions .btn {
