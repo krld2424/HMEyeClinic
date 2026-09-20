@@ -9,6 +9,11 @@ const clinicalRecordSchema = new mongoose.Schema(
     details: { type: String, required: true, trim: true },
     status: { type: String, enum: ['active', 'completed', 'expired'], default: 'active' },
     issuedAt: { type: String, trim: true },
+    archived: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
   },
   { timestamps: true }
 );

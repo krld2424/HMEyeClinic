@@ -27,18 +27,35 @@ const broadcastUserChange = (req, user, action) => {
 
 router.get('/users', async (req, res) => {
   try {
-    const patientsWithoutIds = await User.find({ role: 'patient', patientId: { $exists: false } });
+    const archivedOnly = String(req.query.archived || '').toLowerCase() === 'true';
+    const patientsWithoutIds = await User.find({ role: 'patient', patientId: { $exists: false }, ...(archivedOnly ? {} : { archived: { $ne: true } }) });
     for (const patient of patientsWithoutIds) {
       patient.patientId = await nextPatientId();
       await patient.save();
     }
 
-    const users = await User.find({ role: { $ne: 'owner' } })
+    const users = await User.find({ role: { $ne: 'owner' }, ...(archivedOnly ? {} : { archived: { $ne: true } }) })
       .select('-password')
       .sort({ createdAt: -1 });
     return res.status(200).json({ users });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to load managed accounts.', error: error.message });
+  }
+});
+
+router.patch('/users/:id/archive', async (req, res) => {
+  try {
+    const archived = Boolean(req.body?.archived ?? true);
+    const user = await User.findOne({ _id: req.params.id, role: { $ne: 'owner' } }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+    if (req.user.role !== 'owner') return res.status(403).json({ message: 'Only the owner may archive staff accounts.' });
+    user.archived = archived;
+    user.isActive = archived ? false : user.isActive;
+    await user.save();
+    broadcastUserChange(req, user, archived ? 'archived' : 'restored');
+    return res.status(200).json({ message: archived ? 'User archived.' : 'User restored.', user });
+  } catch (error) {
+    return res.status(400).json({ message: error.message || 'Unable to archive user.' });
   }
 });
 

@@ -163,7 +163,9 @@ router.get('/mine', requireAuth, async (req, res) => {
   res.set('Expires', '0');
 
   try {
+    const archivedOnly = String(req.query.archived || '').toLowerCase() === 'true';
     const appointments = await Appointment.find({
+      ...(archivedOnly ? {} : { archived: { $ne: true } }),
       $or: [{ userId: req.user.id }, { email: req.user.email }],
     }).sort({ createdAt: -1 });
     return res.status(200).json({ appointments });
@@ -178,17 +180,45 @@ router.get('/', requireAuth, allowRoles('owner', 'optometrist', 'eye-care-assist
   res.set('Expires', '0');
 
   try {
-    const appointments = await Appointment.find().sort({ preferredDate: 1, createdAt: -1 });
+    const archivedOnly = String(req.query.archived || '').toLowerCase() === 'true';
+    const appointments = await Appointment.find({ ...(archivedOnly ? {} : { archived: { $ne: true } }) }).sort({ preferredDate: 1, createdAt: -1 });
     return res.status(200).json({ appointments });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to load appointments.', error: error.message });
   }
 });
 
+router.patch('/:id/archive', requireAuth, async (req, res) => {
+  try {
+    const action = typeof req.body?.archived === 'boolean' ? req.body.archived : true;
+    const appointment = await Appointment.findById(req.params.id);
+    if (!appointment) return res.status(404).json({ message: 'Appointment not found.' });
+    if (!['owner', 'optometrist', 'eye-care-assistant'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'You do not have permission for this action.' });
+    }
+    const previous = { archived: appointment.archived, status: appointment.status };
+    appointment.archived = action;
+    if (action && appointment.status !== 'rejected') {
+      appointment.status = 'cancelled';
+    }
+    await appointment.save();
+    await AuditLog.create({
+      actorId: req.user.id,
+      action: action ? 'Archived appointment' : 'Restored appointment',
+      target: `Appointment:${appointment._id}`,
+      previousData: previous,
+      newData: { archived: appointment.archived, status: appointment.status },
+    });
+    return res.status(200).json({ message: action ? 'Appointment archived.' : 'Appointment restored.', appointment });
+  } catch (error) {
+    return res.status(400).json({ message: error.message || 'Unable to archive appointment.' });
+  }
+});
+
 router.patch('/:id/status', requireAuth, async (req, res) => {
   try {
     const { status, preferredDate, preferredTime } = req.body;
-    const allowedStatuses = ['pending', 'confirmed', 'completed', 'cancelled', 'rescheduled', 'no-show'];
+    const allowedStatuses = ['pending', 'confirmed', 'completed', 'cancelled', 'rejected', 'rescheduled', 'no-show'];
 
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({ message: 'Invalid appointment status.' });
@@ -248,6 +278,9 @@ router.patch('/:id/status', requireAuth, async (req, res) => {
 
     const previousStatus = appointment.status;
     appointment.status = status;
+    if (status === 'rejected') {
+      appointment.archived = true;
+    }
     if (status === 'rescheduled') {
       appointment.preferredDate = preferredDate;
       appointment.preferredTime = preferredTime;
@@ -256,11 +289,11 @@ router.patch('/:id/status', requireAuth, async (req, res) => {
 
     await AuditLog.create({
       actorId: req.user.id,
-      action: `Appointment status changed to ${status}`,
+      action: status === 'rejected' ? 'Rejected appointment and archived it' : `Appointment status changed to ${status}`,
       target: `Appointment for ${appointment.name}`,
       details: `${appointment.service} (${appointment.email})`,
-      previousData: { status: previousStatus },
-      newData: { status: appointment.status },
+      previousData: { status: previousStatus, archived: appointment.archived },
+      newData: { status: appointment.status, archived: appointment.archived },
     });
 
     const appointmentAction = status === 'rescheduled' ? 'rescheduled' : status === 'completed' ? 'completed' : 'status-updated';

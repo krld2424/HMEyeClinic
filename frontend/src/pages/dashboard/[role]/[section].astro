@@ -28,6 +28,7 @@ const iconPaths = {
   'roles-permissions': 'M12 3 20 7v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Zm-3 9 2 2 4-4',
   'audit-logs': 'M6 3h12v18H6V3Zm3 4h6m-6 4h6m-6 4h4',
   'clinic-settings': 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0-5v2m0 14v2m9-9h-2M5 12H3m15.36-6.36-1.42 1.42M7.06 16.94l-1.42 1.42m12.72 0-1.42-1.42M7.06 7.06 5.64 5.64',
+  archived: 'M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6',
 };
 
 const navigation = {
@@ -49,6 +50,7 @@ const navigation = {
     'patient-records': 'Patient Records',
     prescriptions: 'Prescriptions',
     'follow-ups': 'Follow-ups',
+    archived: 'Archived',
   },
   'eye-care-assistant': {
     dashboard: 'Eye Care Assistant Dashboard',
@@ -63,6 +65,7 @@ const navigation = {
     'stock-out': 'Stock Out',
     'stock-adjustment': 'Stock Adjustment',
     'inventory-history': 'Inventory History',
+    archived: 'Archived',
   },
   owner: {
     dashboard: 'Owner Dashboard',
@@ -93,14 +96,26 @@ const navigation = {
     'customer-payments': 'Customer Payments',
     'payment-history': 'Payment History',
     'outstanding-balances': 'Outstanding Balances',
+    archived: 'Archived',
+  },
+  patient: {
+    dashboard: 'Patient Dashboard',
+    'book-exam': 'Book an Appointment',
+    appointments: 'Appointments',
+    'follow-ups': 'Follow-ups',
+    'medical-records': 'Medical Records',
+    prescriptions: 'Prescriptions',
+    notifications: 'Notifications',
+    profile: 'Profile',
+    archived: 'Archived',
   },
 };
 
 const sidebarGroups = {
-  patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions']], ['Account', ['notifications', 'profile']]],
-  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']]],
-  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'billing']], ['Inventory', ['inventory', 'stock-movements', 'stock-adjustment', 'inventory-history']]],
-  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']]],
+  patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions']], ['Account', ['notifications', 'profile', 'archived']]],
+  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Archived', ['archived']]],
+  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'billing']], ['Archived', ['archived']]],
+  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']], ['Archived', ['archived']]],
 };
 const groupIcons = {
   Overview: 'overview',
@@ -114,6 +129,7 @@ const groupIcons = {
   Inventory: 'inventory',
   'Stock Movements': 'inventory',
   Billing: 'billing',
+  Archived: 'archived',
 };
 
 const roleNavigation = navigation[role] || {};
@@ -123,18 +139,18 @@ const inventorySections = ['inventory', 'stock-movements', 'stock-in', 'stock-ou
 const canAccessInventory = ['owner', 'eye-care-assistant'].includes(role);
 
 const routePairs = [
-  ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'],
-  ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
-  ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'],
-  ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
+  ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'], ['patient', 'archived'],
+  ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'], ['optometrist', 'archived'],
+  ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'], ['eye-care-assistant', 'archived'],
+  ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'], ['owner', 'archived'],
 ];
 
 export function getStaticPaths() {
   return [
-    ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'],
-    ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'],
-    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'],
-    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'],
+    ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'], ['patient', 'archived'],
+    ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'], ['optometrist', 'archived'],
+    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'], ['eye-care-assistant', 'archived'],
+    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'], ['owner', 'archived'],
   ].map(([routeRole, routeSection]) => ({ params: { role: routeRole, section: routeSection } }));
 }
 
@@ -161,6 +177,7 @@ const pageCopy = {
   'audit-logs': 'Review administrative, access, appointment, and record activity.',
   reports: 'Review appointment, patient, consultation, and billing summaries.',
   'clinic-settings': 'Configure clinic identity, hours, services, schedules, and closed dates.',
+  archived: 'Review archived visits, records, and historical items for this clinic workspace.',
   suppliers: 'Manage clinic suppliers and supplier contact information.',
   'purchase-orders': 'Prepare and review purchase orders for clinic supplies.',
   receiving: 'Record incoming products and supplies received from suppliers.',
@@ -784,6 +801,13 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             </div>
           )}
 
+          {section === 'archived' && (
+            <div class="workflow-list">
+              <div class="section-header split"><div><h2>Archived</h2></div></div>
+              <div id="archived-record-list" class="record-list"><p class="empty-appointments">Loading archived records...</p></div>
+            </div>
+          )}
+
           {section === 'roles-permissions' && role === 'owner' && <div id="permissions-list" class="record-list"><p class="empty-appointments">Loading permissions...</p></div>}
 
           {section === 'audit-logs' && role === 'owner' && (
@@ -995,6 +1019,55 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
 
     const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]);
+    const renderActionButton = ({
+      label,
+      variant = 'view',
+      classes = [],
+      icon = '',
+      disabled = false,
+      dataAttrs = {},
+      type = 'button',
+      ariaLabel,
+      tag = 'button',
+      href,
+    }) => {
+      const safeLabel = String(label || 'Action');
+      const safeAriaLabel = ariaLabel || safeLabel;
+      const legacyClasses = {
+        view: ['appointment-overview-action', 'appointment-detail-action'],
+        'view-clinical': ['appointment-clinical-record-action'],
+        edit: ['patient-record-edit-action'],
+        approve: ['action-approve'],
+        confirm: ['action-confirm'],
+        complete: ['action-completed'],
+        reschedule: ['action-reschedule'],
+        deactivate: ['user-status-button', 'action-deactivate'],
+        archive: ['table-action-btn--archive-gray', 'action-archive', 'user-archive-button'],
+        restore: ['table-action-btn--archive-gray', 'action-archive', 'action-restore', 'user-archive-button'],
+        danger: ['action-delete', 'action-cancel', 'action-reject'],
+        cancel: ['action-cancel'],
+        remove: ['operation-remove'],
+        'book-follow-up': ['action-follow-up'],
+        'view-invoice': ['billing-view-action'],
+        'reverse-payment': ['action-delete'],
+      };
+      const classNames = [
+        'table-action-btn',
+        `table-action-btn--${variant}`,
+        ...(legacyClasses[variant] || []),
+        ...classes,
+      ];
+      const dataString = Object.entries(dataAttrs)
+        .map(([key, value]) => ` data-${key}="${escapeHtml(String(value))}"`)
+        .join('');
+      const attributes = disabled ? ' disabled aria-disabled="true"' : '';
+
+      if (tag === 'a') {
+        return `<a class="${classNames.join(' ')}" href="${escapeHtml(String(href || '#'))}"${dataString}${attributes} aria-label="${escapeHtml(safeAriaLabel)}">${icon}<span class="table-action-btn__label">${safeLabel}</span></a>`;
+      }
+
+      return `<button type="${type}" class="${classNames.join(' ')}"${dataString}${attributes} aria-label="${escapeHtml(safeAriaLabel)}">${icon}<span class="table-action-btn__label">${safeLabel}</span></button>`;
+    };
     const dashboardBento = document.getElementById('dashboard-bento-content');
     const dashboardRetry = document.getElementById('dashboard-retry');
     const dashboardValue = (value) => value === 0 ? '0' : value || 'No data available';
@@ -1414,6 +1487,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const items = menuOptions.map(([status, label]) => {
         const isDanger = status === 'cancelled';
         const actionType = status === 'reschedule' ? 'reschedule' : status === 'cancelled' ? 'cancelled' : status === 'follow-up' ? 'follow-up' : status === 'book-again' ? 'book-again' : status;
+        const actionVariant = status === 'cancelled' ? 'danger' : status === 'reschedule' ? 'reschedule' : status === 'follow-up' ? 'complete' : 'approve';
         const buttonText = status === 'cancelled'
           ? 'Cancel'
           : status === 'reschedule'
@@ -1421,7 +1495,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             : status === 'follow-up'
               ? 'Book follow-up'
               : 'Book again';
-        return `<button type="button" class="btn btn-secondary appointment-action ${isDanger ? 'is-danger' : ''} action-${actionType}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${actionType}" data-service="${escapeHtml(appointment.service || '')}">${buttonText}</button>`;
+        return renderActionButton({
+          label: buttonText,
+          variant: actionVariant,
+          classes: ['appointment-action', isDanger ? 'is-danger' : '', `action-${actionType}`],
+          dataAttrs: { 'appointment-id': appointment._id, status: actionType, service: appointment.service || '' },
+        });
       }).join('');
 
       return `<div class="appointment-inline-actions">${items}</div>`;
@@ -1436,19 +1515,20 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         cancelled: [['confirmed', `${appointmentIcons.confirm}Confirm patient`], ['rescheduled', `${appointmentIcons.reschedule}Reschedule`], ['completed', `${appointmentIcons.complete}Mark completed`]],
       }[appointment.status] || [];
       const correctionAction = role === 'owner'
-        ? `<button type="button" class="appointment-kebab-item appointment-action action-correct-completed" data-appointment-id="${escapeHtml(appointment._id)}" data-status="correct-completed">${appointmentIcons.cancel}Void / Correct record</button>`
+        ? renderActionButton({ label: 'Void / Correct record', variant: 'danger', classes: ['appointment-kebab-item', 'appointment-action', 'action-correct-completed'], icon: appointmentIcons.cancel, dataAttrs: { 'appointment-id': appointment._id, status: 'correct-completed' }, })
         : '';
+      const archiveAction = renderActionButton({ label: appointment.archived ? 'Restore' : 'Archive', variant: appointment.archived ? 'archive' : 'archive', classes: ['appointment-kebab-item', 'appointment-action', appointment.archived ? 'action-restore' : 'action-archive'], icon: appointmentIcons.clinical, dataAttrs: { 'appointment-id': appointment._id, status: appointment.archived ? 'restore' : 'archive', archived: Boolean(appointment.archived) }, });
       const defaultActions = appointment.status === 'completed'
-        ? correctionAction
-        : actions.map(([status, label]) => `<button type="button" class="appointment-kebab-item appointment-action action-${status}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${status}">${label}</button>`).join('');
+        ? `${correctionAction}${archiveAction}`
+        : `${actions.map(([status, label]) => renderActionButton({ label: label.replace(/<[^>]*>/g, ''), variant: status === 'cancelled' ? 'danger' : status === 'rescheduled' ? 'reschedule' : status === 'confirmed' ? 'approve' : status === 'completed' ? 'complete' : 'view', classes: ['appointment-kebab-item', 'appointment-action', `action-${status}`], icon: '', dataAttrs: { 'appointment-id': appointment._id, status }, })).join('')}${archiveAction}`;
       return `<div class="appointment-kebab-menu">${kebabButton()}<div class="appointment-kebab-dropdown" role="menu" hidden>${defaultActions}</div></div>`;
     };
     const appointmentPrimaryAction = (appointment) => {
       if (role === 'patient') return '';
       if (appointment.status === 'completed' || appointment.status === 'cancelled') {
-        return `<a class="btn appointment-action-link appointment-clinical-record-action" href="${appointmentRecordsHref()}">${appointmentIcons.clinical}View Clinical Record</a>`;
+        return `<a class="table-action-btn table-action-btn--view-clinical appointment-action-link appointment-clinical-record-action" href="${appointmentRecordsHref()}" data-appointment-id="${escapeHtml(appointment._id)}">${appointmentIcons.clinical}<span class="table-action-btn__label">View Clinical Record</span></a>`;
       }
-      return `<button type="button" class="btn appointment-overview-action appointment-detail-action" data-appointment-id="${escapeHtml(appointment._id)}">${appointmentIcons.profile}View Patient Record</button>`;
+      return renderActionButton({ label: 'View Patient Record', variant: 'view', classes: ['appointment-detail-action'], icon: appointmentIcons.profile, dataAttrs: { 'appointment-id': appointment._id } });
     };
 
     const appointmentActions = (appointment) => {
@@ -1507,6 +1587,26 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         }
         if (actionStatus === 'correct-completed') {
           openCorrectionDialog(button);
+          return;
+        }
+        if (actionStatus === 'archive' || actionStatus === 'restore') {
+          const shouldArchive = actionStatus === 'archive';
+          if (!window.confirm(shouldArchive ? 'Archive this appointment? It will be hidden from the default list and restored later from Archived.' : 'Restore this appointment to the active list?')) return;
+          button.disabled = true;
+          try {
+            const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/archive`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: shouldArchive }) });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.message || 'The archive action failed.');
+            appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? { ...item, archived: shouldArchive, status: shouldArchive ? 'cancelled' : item.status } : item);
+            showAppointmentActionStatus(shouldArchive ? 'Appointment archived.' : 'Appointment restored.', 'success');
+            renderAppointmentStats();
+            renderMainAppointmentCalendar();
+            renderAppointmentPage();
+          } catch (error) {
+            showAppointmentActionStatus(error.message || 'The archive action failed.', 'error');
+          } finally {
+            button.disabled = false;
+          }
           return;
         }
         button.disabled = true;
@@ -1743,9 +1843,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
     const loadAppointments = async () => {
       if (!appointmentList) return;
+      const includeArchived = section === 'archived';
       const endpoint = role === 'patient' ? '/api/appointments/mine' : '/api/appointments';
       try {
-        const response = await fetchWithTimeout(`${api}${endpoint}`, { headers: { Authorization: `Bearer ${token}` } });
+        const response = await fetchWithTimeout(`${api}${endpoint}${includeArchived ? '?archived=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message);
           showState(`${result.appointments?.length || 0} appointment${result.appointments?.length === 1 ? '' : 's'} found.`, 'success');
@@ -1789,6 +1890,101 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         appointmentList.innerHTML = '<p class="empty-appointments">Try again when the clinic API is available.</p>';
       }
     };
+
+    const archivedRecordList = document.getElementById('archived-record-list');
+    const loadArchivedRecords = async () => {
+      if (!archivedRecordList) return;
+      archivedRecordList.innerHTML = '<p class="empty-appointments">Loading archived records...</p>';
+      try {
+        const fetches = [];
+        if (['owner', 'optometrist', 'eye-care-assistant'].includes(role)) {
+          fetches.push(fetchWithTimeout(`${api}/api/appointments?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.appointments || []).map((item) => ({ id: item._id, type: 'Appointment', label: item.name || item.service || 'Appointment', status: item.status || 'archived', date: item.preferredDate || item.createdAt || '', canRestore: true, category: 'appointments', item }))));
+        }
+        if (role === 'owner') {
+          fetches.push(fetchWithTimeout(`${api}/api/admin/users?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.users || []).map((item) => ({ id: item._id, type: 'Staff Account', label: item.name || item.email || 'Account', status: item.isActive ? 'active' : 'inactive', date: item.createdAt || '', canRestore: true, category: 'users', item }))));
+          fetches.push(fetchWithTimeout(`${api}/api/clinic-operations?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.recordType || 'Operation', label: item.data?.name || item.data?.invoiceNumber || item.data?.reference || item.data?.itemCode || 'Operation', status: item.status || 'archived', date: item.createdAt || '', canRestore: true, category: 'operations', item }))));
+        }
+        if (['owner', 'optometrist'].includes(role)) {
+          fetches.push(fetchWithTimeout(`${api}/api/clinical-records?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.type || 'Clinical Record', label: item.title || 'Clinical record', status: item.status || 'archived', date: item.issuedAt || item.createdAt || '', canRestore: true, category: 'clinical-records', item }))));
+        }
+        if (role === 'patient') {
+          fetches.push(fetchWithTimeout(`${api}/api/clinical-records/mine?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.type || 'Clinical Record', label: item.title || 'Clinical record', status: item.status || 'archived', date: item.issuedAt || item.createdAt || '', canRestore: true, category: 'clinical-records', item }))));
+        }
+        const results = await Promise.all(fetches);
+        const archived = results.flat();
+        if (!archived.length) {
+          archivedRecordList.innerHTML = '<p class="empty-appointments">No archived records found.</p>';
+          return;
+        }
+        archivedRecordList.innerHTML = `
+          <div class="appointment-table-wrap">
+            <table class="appointment-table">
+              <thead>
+                <tr>
+                  <th scope="col">Record</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Archived</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${archived.map((record) => `
+                  <tr>
+                    <td data-label="Record"><strong>${escapeHtml(record.label)}</strong></td>
+                    <td data-label="Type">${escapeHtml(record.type)}</td>
+                    <td data-label="Status"><span class="appointment-status status-cancelled">Archived</span></td>
+                    <td data-label="Archived">${escapeHtml(record.date ? new Date(`${record.date}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown date')}</td>
+                    <td data-label="Action"><button type="button" class="btn btn-secondary restore-archived-record" data-archive-type="${escapeHtml(record.category)}" data-archive-id="${escapeHtml(record.id)}">Restore</button></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        archivedRecordList.querySelectorAll('.restore-archived-record').forEach((button) => {
+          button.addEventListener('click', async () => {
+            const type = button.dataset.archiveType;
+            const id = button.dataset.archiveId;
+            if (!id) return;
+            if (!window.confirm('Restore this record to the active list?')) return;
+            try {
+              const endpoints = {
+                appointments: `${api}/api/appointments/${id}/archive`,
+                users: `${api}/api/admin/users/${id}/archive`,
+                operations: `${api}/api/clinic-operations/${id}/archive`,
+                'clinical-records': `${api}/api/clinical-records/${id}/archive`,
+              };
+              const response = await fetch(endpoints[type] || '', { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: false }) });
+              const result = await response.json().catch(() => ({}));
+              if (!response.ok) throw new Error(result.message || 'Unable to restore this record.');
+              if (type === 'appointments') {
+                appointments = appointments.filter((item) => item._id !== id);
+                if (appointmentList) { renderAppointmentPage(); }
+              }
+              if (type === 'users') {
+                await loadUsers();
+              }
+              if (type === 'operations') {
+                await loadOperations();
+              }
+              if (type === 'clinical-records') {
+                await loadClinicalRecords();
+              }
+              await loadArchivedRecords();
+            } catch (error) {
+              alert(error.message || 'Unable to restore the record.');
+            }
+          });
+        });
+      } catch (error) {
+        archivedRecordList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message || 'Unable to load archived records.')}</p>`;
+      }
+    };
+
+    if (section === 'archived') {
+      loadArchivedRecords();
+    }
 
     if (appointmentList) {
       loadAppointments();
@@ -2211,7 +2407,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
       followUpPage = Math.min(followUpPage, pages);
       const visible = filtered.slice((followUpPage - 1) * pageSize, followUpPage * pageSize);
-      followUpList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Patient</th><th scope="col">Reason</th><th scope="col">Preferred Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Patient"><strong>${escapeHtml(item.patientName)}</strong><small>${escapeHtml(item.patientEmail)}</small></td><td data-label="Reason">${escapeHtml(item.reason)}</td><td data-label="Preferred Date">${escapeHtml(item.preferredDate || 'No date provided')}${item.scheduledDate ? `<small>Scheduled: ${escapeHtml(item.scheduledDate)}</small>` : ''}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></td><td data-label="Actions"><div class="appointment-actions">${role !== 'patient' ? `${item.status === 'requested' ? `<button type="button" class="btn btn-secondary action-scheduled follow-up-action" data-id="${item._id}" data-status="scheduled">Schedule</button><button type="button" class="btn btn-secondary action-rejected follow-up-action" data-id="${item._id}" data-status="rejected">Reject</button>` : ''}${item.status === 'scheduled' ? `<button type="button" class="btn btn-secondary action-completed follow-up-action" data-id="${item._id}" data-status="completed">Mark completed</button><button type="button" class="btn btn-secondary action-cancelled follow-up-action" data-id="${item._id}" data-status="cancelled">Cancel</button>` : ''}` : '<span class="appointment-action-empty">-</span>'}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No follow-up requests found.</p>';
+      followUpList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Patient</th><th scope="col">Reason</th><th scope="col">Preferred Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Patient"><strong>${escapeHtml(item.patientName)}</strong><small>${escapeHtml(item.patientEmail)}</small></td><td data-label="Reason">${escapeHtml(item.reason)}</td><td data-label="Preferred Date">${escapeHtml(item.preferredDate || 'No date provided')}${item.scheduledDate ? `<small>Scheduled: ${escapeHtml(item.scheduledDate)}</small>` : ''}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></td><td data-label="Actions"><div class="appointment-actions">${role !== 'patient' ? `${item.status === 'requested' ? `${renderActionButton({ label: 'Schedule', variant: 'approve', classes: ['follow-up-action', 'action-scheduled'], dataAttrs: { id: item._id, status: 'scheduled' } })}${renderActionButton({ label: 'Reject', variant: 'danger', classes: ['follow-up-action', 'action-rejected'], dataAttrs: { id: item._id, status: 'rejected' } })}` : ''}${item.status === 'scheduled' ? `${renderActionButton({ label: 'Mark completed', variant: 'complete', classes: ['follow-up-action', 'action-completed'], dataAttrs: { id: item._id, status: 'completed' } })}${renderActionButton({ label: 'Cancel', variant: 'danger', classes: ['follow-up-action', 'action-cancelled'], dataAttrs: { id: item._id, status: 'cancelled' } })}` : ''}` : '<span class="appointment-action-empty">-</span>'}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No follow-up requests found.</p>';
       followUpPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${followUpPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${followUpPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${followUpPage === pages ? 'disabled' : ''}>Next</button>` : '';
       followUpPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { followUpPage -= 1; renderFollowUps(); });
       followUpPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { followUpPage += 1; renderFollowUps(); });
@@ -2306,14 +2502,48 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const renderRecords = (records, target) => {
       if (!target) return;
       const includeActions = section === 'patient-records' && target === clinicalRecordList;
-      target.innerHTML = records.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Record</th><th scope="col">Type</th><th scope="col">Date</th><th scope="col">Details</th><th scope="col">Status</th>${includeActions ? '<th scope="col">Action</th>' : ''}</tr></thead><tbody>${records.map((record) => `<tr><td data-label="Record"><strong>${escapeHtml(record.title)}</strong></td><td data-label="Type">${escapeHtml(record.type || 'Clinical record')}</td><td data-label="Date">${escapeHtml(record.issuedAt || new Date(record.createdAt).toLocaleDateString())}</td><td data-label="Details">${escapeHtml(recordSummary(record))}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(record.status)}">${escapeHtml(record.status)}</span></td>${includeActions ? `<td data-label="Action"><button type="button" class="btn appointment-overview-action patient-record-export-action" data-record-id="${escapeHtml(record._id)}"><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><path d="M12 3v10m0 0 4-4m-4 4-4-4M5 17v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2" /></svg>Export Record</button></td>` : ''}</tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No records found.</p>';
+      target.innerHTML = records.length ? `<div class="appointment-table-wrap"><table class="appointment-table patient-records-table"><thead><tr><th scope="col">Record</th><th scope="col">Type</th><th scope="col">Date</th><th scope="col">Details</th><th scope="col">Status</th>${includeActions ? '<th scope="col">Action</th>' : ''}</tr></thead><tbody>${records.map((record) => `<tr><td data-label="Record"><strong>${escapeHtml(record.title)}</strong></td><td data-label="Type">${escapeHtml(record.type || 'Clinical record')}</td><td data-label="Date">${escapeHtml(record.issuedAt || new Date(record.createdAt).toLocaleDateString())}</td><td data-label="Details">${escapeHtml(recordSummary(record))}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(record.status)}">${escapeHtml(record.status)}</span></td>${includeActions ? `<td data-label="Action"><div class="table-actions">${renderActionButton({ label: 'Edit', variant: 'edit', icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>', classes: ['patient-record-edit-action'], dataAttrs: { 'record-id': record._id }, ariaLabel: 'Edit record' })}${renderActionButton({ label: 'Export', variant: 'view', icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10m0 0 4-4m-4 4-4-4M5 17v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2" /></svg>', classes: ['patient-record-export-action'], dataAttrs: { 'record-id': record._id }, ariaLabel: 'Export record' })}</div></td>` : ''}</tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No records found.</p>';
       if (!includeActions) return;
+      target.querySelectorAll('.patient-record-edit-action').forEach((button) => {
+        button.addEventListener('click', () => {
+          const recordId = button.dataset.recordId;
+          const record = clinicalRecords.find((item) => item._id === recordId) || records.find((item) => item._id === recordId);
+          if (!record) return;
+          const values = typeof record.details === 'string' ? (() => { try { return JSON.parse(record.details || '{}'); } catch { return {}; } })() : (record.details || {});
+          const modalTitle = patientRecordModal?.querySelector('.dialog-header-row h3');
+          if (modalTitle) modalTitle.textContent = 'Edit Patient Record';
+          patientRecordModal.dataset.mode = 'edit';
+          patientRecordModal.dataset.recordId = record._id;
+          patientRecordForm.dataset.recordId = record._id;
+          clearPatientAccount();
+          if (patientRecordStatus) {
+            patientRecordStatus.textContent = '';
+            patientRecordStatus.classList.remove('error');
+          }
+          const patientFormValues = { ...values, patientId: record.patientId || values.patientId || '' };
+          patientRecordForm.reset();
+          [...patientRecordForm.elements].filter((element) => element.name).forEach((element) => {
+            const value = patientFormValues[element.name];
+            if (typeof value === 'undefined') {
+              element.value = '';
+              return;
+            }
+            if (element.tagName === 'TEXTAREA' || element.tagName === 'INPUT') {
+              element.value = value;
+            }
+          });
+          if (patientAccountId) patientAccountId.value = patientFormValues.patientId || '';
+          if (patientAccountSelection) patientAccountSelection.textContent = 'Editing an existing patient record.';
+          patientRecordModal?.showModal();
+          showPatientStep(0);
+        });
+      });
       target.querySelectorAll('.patient-record-export-action').forEach((button) => {
         button.addEventListener('click', () => {
           const recordId = button.dataset.recordId;
           const record = clinicalRecords.find((item) => item._id === recordId) || records.find((item) => item._id === recordId);
           if (!record) return;
-          const values = typeof record.details === 'string' ? JSON.parse(record.details || '{}') : (record.details || {});
+          const values = typeof record.details === 'string' ? (() => { try { return JSON.parse(record.details || '{}'); } catch { return {}; } })() : (record.details || {});
           exportPatientRecord(values);
         });
       });
@@ -2436,11 +2666,38 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       } catch (error) { patientAccountResults.innerHTML = `<span class="form-status error">${escapeHtml(error.message)}</span>`; }
     };
     patientAccountSearch?.addEventListener('input', () => { window.clearTimeout(patientSearchTimer); patientSearchTimer = window.setTimeout(searchPatientAccounts, 250); });
-    const closePatientRecordModal = () => { patientRecordModal?.close(); patientRecordForm?.reset(); clearPatientAccount(); if (patientRecordStatus) patientRecordStatus.textContent = ''; showPatientStep(0); };
-    patientRecordCreateToggle?.addEventListener('click', () => patientRecordModal?.showModal());
+    const closePatientRecordModal = () => {
+      patientRecordModal?.close();
+      patientRecordForm?.reset();
+      if (patientRecordModal) {
+        delete patientRecordModal.dataset.mode;
+        delete patientRecordModal.dataset.recordId;
+      }
+      if (patientRecordForm) {
+        delete patientRecordForm.dataset.recordId;
+      }
+      const modalTitle = patientRecordModal?.querySelector('.dialog-header-row h3');
+      if (modalTitle) modalTitle.textContent = 'Add New Patient Record';
+      clearPatientAccount();
+      if (patientRecordStatus) patientRecordStatus.textContent = '';
+      showPatientStep(0);
+    };
+    patientRecordCreateToggle?.addEventListener('click', () => {
+      const modalTitle = patientRecordModal?.querySelector('.dialog-header-row h3');
+      if (modalTitle) modalTitle.textContent = 'Add New Patient Record';
+      delete patientRecordModal?.dataset.mode;
+      delete patientRecordModal?.dataset.recordId;
+      if (patientRecordForm) delete patientRecordForm.dataset.recordId;
+      patientRecordForm?.reset();
+      clearPatientAccount();
+      patientRecordModal?.showModal();
+    });
     patientRecordClose?.addEventListener('click', closePatientRecordModal);
     patientRecordForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
+      const isEditMode = patientRecordModal?.dataset.mode === 'edit';
+      const confirmMessage = isEditMode ? 'Save the recent changes?' : 'Create this patient record?';
+      if (!window.confirm(confirmMessage)) return;
       const values = Object.fromEntries(new FormData(patientRecordForm).entries());
       const patient = { name: [values.name, values.surname].filter(Boolean).join(' '), firstName: values.name, lastName: values.surname, phone: values.phone, age: values.age, gender: values.gender };
       delete values.patientId;
@@ -2449,12 +2706,20 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       delete values.phone;
       delete values.age;
       delete values.gender;
-      if (patientRecordStatus) { patientRecordStatus.textContent = 'Saving patient record...'; patientRecordStatus.classList.remove('error'); }
+      if (patientRecordStatus) { patientRecordStatus.textContent = isEditMode ? 'Saving recent changes...' : 'Saving patient record...'; patientRecordStatus.classList.remove('error'); }
       try {
-        const response = await fetch(`${api}/api/clinical-records/patient-record`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ patientId: patientAccountId?.value || undefined, patient, record: values }) });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || 'Unable to create patient record.');
-        if (patientRecordStatus) patientRecordStatus.textContent = result.message;
+        if (isEditMode) {
+          const recordId = patientRecordModal?.dataset.recordId || patientRecordForm?.dataset.recordId;
+          const response = await fetch(`${api}/api/clinical-records/${recordId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ title: 'Patient Record', details: JSON.stringify(values), issuedAt: values.date || new Date().toISOString().slice(0, 10), status: 'active' }) });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || 'Unable to update patient record.');
+          if (patientRecordStatus) patientRecordStatus.textContent = 'Patient record updated.';
+        } else {
+          const response = await fetch(`${api}/api/clinical-records/patient-record`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ patientId: patientAccountId?.value || undefined, patient, record: values }) });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || 'Unable to create patient record.');
+          if (patientRecordStatus) patientRecordStatus.textContent = result.message;
+        }
         await loadClinicalRecords();
         window.setTimeout(closePatientRecordModal, 500);
       } catch (error) { if (patientRecordStatus) { patientRecordStatus.textContent = error.message; patientRecordStatus.classList.add('error'); } }
@@ -2702,21 +2967,32 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       userPage = Math.min(userPage, pages);
       const visible = filtered.slice((userPage - 1) * pageSize, userPage * pageSize);
       managedUsers.innerHTML = visible.length
-        ? `<div class="appointment-table-wrap"><table class="appointment-table manage-team-table"><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Identifier</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Name"><div class="manage-team-name"><strong>${escapeHtml(item.name)}</strong><span class="manage-team-mobile-status appointment-status ${item.isActive ? 'status-confirmed' : 'status-cancelled'}">${item.isActive ? 'Active' : 'Inactive'}</span></div></td><td data-label="Email">${escapeHtml(item.email)}</td><td data-label="Role">${escapeHtml(item.role)}</td><td data-label="Identifier">${escapeHtml(item.patientId || item._id)}</td><td class="manage-team-status-cell" data-label="Status"><span class="appointment-status ${item.isActive ? 'status-confirmed' : 'status-cancelled'}">${item.isActive ? 'Active' : 'Inactive'}</span></td><td class="manage-team-action-cell" data-label="Action"><button class="btn btn-secondary user-status-button ${item.isActive ? 'action-deactivate' : 'action-activate'}" data-user-id="${item._id}" data-active="${item.isActive}">${item.isActive ? 'Deactivate' : 'Activate'}</button></td></tr>`).join('')}</tbody></table></div>`
+        ? `<div class="appointment-table-wrap"><table class="appointment-table manage-team-table"><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Identifier</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Name"><div class="manage-team-name"><strong>${escapeHtml(item.name)}</strong><span class="manage-team-mobile-status appointment-status ${item.isActive ? 'status-confirmed' : 'status-cancelled'}">${item.isActive ? 'Active' : 'Inactive'}</span></div></td><td data-label="Email">${escapeHtml(item.email)}</td><td data-label="Role">${escapeHtml(item.role)}</td><td data-label="Identifier">${escapeHtml(item.patientId || item._id)}</td><td class="manage-team-status-cell" data-label="Status"><span class="appointment-status ${item.isActive ? 'status-confirmed' : 'status-cancelled'}">${item.isActive ? 'Active' : 'Inactive'}</span></td><td class="manage-team-action-cell" data-label="Action"><div class="table-actions">${renderActionButton({ label: item.isActive ? 'Deactivate' : 'Activate', variant: item.isActive ? 'deactivate' : 'approve', icon: `<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true">${item.isActive ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5 9 16l10-10"/>'}</svg>`, classes: ['user-status-button', item.isActive ? 'action-deactivate' : 'action-activate'], dataAttrs: { 'user-id': item._id, active: item.isActive }, ariaLabel: item.isActive ? 'Deactivate user' : 'Activate user' })}${renderActionButton({ label: item.archived ? 'Restore' : 'Archive', variant: item.archived ? 'archive' : 'archive', icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6"/></svg>', classes: ['user-archive-button', item.archived ? 'action-restore' : 'action-archive'], dataAttrs: { 'user-id': item._id, archived: Boolean(item.archived) }, ariaLabel: item.archived ? 'Restore user' : 'Archive user' })}</div></td></tr>`).join('')}</tbody></table></div>`
         : '<p class="empty-appointments">No matching users.</p>';
       const userPagination = document.getElementById('user-pagination');
       userPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${userPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${userPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${userPage === pages ? 'disabled' : ''}>Next</button>` : '';
       userPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { userPage -= 1; renderUsers(); });
       userPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { userPage += 1; renderUsers(); });
-      managedUsers.querySelectorAll('[data-user-id]').forEach((button) => button.addEventListener('click', async () => {
+      managedUsers.querySelectorAll('.user-status-button').forEach((button) => button.addEventListener('click', async () => {
         await fetch(`${api}/api/admin/users/${button.dataset.userId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ isActive: button.dataset.active !== 'true' }) });
+        await loadUsers();
+      }));
+      managedUsers.querySelectorAll('.user-archive-button').forEach((button) => button.addEventListener('click', async () => {
+        const shouldArchive = button.dataset.archived !== 'true';
+        if (!window.confirm(shouldArchive ? 'Archive this staff account? It will be hidden from the active list.' : 'Restore this staff account to the active list?')) return;
+        const response = await fetch(`${api}/api/admin/users/${button.dataset.userId}/archive`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: shouldArchive }) });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          alert(result.message || 'Unable to update this account.');
+          return;
+        }
         await loadUsers();
       }));
     };
 
     const loadUsers = async () => {
       if (!managedUsers || role !== 'owner') return;
-      const response = await fetch(`${api}/api/admin/users`, { headers: { Authorization: `Bearer ${token}` } });
+      const response = await fetch(`${api}/api/admin/users${section === 'archived' ? '?archived=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || 'Unable to load users.');
       users = result.users;
@@ -2841,7 +3117,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       operationPhone.value = `+63 ${[digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean).join('-')}`;
     });
     const editableOperationTypes = ['supplier', 'purchase-order', 'inventory-item', 'invoice', 'payment'];
-    const operationActionCell = (record) => `<td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary operation-edit action-edit" data-operation-id="${record._id}" aria-label="Edit record" ${editableOperationTypes.includes(record.recordType) ? '' : 'disabled'}><svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span class="action-button-label">Edit</span></button><button type="button" class="btn btn-secondary operation-remove action-delete" data-operation-id="${record._id}" aria-label="Remove record"><svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14H5V6"/><path d="M10 11v5m4-5v5"/></svg><span class="action-button-label">Remove</span></button></div></td>`;
+    const operationActionCell = (record) => `<td data-label="Actions"><div class="table-actions">${renderActionButton({ label: 'Edit', variant: 'edit', classes: ['operation-edit', 'action-edit'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>', dataAttrs: { 'operation-id': record._id }, disabled: !editableOperationTypes.includes(record.recordType), ariaLabel: 'Edit record' })}${renderActionButton({ label: record.archived ? 'Restore' : 'Archive', variant: 'archive', classes: ['operation-archive', record.archived ? 'action-restore' : 'action-archive'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6"/></svg>', dataAttrs: { 'operation-id': record._id, archived: Boolean(record.archived) }, ariaLabel: record.archived ? 'Restore record' : 'Archive record' })}${renderActionButton({ label: 'Remove', variant: 'danger', classes: ['operation-remove', 'action-delete'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14H5V6"/><path d="M10 11v5m4-5v5"/></svg>', dataAttrs: { 'operation-id': record._id }, ariaLabel: 'Remove record' })}</div></td>`;
     const operationValue = (record, key) => record?.data?.[key] ?? record?.[key] ?? '';
     const operationLabel = (record) => {
       const data = record.data || {};
@@ -3004,6 +3280,19 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         if (!response.ok) { if (operationStatus) operationStatus.textContent = result.message || 'Unable to remove record.'; operationStatus?.classList.add('error'); return; }
         await loadOperations();
       }));
+      operationList?.querySelectorAll('.operation-archive').forEach((button) => button.addEventListener('click', async () => {
+        const record = records.find((item) => item._id === button.dataset.operationId);
+        if (!record) return;
+        const shouldArchive = button.dataset.archived !== 'true';
+        if (!window.confirm(shouldArchive ? 'Archive this record? It will be hidden from the default list.' : 'Restore this record to the active list?')) return;
+        const response = await fetch(`${api}/api/clinic-operations/${record._id}/archive`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: shouldArchive }) });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          alert(result.message || 'Unable to archive this record.');
+          return;
+        }
+        await loadOperations();
+      }));
       operationList?.querySelectorAll('.operation-edit:not(:disabled)').forEach((button) => button.addEventListener('click', () => {
         const record = records.find((item) => item._id === button.dataset.operationId);
         if (!record || !operationForm) return;
@@ -3025,7 +3314,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const loadOperations = async () => {
       if (!operationList || !['owner', 'eye-care-assistant'].includes(role)) return;
       const query = operationTypesForPage.length === 1 ? `?type=${operationTypesForPage[0]}` : '';
-      const response = await fetchWithTimeout(`${api}/api/clinic-operations${query}`, { headers: { Authorization: `Bearer ${token}` } });
+      const response = await fetchWithTimeout(`${api}/api/clinic-operations${query}${section === 'archived' ? '&archived=true' : ''}`.replace('?&', '?'), { headers: { Authorization: `Bearer ${token}` } });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || 'Unable to load clinic records.');
       const records = (result.records || []).filter((record) => operationTypesForPage.includes(record.recordType));

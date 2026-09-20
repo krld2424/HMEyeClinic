@@ -21,6 +21,11 @@ const clinicOperationSchema = new mongoose.Schema({
   status: { type: String, default: 'active' },
   data: { type: mongoose.Schema.Types.Mixed, required: true },
   inventoryApplied: { type: Boolean, default: false },
+  archived: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
 

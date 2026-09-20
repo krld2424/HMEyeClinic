@@ -219,18 +219,45 @@ router.get('/', async (req, res) => {
     if (req.user.role === 'eye-care-assistant' && req.query.type && !inventoryRecordTypes.has(req.query.type)) {
       return res.status(403).json({ message: 'You do not have permission for this action.' });
     }
+    const archivedOnly = String(req.query.archived || '').toLowerCase() === 'true';
+    const baseFilter = archivedOnly ? {} : { archived: { $ne: true } };
     const filter = req.user.role === 'eye-care-assistant'
-      ? { recordType: req.query.type || { $in: [...inventoryRecordTypes] } }
-      : operationTypes.includes(req.query.type) ? { recordType: req.query.type } : {};
+      ? { ...baseFilter, recordType: req.query.type || { $in: [...inventoryRecordTypes] } }
+      : operationTypes.includes(req.query.type) ? { ...baseFilter, recordType: req.query.type } : baseFilter;
     const records = await ClinicOperation.find(filter).populate('createdBy', 'name role email').sort({ createdAt: -1 });
     if (req.query.type === 'invoice') {
       await Promise.all(records.map((record) => refreshInvoice(record._id).catch(() => record)));
-      const refreshed = await ClinicOperation.find({ recordType: 'invoice' }).populate('createdBy', 'name role email').sort({ createdAt: -1 });
+      const refreshed = await ClinicOperation.find({ ...baseFilter, recordType: 'invoice' }).populate('createdBy', 'name role email').sort({ createdAt: -1 });
       return res.status(200).json({ records: refreshed.map((record) => ({ ...record.toObject(), daysOverdue: daysOverdue(record) })) });
     }
     return res.status(200).json({ records });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to load clinic operations.', error: error.message });
+  }
+});
+
+router.patch('/:id/archive', async (req, res) => {
+  try {
+    const archived = Boolean(req.body?.archived ?? true);
+    const operation = await ClinicOperation.findById(req.params.id);
+    if (!operation) return res.status(404).json({ message: 'Clinic operation not found.' });
+    if (req.user.role === 'eye-care-assistant' && !inventoryRecordTypes.has(operation.recordType)) {
+      return res.status(403).json({ message: 'You do not have permission for this action.' });
+    }
+    const previousData = { archived: operation.archived, status: operation.status };
+    operation.archived = archived;
+    if (archived) operation.status = 'archived';
+    await operation.save();
+    await AuditLog.create({
+      actorId: req.user.id,
+      action: archived ? 'Archived operation' : 'Restored operation',
+      target: `${operation.recordType}:${operation._id}`,
+      previousData,
+      newData: { archived: operation.archived, status: operation.status },
+    });
+    return res.status(200).json({ message: archived ? 'Operation archived.' : 'Operation restored.', record: operation });
+  } catch (error) {
+    return res.status(400).json({ message: error.message || 'Unable to archive operation.' });
   }
 });
 

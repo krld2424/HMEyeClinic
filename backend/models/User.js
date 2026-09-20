@@ -52,6 +52,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    archived: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     passwordResetOtpHash: String,
     passwordResetOtpExpiresAt: Date,
     passwordResetOtpAttempts: {

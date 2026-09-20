@@ -207,12 +207,7 @@ router.post('/register', registrationLimiter, async (req, res) => {
 
 router.post('/login', loginLimiter, async (req, res) => {
   try {
-    const { email, password, role, turnstileToken } = req.body;
-
-    const isTurnstileValid = await verifyTurnstileToken(turnstileToken, req.ip);
-    if (!isTurnstileValid) {
-      return res.status(400).json({ message: 'Verification failed, please try again.' });
-    }
+    const { email, password, role } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required.' });

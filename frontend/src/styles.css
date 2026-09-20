@@ -14,6 +14,40 @@
   --radius-md: 16px;
   --radius-sm: 12px;
   --container: min(1180px, calc(100% - 32px));
+
+  --action-view: #2563eb;
+  --action-view-hover: #1d4ed8;
+  --action-view-disabled: #94a3b8;
+  --action-clinical: #4f46e5;
+  --action-clinical-hover: #4338ca;
+  --action-edit: #d97706;
+  --action-edit-hover: #b45309;
+  --action-confirm: #16a34a;
+  --action-confirm-hover: #15803d;
+  --action-complete: #0891b2;
+  --action-complete-hover: #0e7490;
+  --action-reschedule: #7c3aed;
+  --action-reschedule-hover: #6d28d9;
+  --action-deactivate: #ea580c;
+  --action-deactivate-hover: #c2410c;
+  --action-archive: #64748b;
+  --action-archive-hover: #475569;
+  --action-danger: #dc2626;
+  --action-danger-hover: #b91c1c;
+  --action-disabled: #94a3b8;
+  --action-disabled-strong: #64748b;
+  --action-focus-ring: rgba(37, 99, 235, 0.18);
+
+  --status-success-bg: rgba(34, 197, 94, 0.12);
+  --status-success-text: #1f8f4a;
+  --status-warning-bg: rgba(245, 158, 11, 0.12);
+  --status-warning-text: #b45309;
+  --status-info-bg: rgba(59, 130, 246, 0.12);
+  --status-info-text: #1d4ed8;
+  --status-danger-bg: rgba(180, 35, 24, 0.1);
+  --status-danger-text: #b42318;
+  --status-neutral-bg: rgba(107, 114, 128, 0.12);
+  --status-neutral-text: #4b5563;
 }
 
 html {
@@ -484,52 +518,50 @@ textarea {
 
 .btn.action-confirmed,
 .btn.action-activate {
-  background: rgba(35, 115, 77, 0.08);
-  border-color: rgba(35, 115, 77, 0.28);
-  color: #23734d;
+  --action-color: var(--action-approve);
+  background: transparent;
+  border-color: var(--action-color);
+  color: var(--action-color);
 }
 
 .btn.action-completed {
-  background: rgba(37, 99, 235, 0.08);
-  border-color: rgba(37, 99, 235, 0.25);
-  color: #1d4ed8;
+  --action-color: var(--action-view);
+  background: transparent;
+  border-color: var(--action-color);
+  color: var(--action-color);
 }
 
 .btn.action-rescheduled {
-  background: rgba(180, 83, 9, 0.08);
-  border-color: rgba(180, 83, 9, 0.26);
-  color: #9a4b0b;
+  --action-color: var(--action-reschedule);
+  background: transparent;
+  border-color: var(--action-color);
+  color: var(--action-color);
 }
 
 .btn.action-cancelled,
 .btn.action-deactivate {
-  background: rgba(180, 35, 24, 0.07);
-  border-color: rgba(180, 35, 24, 0.28);
-  color: #b42318;
+  --action-color: var(--action-danger);
+  background: transparent;
+  border-color: var(--action-color);
+  color: var(--action-color);
 }
 
 .btn.action-confirmed:hover,
 .btn.action-confirmed:focus-visible,
 .btn.action-activate:hover,
-.btn.action-activate:focus-visible {
-  background: rgba(35, 115, 77, 0.14);
-}
-
+.btn.action-activate:focus-visible,
 .btn.action-completed:hover,
-.btn.action-completed:focus-visible {
-  background: rgba(37, 99, 235, 0.14);
-}
-
+.btn.action-completed:focus-visible,
 .btn.action-rescheduled:hover,
-.btn.action-rescheduled:focus-visible {
-  background: rgba(180, 83, 9, 0.14);
-}
-
+.btn.action-rescheduled:focus-visible,
 .btn.action-cancelled:hover,
 .btn.action-cancelled:focus-visible,
 .btn.action-deactivate:hover,
 .btn.action-deactivate:focus-visible {
-  background: rgba(180, 35, 24, 0.13);
+  background: transparent;
+  border-color: var(--action-color);
+  color: var(--action-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .btn-secondary.light {
@@ -2892,6 +2924,38 @@ textarea {
   background: rgba(180, 35, 24, 0.04);
 }
 
+.billing-table .table-actions {
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.billing-table .table-actions .btn {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid rgba(14, 132, 130, 0.38);
+  color: var(--primary-dark);
+  box-shadow: none;
+}
+
+.billing-table .table-actions .btn:hover,
+.billing-table .table-actions .btn:focus-visible {
+  background: transparent;
+  border-color: rgba(14, 132, 130, 0.6);
+  box-shadow: 0 0 0 3px rgba(14, 132, 130, 0.12);
+}
+
+.billing-table .table-actions .action-edit {
+  border-color: rgba(217, 119, 6, 0.48);
+  color: #b45309;
+}
+
+.billing-table .table-actions .action-delete {
+  border-color: rgba(220, 38, 38, 0.46);
+  color: #b91c1c;
+}
+
 .billing-modal-actions {
   display: flex;
   gap: 8px;
@@ -4510,10 +4574,272 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   font-size: 0.78rem;
 }
 
-.user-status-button {
-  min-height: 36px;
+.table-action-btn,
+.table-action-button,
+.user-status-button,
+.user-archive-button,
+.patient-record-edit-action,
+.patient-record-export-action,
+.operation-edit,
+.operation-archive,
+.operation-remove,
+.appointment-overview-action,
+.appointment-clinical-record-action,
+.action-archive,
+.action-restore,
+.action-delete,
+.action-cancel,
+.action-reject {
+  --table-action-color: var(--action-view);
+  --table-action-hover: var(--action-view-hover);
+  --table-action-disabled: var(--action-disabled);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 32px;
   padding: 0 12px;
-  font-size: 0.78rem;
+  border: 1px solid var(--table-action-color);
+  border-radius: 10px;
+  background: transparent !important;
+  color: var(--table-action-color);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow: none;
+  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.table-action-btn:hover,
+.table-action-btn:focus-visible,
+.table-action-button:hover,
+.table-action-button:focus-visible,
+.user-status-button:hover,
+.user-status-button:focus-visible,
+.user-archive-button:hover,
+.user-archive-button:focus-visible,
+.patient-record-edit-action:hover,
+.patient-record-edit-action:focus-visible,
+.patient-record-export-action:hover,
+.patient-record-export-action:focus-visible,
+.operation-edit:hover,
+.operation-edit:focus-visible,
+.operation-archive:hover,
+.operation-archive:focus-visible,
+.operation-remove:hover,
+.operation-remove:focus-visible,
+.appointment-overview-action:hover,
+.appointment-overview-action:focus-visible,
+.appointment-clinical-record-action:hover,
+.appointment-clinical-record-action:focus-visible {
+  background: transparent !important;
+  border-color: var(--table-action-hover, var(--table-action-color));
+  color: var(--table-action-hover, var(--table-action-color));
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  transform: translateY(-1px);
+}
+
+.table-action-btn:focus-visible,
+.table-action-button:focus-visible,
+.user-status-button:focus-visible,
+.user-archive-button:focus-visible,
+.patient-record-edit-action:focus-visible,
+.patient-record-export-action:focus-visible,
+.operation-edit:focus-visible,
+.operation-archive:focus-visible,
+.operation-remove:focus-visible,
+.appointment-overview-action:focus-visible,
+.appointment-clinical-record-action:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--action-focus-ring);
+}
+
+.table-action-btn:disabled,
+.table-action-button:disabled,
+.user-status-button:disabled,
+.user-archive-button:disabled,
+.patient-record-edit-action:disabled,
+.patient-record-export-action:disabled,
+.operation-edit:disabled,
+.operation-archive:disabled,
+.operation-remove:disabled,
+.appointment-overview-action:disabled,
+.appointment-clinical-record-action:disabled {
+  pointer-events: none;
+  border-color: var(--action-disabled);
+  color: var(--action-disabled);
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+.table-action-btn--view,
+.table-action-button--view,
+.appointment-overview-action,
+.appointment-detail-action {
+  --table-action-color: var(--action-view);
+  --table-action-hover: var(--action-view-hover);
+}
+
+.table-action-btn--view-clinical,
+.appointment-clinical-record-action {
+  --table-action-color: var(--action-clinical);
+  --table-action-hover: var(--action-clinical-hover);
+}
+
+.table-action-btn--edit,
+.table-action-button--edit,
+.patient-record-edit-action {
+  --table-action-color: var(--action-edit);
+  --table-action-hover: var(--action-edit-hover);
+}
+
+.table-action-btn--approve,
+.table-action-button--approve,
+.action-approve,
+.action-confirm,
+.action-receive {
+  --table-action-color: var(--action-confirm);
+  --table-action-hover: var(--action-confirm-hover);
+}
+
+.table-action-btn--complete,
+.action-completed,
+.action-follow-up,
+.action-book-again {
+  --table-action-color: var(--action-complete);
+  --table-action-hover: var(--action-complete-hover);
+}
+
+.table-action-btn--reschedule,
+.table-action-button--reschedule,
+.action-reschedule {
+  --table-action-color: var(--action-reschedule);
+  --table-action-hover: var(--action-reschedule-hover);
+}
+
+.table-action-btn--deactivate,
+.action-deactivate,
+.action-deactivate-button,
+.user-status-button.action-deactivate {
+  --table-action-color: var(--action-deactivate);
+  --table-action-hover: var(--action-deactivate-hover);
+}
+
+.table-action-btn--archive,
+.table-action-btn--archive-gray,
+.table-action-button--archive,
+.action-archive,
+.operation-archive.action-archive,
+.user-archive-button.action-archive,
+.operation-archive.action-restore,
+.user-archive-button.action-restore {
+  --table-action-color: #64748b;
+  --table-action-hover: #475569;
+  background: transparent;
+  background-color: transparent;
+  border-color: var(--table-action-color);
+  color: var(--table-action-color);
+}
+
+.table-action-btn--archive-gray:hover,
+.table-action-btn--archive-gray:focus-visible,
+.action-archive:hover,
+.action-archive:focus-visible,
+.operation-archive.action-archive:hover,
+.operation-archive.action-archive:focus-visible,
+.user-archive-button.action-archive:hover,
+.user-archive-button.action-archive:focus-visible,
+.operation-archive.action-restore:hover,
+.operation-archive.action-restore:focus-visible,
+.user-archive-button.action-restore:hover,
+.user-archive-button.action-restore:focus-visible {
+  background: transparent;
+  background-color: transparent;
+  border-color: var(--table-action-hover);
+  color: var(--table-action-hover);
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
+}
+
+.table-action-btn--archive-gray:disabled,
+.action-archive:disabled,
+.operation-archive.action-archive:disabled,
+.user-archive-button.action-archive:disabled,
+.operation-archive.action-restore:disabled,
+.user-archive-button.action-restore:disabled {
+  background: transparent;
+  background-color: transparent;
+  border-color: #64748b;
+  color: #64748b;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+.table-action-btn--danger,
+.table-action-button--danger,
+.action-reject,
+.action-cancel,
+.action-delete,
+.action-cancelled,
+.operation-remove,
+.user-status-button.action-deactivate {
+  --table-action-color: var(--action-danger);
+  --table-action-hover: var(--action-danger-hover);
+}
+
+.table-action-btn__icon,
+.appointment-overview-action svg,
+.appointment-clinical-record-action svg,
+.patient-record-edit-action svg,
+.patient-record-export-action svg,
+.user-status-button svg,
+.user-archive-button svg,
+.operation-edit svg,
+.operation-archive svg,
+.operation-remove svg {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.table-action-button__label,
+.action-button-label {
+  display: inline-block;
+}
+
+.user-status-button {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.manage-team-table .table-actions {
+  display: inline-flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.manage-team-table .table-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+}
+
+.manage-team-table .action-button-icon {
+  display: block;
+  margin: 0 auto;
 }
 
 .manage-team-mobile-status {
@@ -5456,9 +5782,6 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--primary);
-  border-color: var(--primary);
-  color: #fff;
   min-height: 32px;
   padding: 0 12px;
   border-radius: 8px;
@@ -5472,9 +5795,9 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 
 .appointments-workspace .appointment-clinical-record-action:hover,
 .appointments-workspace .appointment-clinical-record-action:focus-visible {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-  color: #fff;
+  background: transparent;
+  border-color: var(--table-action-color);
+  color: var(--table-action-color);
 }
 
 .appointments-workspace .appointment-overview-action,
@@ -5534,9 +5857,6 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #008C95;
-  border-color: #008C95;
-  color: #FFFFFF;
   min-height: 32px;
   padding: 0 12px;
   font-size: 0.7rem;
@@ -5549,9 +5869,9 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 .appointments-workspace .appointment-overview-action:focus-visible,
 .appointments-workspace .appointment-actions-with-kebab .appointment-overview-action:hover,
 .appointments-workspace .appointment-actions-with-kebab .appointment-overview-action:focus-visible {
-  background: #00747B;
-  border-color: #00747B;
-  color: #FFFFFF;
+  background: transparent;
+  border-color: var(--table-action-color);
+  color: var(--table-action-color);
 }
 
 .appointments-workspace .appointment-actions-with-kebab .appointment-kebab-menu {
@@ -5737,16 +6057,31 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #FFFFFF;
+  background: transparent;
+  border-color: var(--table-action-color);
+  color: var(--table-action-color);
+  box-shadow: none;
+}
+
+.appointment-mobile-card-actions .appointment-overview-action:hover,
+.appointment-mobile-card-actions .appointment-overview-action:focus-visible,
+.appointment-mobile-card-actions .appointment-overview-action:active,
+.appointment-mobile-card-actions .appointment-clinical-record-action:hover,
+.appointment-mobile-card-actions .appointment-clinical-record-action:focus-visible,
+.appointment-mobile-card-actions .appointment-clinical-record-action:active {
+  background: transparent;
+  border-color: var(--table-action-hover);
+  color: var(--table-action-hover);
+  box-shadow: none;
 }
 
 .appointment-mobile-card-actions .appointment-overview-action svg,
 .appointment-mobile-card-actions .appointment-clinical-record-action svg {
   width: 18px;
   height: 18px;
-  stroke: #FFFFFF;
+  stroke: currentColor;
   fill: none;
-  color: #FFFFFF;
+  color: inherit;
 }
 
 @media (max-width: 480px) {
@@ -6014,6 +6349,18 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   box-shadow: 0 8px 18px rgba(14, 132, 130, 0.18);
   background: var(--primary-dark);
   color: #fff;
+}
+
+.appointment-actions .btn.appointment-overview-action:hover,
+.appointment-actions .btn.appointment-overview-action:focus-visible,
+.appointment-actions .btn.appointment-overview-action:active,
+.appointment-actions .btn.appointment-clinical-record-action:hover,
+.appointment-actions .btn.appointment-clinical-record-action:focus-visible,
+.appointment-actions .btn.appointment-clinical-record-action:active {
+  background: transparent !important;
+  border-color: var(--table-action-hover);
+  color: var(--table-action-hover);
+  box-shadow: none;
 }
 
 .appointment-inline-actions .btn.is-danger:hover,
@@ -6944,19 +7291,57 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   }
 
   .manage-team-table .manage-team-action-cell {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
     padding: 14px 0 4px;
     border-top: 1px solid var(--line);
   }
 
   .manage-team-table .manage-team-action-cell::before {
-    display: none;
+    content: attr(data-label);
+    display: inline-block;
+    margin-right: auto;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
-  .manage-team-table .user-status-button {
-    display: block;
-    width: 100%;
+  .manage-team-table .table-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .manage-team-table .table-actions .btn,
+  .manage-team-table .user-status-button,
+  .manage-team-table .user-archive-button {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
     min-height: 44px;
+    padding: 0;
+    border-radius: 10px;
+    font-size: 0;
+  }
+
+  .manage-team-table .action-button-icon {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .manage-team-table .action-button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 
   .appointment-table .appointment-actions {
@@ -7106,6 +7491,20 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 }
 
 @media (max-width: 640px) {
+  .table-action-btn__label,
+  .action-button-label,
+  .operation-records-table .action-button-label,
+  .patient-records-table .action-button-label,
+  .manage-team-table .action-button-label {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    font-size: 0;
+    line-height: 0;
+    white-space: nowrap;
+  }
+
   .billing-table .table-actions {
     gap: 14px;
   }
@@ -7116,7 +7515,9 @@ body.sidebar-is-collapsed .sidebar-group-links a {
     white-space: nowrap;
   }
 
-  .operation-records-table .table-actions .btn {
+  .operation-records-table .table-actions .btn,
+  .patient-records-table .table-actions .btn,
+  .manage-team-table .table-actions .btn {
     position: relative;
     display: inline-grid;
     place-items: center;
@@ -7128,17 +7529,11 @@ body.sidebar-is-collapsed .sidebar-group-links a {
     font-size: 0;
   }
 
-  .operation-records-table .action-button-icon {
+  .operation-records-table .action-button-icon,
+  .patient-records-table .action-button-icon,
+  .manage-team-table .action-button-icon {
     display: block;
-  }
-
-  .inventory-table .action-button-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
+    margin: 0 auto;
   }
 }
 
@@ -7305,4 +7700,242 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 
 .instagram {
   color: #e4405f;
+}
+
+.table-action-btn--archive,
+.table-action-btn--archive-gray,
+.table-action-button--archive,
+.action-archive,
+.action-restore,
+.operation-archive.action-archive,
+.user-archive-button.action-archive,
+.operation-archive.action-restore,
+.user-archive-button.action-restore,
+.btn.action-archive,
+.btn.action-restore,
+.billing-table .table-actions .btn.action-archive,
+.appointment-actions .btn.action-archive,
+.operation-workspace .btn.action-archive {
+  --table-action-color: #64748b;
+  --table-action-hover: #475569;
+  background: transparent !important;
+  border-color: #64748b;
+  color: #64748b;
+  box-shadow: none;
+}
+
+.table-action-btn--archive:hover,
+.table-action-btn--archive:focus-visible,
+.table-action-btn--archive-gray:hover,
+.table-action-btn--archive-gray:focus-visible,
+.table-action-button--archive:hover,
+.table-action-button--archive:focus-visible,
+.action-archive:hover,
+.action-archive:focus-visible,
+.action-restore:hover,
+.action-restore:focus-visible,
+.operation-archive.action-archive:hover,
+.operation-archive.action-archive:focus-visible,
+.user-archive-button.action-archive:hover,
+.user-archive-button.action-archive:focus-visible,
+.operation-archive.action-restore:hover,
+.operation-archive.action-restore:focus-visible,
+.user-archive-button.action-restore:hover,
+.user-archive-button.action-restore:focus-visible,
+.btn.action-archive:hover,
+.btn.action-archive:focus-visible,
+.btn.action-restore:hover,
+.btn.action-restore:focus-visible,
+.billing-table .table-actions .btn.action-archive:hover,
+.billing-table .table-actions .btn.action-archive:focus-visible,
+.appointment-actions .btn.action-archive:hover,
+.appointment-actions .btn.action-archive:focus-visible,
+.operation-workspace .btn.action-archive:hover,
+.operation-workspace .btn.action-archive:focus-visible {
+  background: transparent !important;
+  border-color: #475569;
+  color: #475569;
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
+  transform: translateY(-1px);
+}
+
+.table-action-btn--archive:disabled,
+.table-action-btn--archive-gray:disabled,
+.table-action-button--archive:disabled,
+.action-archive:disabled,
+.action-restore:disabled,
+.operation-archive.action-archive:disabled,
+.user-archive-button.action-archive:disabled,
+.operation-archive.action-restore:disabled,
+.user-archive-button.action-restore:disabled,
+.btn.action-archive:disabled,
+.btn.action-restore:disabled,
+.billing-table .table-actions .btn.action-archive:disabled,
+.appointment-actions .btn.action-archive:disabled,
+.operation-workspace .btn.action-archive:disabled {
+  background: transparent !important;
+  border-color: #64748b;
+  color: #64748b;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+@media (max-width: 760px) {
+  .manage-team-table td .table-actions,
+  .manage-team-table .table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .manage-team-table td .table-actions .btn,
+  .manage-team-table td .table-actions .user-status-button,
+  .manage-team-table td .table-actions .user-archive-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: 10px;
+    line-height: 0;
+    background: transparent;
+    border-color: var(--table-action-color, currentColor);
+    color: var(--table-action-color, currentColor);
+    box-shadow: none;
+    transform: none;
+  }
+
+  .manage-team-table td .table-actions .btn:hover,
+  .manage-team-table td .table-actions .btn:focus-visible,
+  .manage-team-table td .table-actions .btn:active,
+  .manage-team-table td .table-actions .user-status-button:hover,
+  .manage-team-table td .table-actions .user-status-button:focus-visible,
+  .manage-team-table td .table-actions .user-status-button:active,
+  .manage-team-table td .table-actions .user-archive-button:hover,
+  .manage-team-table td .table-actions .user-archive-button:focus-visible,
+  .manage-team-table td .table-actions .user-archive-button:active {
+    background: transparent;
+    border-color: var(--table-action-hover, var(--table-action-color, currentColor));
+    color: var(--table-action-hover, var(--table-action-color, currentColor));
+    box-shadow: none;
+    transform: none;
+  }
+
+  .manage-team-table td .table-actions .btn svg,
+  .manage-team-table td .table-actions .btn .action-button-icon,
+  .manage-team-table td .table-actions .user-status-button svg,
+  .manage-team-table td .table-actions .user-archive-button svg {
+    display: block;
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    stroke: currentColor;
+    fill: none;
+    color: inherit;
+  }
+
+  .manage-team-table td .table-actions .btn .action-button-label,
+  .manage-team-table td .table-actions .btn .table-action-btn__label,
+  .manage-team-table td .table-actions .btn .table-action-button__label,
+  .manage-team-table td .table-actions .user-status-button .action-button-label,
+  .manage-team-table td .table-actions .user-status-button .table-action-btn__label,
+  .manage-team-table td .table-actions .user-status-button .table-action-button__label,
+  .manage-team-table td .table-actions .user-archive-button .action-button-label,
+  .manage-team-table td .table-actions .user-archive-button .table-action-btn__label,
+  .manage-team-table td .table-actions .user-archive-button .table-action-button__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .manage-team-table td .table-actions .btn:disabled,
+  .manage-team-table td .table-actions .user-status-button:disabled,
+  .manage-team-table td .table-actions .user-archive-button:disabled {
+    background: transparent;
+    border-color: var(--action-disabled);
+    color: var(--action-disabled);
+    box-shadow: none;
+    opacity: 0.7;
+  }
+}
+
+@media (max-width: 760px) {
+  .manage-team-table td {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .manage-team-table td[data-label='Email'] {
+    word-break: break-word;
+  }
+}
+
+@media (max-width: 640px) {
+  .appointments-workspace .table-action-btn__label,
+  .appointments-workspace .table-action-button__label,
+  .appointments-workspace .action-button-label,
+  .appointment-mobile-card-actions .table-action-btn__label,
+  .appointment-mobile-card-actions .table-action-button__label,
+  .appointment-mobile-card-actions .action-button-label {
+    position: static;
+    display: inline-block;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    opacity: 1;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: nowrap;
+  }
+
+  .appointments-workspace .table-action-btn,
+  .appointments-workspace .appointment-overview-action,
+  .appointments-workspace .appointment-clinical-record-action,
+  .appointment-mobile-card-actions .table-action-btn,
+  .appointment-mobile-card-actions .appointment-overview-action,
+  .appointment-mobile-card-actions .appointment-clinical-record-action {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding: 0 12px;
+    font-size: 0.7rem;
+    line-height: 1;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .appointments-workspace .appointment-actions,
+  .appointment-mobile-card-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .appointments-workspace .appointment-actions .appointment-overview-action,
+  .appointments-workspace .appointment-actions .appointment-clinical-record-action,
+  .appointment-mobile-card-actions .appointment-overview-action,
+  .appointment-mobile-card-actions .appointment-clinical-record-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent;
+    border-color: var(--table-action-color);
+    color: var(--table-action-color);
+    box-shadow: none;
+  }
 }

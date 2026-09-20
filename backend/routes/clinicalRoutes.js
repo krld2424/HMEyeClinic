@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import ClinicalRecord from '../models/ClinicalRecord.js';
 import FollowUp from '../models/FollowUp.js';
 import User from '../models/User.js';
+import AuditLog from '../models/AuditLog.js';
 import mongoose from 'mongoose';
 import { requireAuth, allowRoles } from '../middleware/auth.js';
 import { broadcastRealtimeEvent } from '../config/realtime.js';
@@ -20,14 +21,37 @@ const nextPatientId = async () => {
 
 router.get('/mine', requireAuth, allowRoles('patient'), async (req, res) => {
   const type = recordTypes.includes(req.query.type) ? req.query.type : undefined;
-  const records = await ClinicalRecord.find({ patientId: req.user.id, ...(type && { type }) }).sort({ createdAt: -1 });
+  const archivedOnly = String(req.query.archived || '').toLowerCase() === 'true';
+  const records = await ClinicalRecord.find({ ...(archivedOnly ? {} : { archived: { $ne: true } }), patientId: req.user.id, ...(type && { type }) }).sort({ createdAt: -1 });
   return res.status(200).json({ records });
 });
 
 router.get('/', requireAuth, allowRoles(...clinicalRoles), async (req, res) => {
   const type = recordTypes.includes(req.query.type) ? req.query.type : undefined;
-  const records = await ClinicalRecord.find({ ...(type && { type }) }).sort({ createdAt: -1 });
+  const archivedOnly = String(req.query.archived || '').toLowerCase() === 'true';
+  const records = await ClinicalRecord.find({ ...(archivedOnly ? {} : { archived: { $ne: true } }), ...(type && { type }) }).sort({ createdAt: -1 });
   return res.status(200).json({ records });
+});
+
+router.patch('/:id/archive', requireAuth, allowRoles(...clinicalRoles), async (req, res) => {
+  try {
+    const archived = Boolean(req.body?.archived ?? true);
+    const record = await ClinicalRecord.findById(req.params.id);
+    if (!record) return res.status(404).json({ message: 'Clinical record not found.' });
+    const previous = { archived: record.archived, status: record.status };
+    record.archived = archived;
+    await record.save();
+    await AuditLog.create({
+      actorId: req.user.id,
+      action: archived ? 'Archived clinical record' : 'Restored clinical record',
+      target: `clinical:${record._id}`,
+      previousData: previous,
+      newData: { archived: record.archived, status: record.status },
+    });
+    return res.status(200).json({ message: archived ? 'Clinical record archived.' : 'Clinical record restored.', record });
+  } catch (error) {
+    return res.status(400).json({ message: error.message || 'Unable to archive clinical record.' });
+  }
 });
 
 router.get('/patient-search', requireAuth, allowRoles(...clinicalRoles), async (req, res) => {

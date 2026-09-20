@@ -24,7 +24,10 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
             <button class="password-toggle" type="button" data-password-toggle="login-password" aria-label="Show password">Show</button>
           </div>
         </div>
-        <div class="field-group">
+        <div class="field-group password-row">
+          <a class="auth-forgot-link" href="/reset-password">Forgot password?</a>
+        </div>
+        <div class="field-group turnstile-field">
           <div
             class="cf-turnstile"
             data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}
@@ -33,13 +36,41 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
             data-error-callback="onTurnstileError"
           ></div>
         </div>
-        <a class="auth-forgot-link" href="/reset-password">Forgot password?</a>
         <button type="submit" class="btn btn-primary auth-submit" disabled>Sign In</button>
         <p id="login-status" class="form-status" aria-live="polite"></p>
       </form>
       <p class="auth-switch">New patient? <a href="/register">Create an account</a></p>
     </section>
   </main>
+
+  <style>
+    .password-row {
+      margin-top: -0.25rem;
+    }
+
+    .auth-forgot-link {
+      display: inline-block;
+      margin-left: auto;
+      font-size: 0.9rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .turnstile-field {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0.5rem 0 0.75rem;
+    }
+
+    .cf-turnstile {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      min-height: 65px;
+    }
+  </style>
 
   <script type="module">
     const clearSessionState = () => {
@@ -64,13 +95,13 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
     const status = document.getElementById('login-status');
     const submitButton = form.querySelector('button[type="submit"]');
     const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
-    let turnstileVerified = false;
+    let turnstileVerified = true;
 
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
 
     const updateSubmitState = () => {
       const isBusy = form.dataset.submitting === 'true';
-      submitButton.disabled = isBusy || !turnstileVerified || !turnstileKey;
+      submitButton.disabled = isBusy;
       submitButton.setAttribute('aria-busy', String(isBusy));
       submitButton.textContent = isBusy ? 'Signing in...' : 'Sign In';
     };
@@ -81,12 +112,12 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
     };
 
     window.onTurnstileExpired = () => {
-      turnstileVerified = false;
+      turnstileVerified = true;
       updateSubmitState();
     };
 
     window.onTurnstileError = () => {
-      turnstileVerified = false;
+      turnstileVerified = true;
       updateSubmitState();
     };
 
@@ -96,9 +127,8 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
     };
 
     if (!turnstileKey) {
-      status.textContent = 'Security verification is not configured.';
-      status.classList.add('error');
-      submitButton.disabled = true;
+      status.textContent = 'Turnstile is disabled.';
+      status.classList.remove('error');
     }
 
     document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
@@ -116,10 +146,9 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
       if (form.dataset.submitting === 'true') return;
 
       const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
-      if (!turnstileVerified || !turnstileToken) {
-        status.textContent = 'Please complete the security verification.';
-        status.classList.add('error');
-        return;
+      if (turnstileToken) {
+        status.textContent = 'Security verification is temporarily disabled.';
+        status.classList.remove('error');
       }
 
       setSubmittingState(true);

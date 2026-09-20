@@ -54,20 +54,23 @@ const iconPaths = {
   'roles-permissions': 'M12 3 20 7v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Zm-3 9 2 2 4-4',
   'audit-logs': 'M6 3h12v18H6V3Zm3 4h6m-6 4h6m-6 4h4',
   'clinic-settings': 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0-5v2m0 14v2m9-9h-2M5 12H3m15.36-6.36-1.42 1.42M7.06 16.94l-1.42 1.42m12.72 0-1.42-1.42M7.06 7.06 5.64 5.64',
+  archived: 'M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6',
 };
 const sidebarGroups = {
   patient: [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }] },
     { label: 'Care', links: [{ label: 'Book Appointment', slug: 'book-exam' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Medical Records', slug: 'medical-records' }, { label: 'Prescriptions', slug: 'prescriptions' }] },
-    { label: 'Account', links: [{ label: 'Notifications', slug: 'notifications' }, { label: 'Profile', slug: 'profile' }] },
+    { label: 'Account', links: [{ label: 'Notifications', slug: 'notifications' }, { label: 'Profile', slug: 'profile' }, { label: 'Archived', slug: 'archived' }] },
   ],
   optometrist: [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: "Today's Patients", slug: 'today-patients' }] },
     { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Patient Records', slug: 'patient-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
+    { label: 'Archived', links: [{ label: 'Archived', slug: 'archived' }] },
   ],
   'eye-care-assistant': [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: 'Clinic Queue', slug: 'clinic-queue' }] },
     { label: 'Operations', links: [{ label: 'Check-In', slug: 'check-in' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Patient Records', slug: 'patient-records' }, { label: 'Billing', slug: 'billing' }] },
+    { label: 'Archived', links: [{ label: 'Archived', slug: 'archived' }] },
   ],
   owner: [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: 'Reports', slug: 'reports' }] },
@@ -77,6 +80,7 @@ const sidebarGroups = {
     { label: 'Inventory', links: [{ label: 'Inventory', slug: 'inventory' }, { label: 'Stock Movements', slug: 'stock-movements' }, { label: 'Stock Adjustment', slug: 'stock-adjustment' }, { label: 'Inventory History', slug: 'inventory-history' }] },
     { label: 'Billing', links: [{ label: 'Billing / Invoices', slug: 'billing-invoices' }, { label: 'Invoice Templates', slug: 'invoice-templates' }, { label: 'Customer Payments', slug: 'customer-payments' }, { label: 'Payment History', slug: 'payment-history' }, { label: 'Outstanding Balances', slug: 'outstanding-balances' }] },
     { label: 'Monitoring & Settings', links: [{ label: 'Audit Logs', slug: 'audit-logs' }, { label: 'Clinic Settings', slug: 'clinic-settings' }] },
+    { label: 'Archived', links: [{ label: 'Archived', slug: 'archived' }] },
   ],
 };
 const groupIcons = {
@@ -90,6 +94,7 @@ const groupIcons = {
   'Supplier Transactions': 'supplier-transactions',
   Inventory: 'inventory',
   Billing: 'billing',
+  Archived: 'archived',
 };
 ---
 
