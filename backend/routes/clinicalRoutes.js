@@ -8,9 +8,11 @@ import AuditLog from '../models/AuditLog.js';
 import mongoose from 'mongoose';
 import { requireAuth, allowRoles } from '../middleware/auth.js';
 import { broadcastRealtimeEvent } from '../config/realtime.js';
+import { publicClaimStub, upsertClaimStubForRecord } from '../utils/claimStub.js';
 
 const router = express.Router();
 const clinicalRoles = ['owner', 'optometrist'];
+const patientRecordRoles = ['owner', 'optometrist', 'eye-care-assistant'];
 const recordTypes = ['medical-record', 'clinical-note', 'consultation', 'prescription'];
 
 const nextPatientId = async () => {
@@ -26,18 +28,25 @@ router.get('/mine', requireAuth, allowRoles('patient'), async (req, res) => {
   return res.status(200).json({ records });
 });
 
-router.get('/', requireAuth, allowRoles(...clinicalRoles), async (req, res) => {
+router.get('/', requireAuth, allowRoles(...patientRecordRoles), async (req, res) => {
   const type = recordTypes.includes(req.query.type) ? req.query.type : undefined;
+  if (req.user.role === 'eye-care-assistant' && type && type !== 'medical-record') {
+    return res.status(403).json({ message: 'Eye care assistants can only view patient records.' });
+  }
   const archivedOnly = String(req.query.archived || '').toLowerCase() === 'true';
-  const records = await ClinicalRecord.find({ ...(archivedOnly ? {} : { archived: { $ne: true } }), ...(type && { type }) }).sort({ createdAt: -1 });
+  const typeFilter = req.user.role === 'eye-care-assistant' ? { type: 'medical-record' } : (type && { type });
+  const records = await ClinicalRecord.find({ ...(archivedOnly ? {} : { archived: { $ne: true } }), ...typeFilter }).sort({ createdAt: -1 });
   return res.status(200).json({ records });
 });
 
-router.patch('/:id/archive', requireAuth, allowRoles(...clinicalRoles), async (req, res) => {
+router.patch('/:id/archive', requireAuth, allowRoles(...patientRecordRoles), async (req, res) => {
   try {
     const archived = Boolean(req.body?.archived ?? true);
     const record = await ClinicalRecord.findById(req.params.id);
     if (!record) return res.status(404).json({ message: 'Clinical record not found.' });
+    if (req.user.role === 'eye-care-assistant' && record.type !== 'medical-record') {
+      return res.status(403).json({ message: 'Eye care assistants can only archive patient records.' });
+    }
     const previous = { archived: record.archived, status: record.status };
     record.archived = archived;
     await record.save();
@@ -54,7 +63,7 @@ router.patch('/:id/archive', requireAuth, allowRoles(...clinicalRoles), async (r
   }
 });
 
-router.get('/patient-search', requireAuth, allowRoles(...clinicalRoles), async (req, res) => {
+router.get('/patient-search', requireAuth, allowRoles(...patientRecordRoles), async (req, res) => {
   const query = String(req.query.q || '').trim();
   if (query.length < 2) return res.status(200).json({ patients: [] });
   const expression = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
@@ -66,7 +75,7 @@ router.get('/patient-search', requireAuth, allowRoles(...clinicalRoles), async (
   return res.status(200).json({ patients });
 });
 
-router.post('/patient-record', requireAuth, allowRoles(...clinicalRoles), async (req, res) => {
+router.post('/patient-record', requireAuth, allowRoles(...patientRecordRoles), async (req, res) => {
   try {
     const { patientId, patient, record } = req.body;
     const patientLookup = patientId ? [{ patientId }, ...(mongoose.isValidObjectId(patientId) ? [{ _id: patientId }] : [])] : [];
@@ -106,10 +115,27 @@ router.post('/patient-record', requireAuth, allowRoles(...clinicalRoles), async 
       action: 'created',
       entityId: String(clinicalRecord._id),
       payload: { _id: String(clinicalRecord._id), id: String(clinicalRecord._id), patientId: String(patientUser._id), authorId: clinicalRecord.authorId, type: clinicalRecord.type, title: clinicalRecord.title, status: clinicalRecord.status, issuedAt: clinicalRecord.issuedAt },
-      roles: ['owner', 'optometrist'],
+      roles: patientRecordRoles,
       userIds: [String(patientUser._id)],
     });
-    return res.status(201).json({ message: 'Patient record created.', patient: patientUser, record: clinicalRecord });
+
+    const claimStub = await upsertClaimStubForRecord({
+      record: clinicalRecord,
+      patientUser,
+      createdBy: req.user.id,
+    });
+    if (claimStub) {
+      broadcastRealtimeEvent(req.app.get('io'), {
+        type: 'claim-stub',
+        action: 'created',
+        entityId: String(claimStub._id),
+        payload: publicClaimStub(claimStub),
+        roles: patientRecordRoles,
+        userIds: [String(patientUser._id)],
+      });
+    }
+
+    return res.status(201).json({ message: 'Patient record created.', patient: patientUser, record: clinicalRecord, claimStub: publicClaimStub(claimStub) });
   } catch (error) {
     return res.status(500).json({ message: 'Unable to create patient record.' });
   }
@@ -163,9 +189,28 @@ router.post('/', requireAuth, allowRoles(...clinicalRoles), async (req, res) => 
   return res.status(201).json({ message: 'Clinical record created.', record });
 });
 
-router.patch('/:id', requireAuth, allowRoles(...clinicalRoles), async (req, res) => {
+router.patch('/:id', requireAuth, allowRoles(...patientRecordRoles), async (req, res) => {
+  const existing = await ClinicalRecord.findById(req.params.id);
+  if (!existing) return res.status(404).json({ message: 'Clinical record not found.' });
+  if (req.user.role === 'eye-care-assistant' && existing.type !== 'medical-record') {
+    return res.status(403).json({ message: 'Eye care assistants can only update patient records.' });
+  }
   const record = await ClinicalRecord.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
   if (!record) return res.status(404).json({ message: 'Clinical record not found.' });
+  if (record.type === 'medical-record') {
+    const patientUser = await User.findById(record.patientId);
+    const claimStub = await upsertClaimStubForRecord({ record, patientUser, createdBy: req.user.id });
+    if (claimStub) {
+      broadcastRealtimeEvent(req.app.get('io'), {
+        type: 'claim-stub',
+        action: 'updated',
+        entityId: String(claimStub._id),
+        payload: publicClaimStub(claimStub),
+        roles: patientRecordRoles,
+        userIds: [String(record.patientId)],
+      });
+    }
+  }
   broadcastRealtimeEvent(req.app.get('io'), {
     type: 'clinical-record',
     action: 'updated',
@@ -180,7 +225,7 @@ router.patch('/:id', requireAuth, allowRoles(...clinicalRoles), async (req, res)
       status: record.status,
       issuedAt: record.issuedAt,
     },
-    roles: ['owner', 'optometrist'],
+    roles: record.type === 'medical-record' ? patientRecordRoles : clinicalRoles,
     userIds: [String(record.patientId)],
   });
   return res.status(200).json({ record });

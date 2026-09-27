@@ -28,6 +28,7 @@ const iconPaths = {
   'roles-permissions': 'M12 3 20 7v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Zm-3 9 2 2 4-4',
   'audit-logs': 'M6 3h12v18H6V3Zm3 4h6m-6 4h6m-6 4h4',
   'clinic-settings': 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0-5v2m0 14v2m9-9h-2M5 12H3m15.36-6.36-1.42 1.42M7.06 16.94l-1.42 1.42m12.72 0-1.42-1.42M7.06 7.06 5.64 5.64',
+  'claim-stub': 'M6 3h12v18H6V3Zm3 5h6m-6 4h6m-6 4h4',
   archived: 'M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6',
 };
 
@@ -39,8 +40,10 @@ const navigation = {
     'follow-ups': 'Follow-ups',
     'medical-records': 'Medical Records',
     prescriptions: 'Prescriptions',
+    'claim-stub': 'Claim Stub',
     notifications: 'Notifications',
     profile: 'Profile',
+    archived: 'Archived',
   },
   optometrist: {
     dashboard: 'Optometrist Dashboard',
@@ -50,6 +53,7 @@ const navigation = {
     'patient-records': 'Patient Records',
     prescriptions: 'Prescriptions',
     'follow-ups': 'Follow-ups',
+    'claim-stub': 'Claim Stub',
     archived: 'Archived',
   },
   'eye-care-assistant': {
@@ -59,6 +63,7 @@ const navigation = {
     'clinic-queue': 'Clinic Queue',
     'patient-records': 'Patient Records',
     billing: 'Billing',
+    'claim-stub': 'Claim Stub',
     inventory: 'Inventory',
     'stock-movements': 'Stock Movements',
     'stock-in': 'Stock In',
@@ -96,26 +101,16 @@ const navigation = {
     'customer-payments': 'Customer Payments',
     'payment-history': 'Payment History',
     'outstanding-balances': 'Outstanding Balances',
-    archived: 'Archived',
-  },
-  patient: {
-    dashboard: 'Patient Dashboard',
-    'book-exam': 'Book an Appointment',
-    appointments: 'Appointments',
-    'follow-ups': 'Follow-ups',
-    'medical-records': 'Medical Records',
-    prescriptions: 'Prescriptions',
-    notifications: 'Notifications',
-    profile: 'Profile',
+    'claim-stub': 'Claim Stub',
     archived: 'Archived',
   },
 };
 
 const sidebarGroups = {
-  patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions']], ['Account', ['notifications', 'profile', 'archived']]],
-  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Archived', ['archived']]],
-  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'billing']], ['Archived', ['archived']]],
-  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']], ['Archived', ['archived']]],
+  patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions', 'claim-stub']], ['Account', ['notifications', 'profile', 'archived']]],
+  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Billing', ['claim-stub']], ['Archived', ['archived']]],
+  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records']], ['Billing', ['billing', 'claim-stub']], ['Archived', ['archived']]],
+  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances', 'claim-stub']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']], ['Archived', ['archived']]],
 };
 const groupIcons = {
   Overview: 'overview',
@@ -138,19 +133,12 @@ const isValidRoute = Boolean(roleNavigation[section]);
 const inventorySections = ['inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history'];
 const canAccessInventory = ['owner', 'eye-care-assistant'].includes(role);
 
-const routePairs = [
-  ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'], ['patient', 'archived'],
-  ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'], ['optometrist', 'archived'],
-  ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'], ['eye-care-assistant', 'archived'],
-  ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'], ['owner', 'archived'],
-];
-
 export function getStaticPaths() {
   return [
-    ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'notifications'], ['patient', 'profile'], ['patient', 'archived'],
-    ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'], ['optometrist', 'archived'],
-    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'], ['eye-care-assistant', 'archived'],
-    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'], ['owner', 'archived'],
+    ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'claim-stub'], ['patient', 'notifications'], ['patient', 'profile'], ['patient', 'archived'],
+    ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'], ['optometrist', 'claim-stub'], ['optometrist', 'archived'],
+    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'claim-stub'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'], ['eye-care-assistant', 'archived'],
+    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'claim-stub'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'], ['owner', 'archived'],
   ].map(([routeRole, routeSection]) => ({ params: { role: routeRole, section: routeSection } }));
 }
 
@@ -194,6 +182,7 @@ const pageCopy = {
   'customer-payments': 'Record payments against patient or customer invoices.',
   'payment-history': 'Review payment dates, methods, amounts, and related invoices.',
   'outstanding-balances': 'Review unpaid invoices and remaining patient or customer balances.',
+  'claim-stub': 'View claim stubs generated with patient records, including claim status and collection details.',
 };
 
 const copy = pageCopy[section] || 'This workspace is ready for your clinic workflow.';
@@ -758,9 +747,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
           {(['medical-records', 'prescriptions'].includes(section) && role === 'patient') && <div id="patient-record-list" class="record-list"><p class="empty-appointments">Loading records...</p></div>}
 
-          {(['clinical-records', 'patient-records', 'consultations', 'prescriptions'].includes(section) && ['owner', 'optometrist'].includes(role)) && (
+          {(['clinical-records', 'consultations', 'prescriptions'].includes(section) && ['owner', 'optometrist'].includes(role) || section === 'patient-records' && ['owner', 'optometrist', 'eye-care-assistant'].includes(role)) && (
             <div class="clinical-workspace">
-              {section === 'patient-records' && role === 'owner' && (
+              {section === 'patient-records' && ['owner', 'optometrist', 'eye-care-assistant'].includes(role) && (
                 <div class="patient-records-toolbar">
                   <div>
                     <h2>Patient Records</h2>
@@ -769,7 +758,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                   <button type="button" class="btn btn-primary" id="patient-record-create-toggle">Add New Patient Record</button>
                 </div>
               )}
-              {section === 'patient-records' && role === 'owner' && (
+              {section === 'patient-records' && ['owner', 'optometrist', 'eye-care-assistant'].includes(role) && (
                 <dialog id="patient-record-modal" class="confirmation-dialog patient-record-dialog">
                   <div class="confirmation-dialog__content">
                     <div class="dialog-header-row"><h3>Add New Patient Record</h3><button type="button" class="btn btn-secondary btn-icon" id="patient-record-close" aria-label="Close patient record form">×</button></div>
@@ -801,6 +790,29 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             </div>
           )}
 
+          {section === 'claim-stub' && (
+            <div class="workflow-list claim-stub-workspace">
+              <div class="section-header split">
+                <div>
+                  <h2>Claim Stub</h2>
+                  <p>{role === 'patient' ? 'Your copy of the claim stub issued with a patient record.' : 'Claim stubs generated from patient records, with collection status and archive actions.'}</p>
+                </div>
+              </div>
+              {role !== 'patient' && (
+                <div class="list-toolbar">
+                  <input id="claim-stub-search" type="search" placeholder="Search patient, visit date, or status" aria-label="Search claim stubs" />
+                </div>
+              )}
+              <div id="claim-stub-list" class="record-list"><p class="empty-appointments">Loading claim stubs...</p></div>
+              <dialog id="claim-stub-view-modal" class="confirmation-dialog patient-record-dialog">
+                <div class="confirmation-dialog__content">
+                  <div class="dialog-header-row"><h3>Claim Stub</h3><button type="button" class="btn btn-secondary btn-icon" id="claim-stub-view-close" aria-label="Close claim stub">×</button></div>
+                  <div id="claim-stub-view-body" class="claim-stub-document"></div>
+                </div>
+              </dialog>
+            </div>
+          )}
+
           {section === 'archived' && (
             <div class="workflow-list">
               <div class="section-header split"><div><h2>Archived</h2></div></div>
@@ -824,7 +836,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             <form id="clinic-settings-form" class="workflow-form"><div class="field-group"><label for="clinic-name">Clinic name</label><input id="clinic-name" name="name" required /></div><div class="field-row"><div class="field-group"><label for="clinic-phone">Phone</label><input id="clinic-phone" name="phone" /></div><div class="field-group"><label for="clinic-email">Email</label><input id="clinic-email" name="email" type="email" /></div></div><div class="field-group"><label for="clinic-address">Address</label><input id="clinic-address" name="address" /></div><div class="field-group"><label for="clinic-hours">Hours</label><input id="clinic-hours" name="hours" /></div><div class="field-group"><label for="clinic-logo">Clinic Logo</label><div style="display: flex; gap: 0.5rem; align-items: center;"><input id="clinic-logo" name="logo" placeholder="URL or uploaded image" style="flex: 1;" /><label for="clinic-logo-upload" class="btn btn-secondary" style="margin: 0; padding: 0.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; height: 38px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></label><input id="clinic-logo-upload" type="file" accept="image/*" style="display: none;" /></div></div><button type="submit" class="btn btn-primary">Save clinic settings</button><p id="settings-status" class="form-status" aria-live="polite"></p></form>
           )}
 
-          {section !== 'dashboard' && section !== 'book-exam' && section !== 'appointments' && section !== 'today-patients' && section !== 'follow-ups' && section !== 'profile' && !['medical-records', 'prescriptions', 'clinical-records', 'patient-records', 'consultations', 'manage-team', 'manage-users', 'roles-permissions', 'audit-logs', 'clinic-settings', 'suppliers', 'purchase-orders', 'receiving', 'purchase-history', 'inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history', 'billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances'].includes(section) && (
+          {section !== 'dashboard' && section !== 'book-exam' && section !== 'appointments' && section !== 'today-patients' && section !== 'follow-ups' && section !== 'profile' && !['medical-records', 'prescriptions', 'clinical-records', 'patient-records', 'consultations', 'claim-stub', 'manage-team', 'manage-users', 'roles-permissions', 'audit-logs', 'clinic-settings', 'suppliers', 'purchase-orders', 'receiving', 'purchase-history', 'inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history', 'billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances'].includes(section) && (
             <div class="task-grid">
               {role !== 'owner' && <><article class="task-summary-card"><span>Access scope</span><strong>{role === 'patient' ? 'Personal records only' : role === 'optometrist' ? 'Authorized clinical care' : role === 'eye-care-assistant' ? 'Clinic operations' : 'Clinic administration and clinical care'}</strong><small>Protected by role permissions</small></article><article class="task-summary-card"><span>Current state</span><strong>Ready to review</strong><small>Use this workspace for {pageTitle.toLowerCase()}</small></article></>}
               <div class="empty-state task-empty"><h2>No records loaded yet</h2><p>Connect this workspace to clinic records as activity becomes available.</p></div>
@@ -874,6 +886,13 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     .ocular-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
     .job-order-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
     .claim-grid { grid-template-columns: 2fr repeat(3, 1fr); }
+    .claim-stub-document { background: #fff; color: #111; border: 1px solid var(--line); padding: 1.1rem; }
+    .claim-stub-document h4 { letter-spacing: .22em; text-align: center; font-size: 1.25rem; margin: 0 0 1rem; }
+    .claim-stub-document table { width: 100%; border-collapse: collapse; margin-top: .75rem; }
+    .claim-stub-document th, .claim-stub-document td { border: 1px solid #111; padding: .45rem .5rem; text-align: left; }
+    .claim-stub-status-select { min-width: 11rem; }
+    .claim-stub-card { border: 1px solid var(--line); background: var(--surface); padding: 1rem; margin-bottom: 1rem; }
+    .claim-stub-card .table-actions { margin-top: .85rem; justify-content: flex-end; }
     .patient-form-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .patient-form-columns > div { display: grid; gap: .6rem; }
     .patient-form-columns h4 { border-bottom: 1px solid var(--line); padding-bottom: .4rem; }
@@ -902,14 +921,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       }
     };
     const navigationData = {
-      patient: { dashboard: 'Patient Dashboard', 'book-exam': 'Book an Appointment', appointments: 'Appointments', 'follow-ups': 'Follow-ups', 'medical-records': 'Medical Records', prescriptions: 'Prescriptions', notifications: 'Notifications', profile: 'Profile' },
-      optometrist: { dashboard: 'Optometrist Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'patient-records': 'Patient Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups' },
-      'eye-care-assistant': { dashboard: 'Eye Care Assistant Dashboard', 'check-in': 'Patient Check-In', appointments: 'Appointments', 'clinic-queue': 'Clinic Queue', 'patient-records': 'Patient Records', billing: 'Billing' },
-      owner: { dashboard: 'Owner Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'patient-records': 'Patient Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups', 'manage-team': "User's Management", 'manage-users': 'Manage Users', 'roles-permissions': 'Roles & Permissions', 'audit-logs': 'Audit Logs', reports: 'Reports', 'clinic-settings': 'Clinic Settings', suppliers: 'Suppliers', 'purchase-orders': 'Purchase Orders', receiving: 'Receiving', 'purchase-history': 'Purchase History', inventory: 'Inventory', 'stock-movements': 'Stock Movements', 'stock-in': 'Stock In', 'stock-out': 'Stock Out', 'stock-adjustment': 'Stock Adjustment', 'inventory-history': 'Inventory History', 'billing-invoices': 'Billing / Invoices', 'invoice-templates': 'Invoice Templates', 'customer-payments': 'Customer Payments', 'payment-history': 'Payment History', 'outstanding-balances': 'Outstanding Balances' }
+      patient: { dashboard: 'Patient Dashboard', 'book-exam': 'Book an Appointment', appointments: 'Appointments', 'follow-ups': 'Follow-ups', 'medical-records': 'Medical Records', prescriptions: 'Prescriptions', 'claim-stub': 'Claim Stub', notifications: 'Notifications', profile: 'Profile', archived: 'Archived' },
+      optometrist: { dashboard: 'Optometrist Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'patient-records': 'Patient Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups', 'claim-stub': 'Claim Stub', archived: 'Archived' },
+      'eye-care-assistant': { dashboard: 'Eye Care Assistant Dashboard', 'check-in': 'Patient Check-In', appointments: 'Appointments', 'clinic-queue': 'Clinic Queue', 'patient-records': 'Patient Records', billing: 'Billing', 'claim-stub': 'Claim Stub', archived: 'Archived' },
+      owner: { dashboard: 'Owner Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'patient-records': 'Patient Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups', 'manage-team': "User's Management", 'manage-users': 'Manage Users', 'roles-permissions': 'Roles & Permissions', 'audit-logs': 'Audit Logs', reports: 'Reports', 'clinic-settings': 'Clinic Settings', suppliers: 'Suppliers', 'purchase-orders': 'Purchase Orders', receiving: 'Receiving', 'purchase-history': 'Purchase History', inventory: 'Inventory', 'stock-movements': 'Stock Movements', 'stock-in': 'Stock In', 'stock-out': 'Stock Out', 'stock-adjustment': 'Stock Adjustment', 'inventory-history': 'Inventory History', 'billing-invoices': 'Billing / Invoices', 'invoice-templates': 'Invoice Templates', 'customer-payments': 'Customer Payments', 'payment-history': 'Payment History', 'outstanding-balances': 'Outstanding Balances', 'claim-stub': 'Claim Stub', archived: 'Archived' }
     };
     const pageTitle = (navigationData[role] || {})[section] || 'Workspace';
     let refreshBilling = async () => {};
     let refreshOverviewAppointments = async () => {};
+    let loadClaimStubs = async () => {};
 
     if (role === 'owner' && section === 'manage-users') window.location.replace('/dashboard/owner/manage-team');
 
@@ -1907,6 +1927,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         if (['owner', 'optometrist'].includes(role)) {
           fetches.push(fetchWithTimeout(`${api}/api/clinical-records?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.type || 'Clinical Record', label: item.title || 'Clinical record', status: item.status || 'archived', date: item.issuedAt || item.createdAt || '', canRestore: true, category: 'clinical-records', item }))));
         }
+        if (['owner', 'optometrist', 'eye-care-assistant'].includes(role)) {
+          fetches.push(fetchWithTimeout(`${api}/api/claim-stubs?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.claimStubs || []).map((item) => ({ id: item._id, type: 'Claim Stub', label: item.patientName || 'Claim stub', status: item.status || 'archived', date: item.createdAt || item.visitDate || '', canRestore: true, category: 'claim-stubs', item }))));
+        }
         if (role === 'patient') {
           fetches.push(fetchWithTimeout(`${api}/api/clinical-records/mine?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.type || 'Clinical Record', label: item.title || 'Clinical record', status: item.status || 'archived', date: item.issuedAt || item.createdAt || '', canRestore: true, category: 'clinical-records', item }))));
         }
@@ -1954,6 +1977,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                 users: `${api}/api/admin/users/${id}/archive`,
                 operations: `${api}/api/clinic-operations/${id}/archive`,
                 'clinical-records': `${api}/api/clinical-records/${id}/archive`,
+                'claim-stubs': `${api}/api/claim-stubs/${id}/archive`,
               };
               const response = await fetch(endpoints[type] || '', { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: false }) });
               const result = await response.json().catch(() => ({}));
@@ -1971,6 +1995,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               if (type === 'clinical-records') {
                 await loadClinicalRecords();
               }
+              if (type === 'claim-stubs' && typeof loadClaimStubs === 'function') {
+                await loadClaimStubs();
+              }
               await loadArchivedRecords();
             } catch (error) {
               alert(error.message || 'Unable to restore the record.');
@@ -1984,6 +2011,122 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
     if (section === 'archived') {
       loadArchivedRecords();
+    }
+
+    const claimStubList = document.getElementById('claim-stub-list');
+    const claimStubSearch = document.getElementById('claim-stub-search');
+    const claimStubViewModal = document.getElementById('claim-stub-view-modal');
+    const claimStubViewBody = document.getElementById('claim-stub-view-body');
+    const claimStubViewClose = document.getElementById('claim-stub-view-close');
+    const claimStubStatusOptions = [
+      ['not-claimed', 'Not Yet Claimed'],
+      ['claimed', 'Claimed'],
+      ['partially-claimed', 'Partially Claimed'],
+      ['pending-verification', 'Pending Verification'],
+      ['expired', 'Expired'],
+    ];
+    const claimStubItemRows = [
+      ['Professional Fee', 'professionalfee'],
+      ['Frame', 'frame'],
+      ['Lens', 'lens'],
+      ['Contact Lens', 'contactlens'],
+      ['Ophthalmic Drops', 'ophthalmicdrops'],
+      ['Others', 'others'],
+    ];
+    let claimStubs = [];
+    const claimStubStatusLabel = (status) => claimStubStatusOptions.find(([value]) => value === status)?.[1] || status || 'Not Yet Claimed';
+    const claimStubArchivable = (status) => ['not-claimed', 'claimed'].includes(status);
+    const claimStubLine = (stub, key) => stub?.items?.[key] || {};
+    const renderClaimStubDocument = (stub) => `
+      <h4>C L A I M&nbsp;&nbsp; S T U B</h4>
+      <div class="field-row"><p><strong>Patient Name:</strong> ${escapeHtml(stub.patientName || '—')}</p><p><strong>Visit Date:</strong> ${escapeHtml(stub.visitDate || '—')}</p><p><strong>Due Date:</strong> ${escapeHtml(stub.dueDate || '—')}</p></div>
+      <table><thead><tr><th>Item</th><th>From</th><th>Less</th><th>To</th></tr></thead><tbody>
+        ${claimStubItemRows.map(([label, key]) => {
+          const line = claimStubLine(stub, key);
+          return `<tr><th>${escapeHtml(label)}:</th><td>${escapeHtml(line.from || '')}</td><td>${escapeHtml(line.less || '')}</td><td>${escapeHtml(line.to || '')}</td></tr>`;
+        }).join('')}
+        <tr><th>Down Payment:</th><td>${escapeHtml(stub.downPayment || '')}</td><th>Balance:</th><td>${escapeHtml(stub.balance || '')}</td></tr>
+      </tbody></table>
+      <div class="claim-notes"><strong>NOTES:</strong><p>- Paid items not collected within <u>90 days</u> from the date of purchase will be <u>voided</u>.</p><p>- Please ensure all items are <u>FULLY PAID</u> before claiming.</p><p>- Present this form upon claiming your order.</p></div>
+    `;
+    const openClaimStubView = (stub) => {
+      if (!claimStubViewBody || !claimStubViewModal) return;
+      claimStubViewBody.innerHTML = renderClaimStubDocument(stub);
+      claimStubViewModal.showModal();
+    };
+    const renderClaimStubs = (stubs) => {
+      if (!claimStubList) return;
+      if (!stubs.length) {
+        claimStubList.innerHTML = `<p class="empty-appointments">${role === 'patient' ? 'No claim stubs have been issued yet.' : 'No claim stubs found.'}</p>`;
+        return;
+      }
+      if (role === 'patient') {
+        claimStubList.innerHTML = stubs.map((stub) => `
+          <article class="claim-stub-card">
+            ${renderClaimStubDocument(stub)}
+            <div class="table-actions">${renderActionButton({ label: 'View', variant: 'view', classes: ['claim-stub-view-action'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3"/></svg>', dataAttrs: { 'stub-id': stub._id }, ariaLabel: 'View claim stub' })}</div>
+          </article>
+        `).join('');
+      } else {
+        claimStubList.innerHTML = `<div class="appointment-table-wrap"><table class="appointment-table patient-records-table claim-stubs-table"><thead><tr><th scope="col">Patient</th><th scope="col">Visit Date</th><th scope="col">Due Date</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody>${stubs.map((stub) => {
+          const statusSelect = `<select class="claim-stub-status-select" data-stub-id="${escapeHtml(stub._id)}" aria-label="Claim stub status">${claimStubStatusOptions.map(([value, label]) => `<option value="${value}" ${stub.status === value ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select>`;
+          const archiveButton = claimStubArchivable(stub.status) ? renderActionButton({ label: 'Archive', variant: 'archive', classes: ['claim-stub-archive-action'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6"/></svg>', dataAttrs: { 'stub-id': stub._id }, ariaLabel: 'Archive claim stub' }) : '';
+          return `<tr><td data-label="Patient"><strong>${escapeHtml(stub.patientName || '—')}</strong></td><td data-label="Visit Date">${escapeHtml(stub.visitDate || '—')}</td><td data-label="Due Date">${escapeHtml(stub.dueDate || '—')}</td><td data-label="Status">${statusSelect}</td><td data-label="Action"><div class="table-actions">${renderActionButton({ label: 'View', variant: 'view', classes: ['claim-stub-view-action'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3"/></svg>', dataAttrs: { 'stub-id': stub._id }, ariaLabel: 'View claim stub' })}${archiveButton}</div></td></tr>`;
+        }).join('')}</tbody></table></div>`;
+      }
+      claimStubList.querySelectorAll('.claim-stub-view-action').forEach((button) => {
+        button.addEventListener('click', () => {
+          const stub = claimStubs.find((item) => item._id === button.dataset.stubId);
+          if (stub) openClaimStubView(stub);
+        });
+      });
+      claimStubList.querySelectorAll('.claim-stub-archive-action').forEach((button) => {
+        button.addEventListener('click', async () => {
+          if (!window.confirm('Archive this claim stub?')) return;
+          try {
+            const response = await fetch(`${api}/api/claim-stubs/${button.dataset.stubId}/archive`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: true }) });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.message || 'Unable to archive claim stub.');
+            await loadClaimStubs();
+          } catch (error) {
+            alert(error.message || 'Unable to archive claim stub.');
+          }
+        });
+      });
+      claimStubList.querySelectorAll('.claim-stub-status-select').forEach((select) => {
+        select.addEventListener('change', async () => {
+          const previous = claimStubs.find((item) => item._id === select.dataset.stubId)?.status;
+          try {
+            const response = await fetch(`${api}/api/claim-stubs/${select.dataset.stubId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: select.value }) });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.message || 'Unable to update claim stub status.');
+            await loadClaimStubs();
+          } catch (error) {
+            select.value = previous || 'not-claimed';
+            alert(error.message || 'Unable to update claim stub status.');
+          }
+        });
+      });
+    };
+    loadClaimStubs = async () => {
+      if (!claimStubList) return;
+      const endpoint = role === 'patient' ? `${api}/api/claim-stubs/mine` : `${api}/api/claim-stubs`;
+      const response = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}` } });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.message || 'Unable to load claim stubs.');
+      claimStubs = result.claimStubs || [];
+      const query = claimStubSearch?.value.toLowerCase().trim() || '';
+      const filtered = query ? claimStubs.filter((stub) => `${stub.patientName} ${stub.visitDate} ${stub.dueDate} ${claimStubStatusLabel(stub.status)} ${stub.status}`.toLowerCase().includes(query)) : claimStubs;
+      renderClaimStubs(filtered);
+    };
+    claimStubSearch?.addEventListener('input', () => {
+      const query = claimStubSearch.value.toLowerCase().trim();
+      const filtered = query ? claimStubs.filter((stub) => `${stub.patientName} ${stub.visitDate} ${stub.dueDate} ${claimStubStatusLabel(stub.status)} ${stub.status}`.toLowerCase().includes(query)) : claimStubs;
+      renderClaimStubs(filtered);
+    });
+    claimStubViewClose?.addEventListener('click', () => claimStubViewModal?.close());
+    if (claimStubList) {
+      loadClaimStubs().catch((error) => { claimStubList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
     }
 
     if (appointmentList) {
@@ -2458,7 +2601,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     loadPatientFollowUps().catch((error) => { if (followUpStatus) followUpStatus.textContent = error.message; });
     loadClinicalFollowUps().catch((error) => { if (followUpList) followUpList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
 
-    const recordType = section === 'medical-records' ? 'medical-record' : section === 'consultations' ? 'consultation' : section === 'prescriptions' ? 'prescription' : null;
+    const recordType = section === 'medical-records' || section === 'patient-records' ? 'medical-record' : section === 'consultations' ? 'consultation' : section === 'prescriptions' ? 'prescription' : null;
     const patientRecordList = document.getElementById('patient-record-list');
     const clinicalRecordList = document.getElementById('clinical-record-list');
     const clinicalRecordSearch = document.getElementById('clinical-record-search');
@@ -4109,6 +4252,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       if (event.type === 'appointment') refreshTargets.add('appointments');
       if (event.type === 'follow-up') refreshTargets.add('followUps');
       if (event.type === 'clinical-record') refreshTargets.add('clinicalRecords');
+      if (event.type === 'claim-stub') refreshTargets.add('claimStubs');
       if (event.type === 'user') refreshTargets.add('users');
       if (['invoice', 'payment', 'supplier', 'purchase-order', 'receiving', 'inventory-item', 'stock-in', 'stock-out', 'stock-adjustment', 'template'].includes(event.type)) {
         refreshTargets.add('operations');
@@ -4130,6 +4274,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         }
         if (refreshTargets.has('clinicalRecords') && typeof loadClinicalRecords === 'function') {
           await loadClinicalRecords();
+        }
+        if (refreshTargets.has('claimStubs') && typeof loadClaimStubs === 'function') {
+          await loadClaimStubs();
         }
         if (refreshTargets.has('users') && typeof loadUsers === 'function') {
           await loadUsers();

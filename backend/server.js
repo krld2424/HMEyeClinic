@@ -13,6 +13,7 @@ import contentRoutes from './routes/contentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import clinicOperationRoutes from './routes/clinicOperationRoutes.js';
 import invoiceTemplateRoutes from './routes/invoiceTemplateRoutes.js';
+import claimStubRoutes from './routes/claimStubRoutes.js';
 import { ensureSuperAdmin } from './config/superAdmin.js';
 import { generalApiLimiter } from './middleware/rateLimit.js';
 import { setupRealtime } from './config/realtime.js';
@@ -88,6 +89,7 @@ app.use('/api/content', contentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/clinic-operations', clinicOperationRoutes);
 app.use('/api/invoice-templates', invoiceTemplateRoutes);
+app.use('/api/claim-stubs', claimStubRoutes);
 
 const startServer = async () => {
   const databaseConnected = await connectDB();

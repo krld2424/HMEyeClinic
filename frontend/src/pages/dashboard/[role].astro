@@ -47,6 +47,7 @@ const iconPaths = {
   'clinic-queue': 'M4 6h16M4 12h16M4 18h16M8 6v12',
   'check-in': 'M5 4h14v16H5V4Zm3 4h8m-8 4h8m-8 4h5',
   'patient-records': 'M4 5h16v14H4V5Zm3 4h10m-10 4h7',
+  'claim-stub': 'M6 3h12v18H6V3Zm3 5h6m-6 4h6m-6 4h4',
   billing: 'M6 3h12v18H6V3Zm3 5h6m-6 4h6m-6 4h4',
   reports: 'M5 20V10m7 10V4m7 16v-7',
   'manage-team': 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0-8 0 4 4 0 0 0 8 0Zm6-3a4 4 0 0 1 0-7.75M22 21v-2a4 4 0 0 0-3-3.87',
@@ -59,17 +60,19 @@ const iconPaths = {
 const sidebarGroups = {
   patient: [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }] },
-    { label: 'Care', links: [{ label: 'Book Appointment', slug: 'book-exam' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Medical Records', slug: 'medical-records' }, { label: 'Prescriptions', slug: 'prescriptions' }] },
+    { label: 'Care', links: [{ label: 'Book Appointment', slug: 'book-exam' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Follow-ups', slug: 'follow-ups' }, { label: 'Medical Records', slug: 'medical-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Claim Stub', slug: 'claim-stub' }] },
     { label: 'Account', links: [{ label: 'Notifications', slug: 'notifications' }, { label: 'Profile', slug: 'profile' }, { label: 'Archived', slug: 'archived' }] },
   ],
   optometrist: [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: "Today's Patients", slug: 'today-patients' }] },
     { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Patient Records', slug: 'patient-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
+    { label: 'Billing', links: [{ label: 'Claim Stub', slug: 'claim-stub' }] },
     { label: 'Archived', links: [{ label: 'Archived', slug: 'archived' }] },
   ],
   'eye-care-assistant': [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: 'Clinic Queue', slug: 'clinic-queue' }] },
-    { label: 'Operations', links: [{ label: 'Check-In', slug: 'check-in' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Patient Records', slug: 'patient-records' }, { label: 'Billing', slug: 'billing' }] },
+    { label: 'Operations', links: [{ label: 'Check-In', slug: 'check-in' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Patient Records', slug: 'patient-records' }] },
+    { label: 'Billing', links: [{ label: 'Billing', slug: 'billing' }, { label: 'Claim Stub', slug: 'claim-stub' }] },
     { label: 'Archived', links: [{ label: 'Archived', slug: 'archived' }] },
   ],
   owner: [
@@ -78,7 +81,7 @@ const sidebarGroups = {
     { label: 'Management', links: [{ label: "User's Management", slug: 'manage-team' }, { label: 'Roles & Permissions', slug: 'roles-permissions' }] },
     { label: 'Supplier Transactions', links: [{ label: 'Suppliers', slug: 'suppliers' }, { label: 'Purchase Orders', slug: 'purchase-orders' }, { label: 'Receiving', slug: 'receiving' }, { label: 'Purchase History', slug: 'purchase-history' }] },
     { label: 'Inventory', links: [{ label: 'Inventory', slug: 'inventory' }, { label: 'Stock Movements', slug: 'stock-movements' }, { label: 'Stock Adjustment', slug: 'stock-adjustment' }, { label: 'Inventory History', slug: 'inventory-history' }] },
-    { label: 'Billing', links: [{ label: 'Billing / Invoices', slug: 'billing-invoices' }, { label: 'Invoice Templates', slug: 'invoice-templates' }, { label: 'Customer Payments', slug: 'customer-payments' }, { label: 'Payment History', slug: 'payment-history' }, { label: 'Outstanding Balances', slug: 'outstanding-balances' }] },
+    { label: 'Billing', links: [{ label: 'Billing / Invoices', slug: 'billing-invoices' }, { label: 'Invoice Templates', slug: 'invoice-templates' }, { label: 'Customer Payments', slug: 'customer-payments' }, { label: 'Payment History', slug: 'payment-history' }, { label: 'Outstanding Balances', slug: 'outstanding-balances' }, { label: 'Claim Stub', slug: 'claim-stub' }] },
     { label: 'Monitoring & Settings', links: [{ label: 'Audit Logs', slug: 'audit-logs' }, { label: 'Clinic Settings', slug: 'clinic-settings' }] },
     { label: 'Archived', links: [{ label: 'Archived', slug: 'archived' }] },
   ],
