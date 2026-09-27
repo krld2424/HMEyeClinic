@@ -890,7 +890,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     .claim-stub-document h4 { letter-spacing: .22em; text-align: center; font-size: 1.25rem; margin: 0 0 1rem; }
     .claim-stub-document table { width: 100%; border-collapse: collapse; margin-top: .75rem; }
     .claim-stub-document th, .claim-stub-document td { border: 1px solid #111; padding: .45rem .5rem; text-align: left; }
-    .claim-stub-status-select { min-width: 11rem; }
     .claim-stub-card { border: 1px solid var(--line); background: var(--surface); padding: 1rem; margin-bottom: 1rem; }
     .claim-stub-card .table-actions { margin-top: .85rem; justify-content: flex-end; }
     .patient-form-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -2069,7 +2068,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         `).join('');
       } else {
         claimStubList.innerHTML = `<div class="appointment-table-wrap"><table class="appointment-table patient-records-table claim-stubs-table"><thead><tr><th scope="col">Patient</th><th scope="col">Visit Date</th><th scope="col">Due Date</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody>${stubs.map((stub) => {
-          const statusSelect = `<select class="claim-stub-status-select" data-stub-id="${escapeHtml(stub._id)}" aria-label="Claim stub status">${claimStubStatusOptions.map(([value, label]) => `<option value="${value}" ${stub.status === value ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select>`;
+          const statusSelect = `<label class="claim-stub-status-control"><select class="claim-stub-status-select status-${escapeHtml(stub.status)}" data-stub-id="${escapeHtml(stub._id)}" data-status="${escapeHtml(stub.status)}" aria-label="Claim stub status">${claimStubStatusOptions.map(([value, label]) => `<option value="${value}" ${stub.status === value ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select></label>`;
           const archiveButton = claimStubArchivable(stub.status) ? renderActionButton({ label: 'Archive', variant: 'archive', classes: ['claim-stub-archive-action'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6"/></svg>', dataAttrs: { 'stub-id': stub._id }, ariaLabel: 'Archive claim stub' }) : '';
           return `<tr><td data-label="Patient"><strong>${escapeHtml(stub.patientName || '—')}</strong></td><td data-label="Visit Date">${escapeHtml(stub.visitDate || '—')}</td><td data-label="Due Date">${escapeHtml(stub.dueDate || '—')}</td><td data-label="Status">${statusSelect}</td><td data-label="Action"><div class="table-actions">${renderActionButton({ label: 'View', variant: 'view', classes: ['claim-stub-view-action'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3"/></svg>', dataAttrs: { 'stub-id': stub._id }, ariaLabel: 'View claim stub' })}${archiveButton}</div></td></tr>`;
         }).join('')}</tbody></table></div>`;
@@ -2096,6 +2095,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       claimStubList.querySelectorAll('.claim-stub-status-select').forEach((select) => {
         select.addEventListener('change', async () => {
           const previous = claimStubs.find((item) => item._id === select.dataset.stubId)?.status;
+          select.className = `claim-stub-status-select status-${select.value}`;
+          select.dataset.status = select.value;
           try {
             const response = await fetch(`${api}/api/claim-stubs/${select.dataset.stubId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: select.value }) });
             const result = await response.json().catch(() => ({}));

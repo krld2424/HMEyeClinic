@@ -5013,6 +5013,90 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   font-size: 0.88rem;
 }
 
+.claim-stub-status-control {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.claim-stub-status-control::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0.8rem;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  opacity: 0.7;
+  pointer-events: none;
+  transform: translateY(-70%) rotate(45deg);
+}
+
+.claim-stub-status-select {
+  appearance: none;
+  width: 100%;
+  min-width: 168px;
+  min-height: 36px;
+  padding: 0.42rem 2rem 0.42rem 0.72rem;
+  border: 1px solid var(--claim-status-border);
+  border-radius: 6px;
+  background: var(--claim-status-bg);
+  color: var(--claim-status-text);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+}
+
+.claim-stub-status-select:hover {
+  border-color: var(--claim-status-text);
+}
+
+.claim-stub-status-select:focus-visible {
+  outline: 3px solid rgba(14, 132, 130, 0.24);
+  outline-offset: 2px;
+}
+
+.claim-stub-status-select option {
+  background: #fff;
+  color: #172b2b;
+  font-weight: 500;
+}
+
+.claim-stub-status-select.status-not-claimed {
+  --claim-status-bg: #fff4d6;
+  --claim-status-border: #ead49a;
+  --claim-status-text: #76500a;
+}
+
+.claim-stub-status-select.status-claimed {
+  --claim-status-bg: #e8f6ed;
+  --claim-status-border: #b4ddc1;
+  --claim-status-text: #17633a;
+}
+
+.claim-stub-status-select.status-partially-claimed {
+  --claim-status-bg: #e8f4fa;
+  --claim-status-border: #b6d8e8;
+  --claim-status-text: #145b7c;
+}
+
+.claim-stub-status-select.status-pending-verification {
+  --claim-status-bg: #fff0dd;
+  --claim-status-border: #ebcda5;
+  --claim-status-text: #86500d;
+}
+
+.claim-stub-status-select.status-expired {
+  --claim-status-bg: #fcecec;
+  --claim-status-border: #edc2c2;
+  --claim-status-text: #9b3434;
+}
+
 .appointments-workspace .appointment-table-wrap {
   overflow-x: visible;
 }
