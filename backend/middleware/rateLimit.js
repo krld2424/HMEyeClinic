@@ -45,6 +45,13 @@ export const otpLimiter = createLimiter(
   'Too many OTP requests. Please try again later.'
 );
 
+export const patientRegistrationOtpLimiter = createLimiter(
+  15 * 60 * 1000,
+  10,
+  'Too many patient verification requests. Please try again later.',
+  { keyGenerator: (req) => getLoginRateLimitKey(req) }
+);
+
 export const appointmentCreationLimiter = createLimiter(
   10 * 60 * 1000,
   10,

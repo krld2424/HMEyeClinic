@@ -32,6 +32,19 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
         <button type="submit" class="btn btn-primary auth-submit">Create Patient Account</button>
         <p id="register-status" class="form-status" aria-live="polite"></p>
       </form>
+      <section id="register-otp-step" class="auth-form active" hidden aria-labelledby="register-otp-title">
+        <h2 id="register-otp-title">Verify your email</h2>
+        <p class="auth-intro">Enter the six-digit code sent to <strong id="register-otp-email"></strong>.</p>
+        <form id="register-otp-form">
+          <div class="field-group">
+            <label for="register-otp">Verification code</label>
+            <input id="register-otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required />
+          </div>
+          <button type="submit" class="btn btn-primary auth-submit" id="verify-registration-otp">Verify email</button>
+          <p id="register-otp-status" class="form-status" aria-live="polite"></p>
+          <button type="button" class="btn btn-secondary auth-submit" id="resend-registration-otp">Resend code</button>
+        </form>
+      </section>
       <p class="auth-switch">Already registered? <a href="/login">Sign in</a></p>
     </section>
   </main>
@@ -49,6 +62,8 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
   </dialog>
 
   <style>
+    .auth-card-register [hidden] { display: none !important; }
+
     .registration-success-dialog {
       width: min(480px, calc(100vw - 2rem));
       border: none;
@@ -113,6 +128,13 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
 
     const form = document.getElementById('register-form');
     const status = document.getElementById('register-status');
+    const otpStep = document.getElementById('register-otp-step');
+    const otpForm = document.getElementById('register-otp-form');
+    const otpInput = document.getElementById('register-otp');
+    const otpStatus = document.getElementById('register-otp-status');
+    const otpEmail = document.getElementById('register-otp-email');
+    const verifyOtpButton = document.getElementById('verify-registration-otp');
+    const resendOtpButton = document.getElementById('resend-registration-otp');
     const phone = document.getElementById('register-phone');
     const age = document.getElementById('age');
     const successDialog = document.getElementById('registration-success-dialog');
@@ -149,6 +171,40 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
     });
 
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+    let registrationEmail = '';
+    let resendTimer;
+
+    const showOtpStep = (email) => {
+      registrationEmail = email;
+      otpEmail.textContent = email;
+      form.hidden = true;
+      otpStep.hidden = false;
+      otpInput.focus();
+      startResendCooldown(60);
+    };
+
+    const startResendCooldown = (seconds) => {
+      clearInterval(resendTimer);
+      let remaining = seconds;
+      resendOtpButton.disabled = true;
+      resendOtpButton.textContent = `Resend code in ${remaining}s`;
+      resendTimer = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          clearInterval(resendTimer);
+          resendOtpButton.disabled = false;
+          resendOtpButton.textContent = 'Resend code';
+          return;
+        }
+        resendOtpButton.textContent = `Resend code in ${remaining}s`;
+      }, 1000);
+    };
+
+    const setOtpStatus = (message, isError = false) => {
+      otpStatus.textContent = message;
+      otpStatus.classList.toggle('error', isError);
+      otpStatus.classList.toggle('success', !isError);
+    };
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -174,15 +230,72 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to create account.');
 
-        status.textContent = 'Account created successfully.';
+        status.textContent = result.message || 'Verification code sent.';
         status.classList.remove('error');
         status.classList.add('success');
-        form.reset();
-        openSuccessDialog();
+        showOtpStep(payload.email);
       } catch (error) {
         status.textContent = error.message;
         status.classList.remove('success');
         status.classList.add('error');
+      }
+    });
+
+    otpForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!otpForm.checkValidity()) { otpForm.reportValidity(); return; }
+      verifyOtpButton.disabled = true;
+      try {
+        const response = await fetch(`${api}/api/auth/register/verify-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: registrationEmail, otp: otpInput.value.trim() }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to verify your email.');
+
+        setOtpStatus('Email verified. Your account is ready.', false);
+        form.reset();
+        form.hidden = false;
+        otpForm.reset();
+        clearInterval(resendTimer);
+        otpStep.hidden = true;
+        openSuccessDialog();
+      } catch (error) {
+        setOtpStatus(error.message, true);
+      } finally {
+        verifyOtpButton.disabled = false;
+      }
+    });
+
+    resendOtpButton.addEventListener('click', async () => {
+      resendOtpButton.disabled = true;
+      let cooldownStarted = false;
+      try {
+        const response = await fetch(`${api}/api/auth/register/resend-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: registrationEmail }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          if (result.retryAfterSeconds) {
+            startResendCooldown(result.retryAfterSeconds);
+            cooldownStarted = true;
+          }
+          throw new Error(result.message || 'Unable to resend the verification code.');
+        }
+        otpInput.value = '';
+        setOtpStatus(result.message, false);
+        startResendCooldown(60);
+      } catch (error) {
+        setOtpStatus(error.message, true);
+        if (!cooldownStarted) {
+          clearInterval(resendTimer);
+          resendTimer = undefined;
+          resendOtpButton.disabled = false;
+          resendOtpButton.textContent = 'Resend code';
+        }
       }
     });
   </script>

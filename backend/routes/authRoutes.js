@@ -2,9 +2,10 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import PatientRegistrationOtp from '../models/PatientRegistrationOtp.js';
 import crypto from 'node:crypto';
-import { sendPasswordResetOtp } from '../config/resend.js';
-import { forgotPasswordLimiter, loginLimiter, otpLimiter, registrationLimiter } from '../middleware/rateLimit.js';
+import { sendPasswordResetOtp, sendPatientRegistrationOtp } from '../config/resend.js';
+import { forgotPasswordLimiter, loginLimiter, otpLimiter, patientRegistrationOtpLimiter, registrationLimiter } from '../middleware/rateLimit.js';
 import { broadcastRealtimeEvent, publicUserPayload } from '../config/realtime.js';
 
 const router = express.Router();
@@ -37,6 +38,46 @@ const genericResetResponse = {
 };
 
 const hashValue = (value) => crypto.createHash('sha256').update(value).digest('hex');
+
+const registrationOtpLifetimeMs = 10 * 60 * 1000;
+const registrationResendCooldownMs = 60 * 1000;
+const pendingRegistrationLifetimeMs = 24 * 60 * 60 * 1000;
+
+const readPatientRegistration = (body) => {
+  const email = String(body.email || '').trim().toLowerCase();
+  const password = String(body.password || '');
+  const name = String(body.name || '').trim();
+  const age = Number(body.age);
+  const phone = String(body.phone || '').trim();
+
+  if (!name || !email || !password) {
+    return { error: 'Name, email, and password are required.' };
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: 'Enter a valid email address.' };
+  }
+  if (!Number.isInteger(age) || age < 0 || age > 120) {
+    return { error: 'Age must be a whole number between 0 and 120.' };
+  }
+  if (phone && !/^\+63 \d{3}-\d{3}-\d{4}$/.test(phone)) {
+    return { error: 'Contact number must use +63 000-000-0000 format.' };
+  }
+
+  return {
+    registration: {
+      name,
+      firstName: String(body.firstName || '').trim(),
+      lastName: String(body.lastName || '').trim(),
+      middleInitial: String(body.middleInitial || '').trim(),
+      suffix: String(body.suffix || '').trim(),
+      age,
+      gender: String(body.gender || '').trim(),
+      email,
+      password,
+      phone,
+    },
+  };
+};
 
 const verifyTurnstileToken = async (turnstileToken, remoteIp) => {
   const secret = process.env.TURNSTILE_SECRET_KEY;
@@ -139,46 +180,170 @@ router.post('/reset-password', async (req, res) => {
   return res.status(200).json({ success: true, message: 'Password reset successfully.' });
 });
 
-router.post('/register', registrationLimiter, async (req, res) => {
+router.post('/register', registrationLimiter, patientRegistrationOtpLimiter, async (req, res) => {
   try {
-    const { name, firstName, lastName, middleInitial, suffix, age, gender, email, password, phone } = req.body;
+    const { registration, error } = readPatientRegistration(req.body);
+    if (error) return res.status(400).json({ success: false, message: error });
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Name, email, and password are required.' });
-    }
-
-    const numericAge = Number(age);
-    if (!Number.isInteger(numericAge) || numericAge < 0 || numericAge > 120) {
-      return res.status(400).json({ message: 'Age must be a whole number between 0 and 120.' });
-    }
-
-    if (phone && !/^\+63 \d{3}-\d{3}-\d{4}$/.test(phone)) {
-      return res.status(400).json({ message: 'Contact number must use +63 000-000-0000 format.' });
-    }
-
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const existingUser = await User.findOne({ email: registration.email });
     if (existingUser) {
-      return res.status(409).json({ message: 'An account with this email already exists.' });
+      return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const existingPending = await PatientRegistrationOtp.findOne({ email: registration.email });
+    const now = new Date();
+    if (existingPending && existingPending.registrationExpiresAt > now) {
+      return res.status(200).json({
+        success: true,
+        verificationRequired: true,
+        message: 'A verification code has already been sent to this email.',
+      });
+    }
+    if (existingPending) await existingPending.deleteOne();
 
-    const user = await User.create({
-      name,
-      firstName,
-      lastName,
-      middleInitial,
-      suffix,
-      age: numericAge,
-      gender,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      role: 'patient',
-      patientId: await nextPatientId(),
-      phone,
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    const pendingRegistration = await PatientRegistrationOtp.create({
+      ...registration,
+      password: await bcrypt.hash(registration.password, 10),
+      otpHash: hashValue(otp),
+      otpExpiresAt: new Date(now.getTime() + registrationOtpLifetimeMs),
+      otpAttempts: 0,
+      resendAvailableAt: new Date(now.getTime() + registrationResendCooldownMs),
+      registrationExpiresAt: new Date(now.getTime() + pendingRegistrationLifetimeMs),
     });
 
-    const token = createToken(user);
+    try {
+      await sendPatientRegistrationOtp(registration.email, otp);
+    } catch (error) {
+      await pendingRegistration.deleteOne();
+      console.error('Patient registration email error:', error.message);
+      return res.status(503).json({
+        success: false,
+        message: 'Email verification is temporarily unavailable. Please try again later.',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      verificationRequired: true,
+      message: 'A verification code has been sent to your email address.',
+    });
+  } catch (error) {
+    console.error('Register error:', error);
+    if (error.code === 11000) {
+      return res.status(409).json({ success: false, message: 'A registration for this email is already being verified.' });
+    }
+    return res.status(500).json({ success: false, message: 'Unable to start registration. Please try again.' });
+  }
+});
+
+router.post('/register/resend-otp', patientRegistrationOtpLimiter, async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
+
+  try {
+    const pendingRegistration = await PatientRegistrationOtp.findOne({ email });
+    const now = new Date();
+    if (!pendingRegistration || pendingRegistration.registrationExpiresAt <= now) {
+      if (pendingRegistration) await pendingRegistration.deleteOne();
+      return res.status(400).json({ success: false, message: 'No pending registration found. Please start again.' });
+    }
+
+    const retryAfterSeconds = Math.ceil((pendingRegistration.resendAvailableAt - now) / 1000);
+    if (retryAfterSeconds > 0) {
+      return res.status(429).json({
+        success: false,
+        message: `Please wait ${retryAfterSeconds} seconds before requesting another code.`,
+        retryAfterSeconds,
+      });
+    }
+
+    if (await User.exists({ email })) {
+      await pendingRegistration.deleteOne();
+      return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
+    }
+
+    const previousOtpState = {
+      otpHash: pendingRegistration.otpHash,
+      otpExpiresAt: pendingRegistration.otpExpiresAt,
+      otpAttempts: pendingRegistration.otpAttempts,
+      resendAvailableAt: pendingRegistration.resendAvailableAt,
+    };
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    pendingRegistration.otpHash = hashValue(otp);
+    pendingRegistration.otpExpiresAt = new Date(now.getTime() + registrationOtpLifetimeMs);
+    pendingRegistration.otpAttempts = 0;
+    pendingRegistration.resendAvailableAt = new Date(now.getTime() + registrationResendCooldownMs);
+    await pendingRegistration.save();
+
+    try {
+      await sendPatientRegistrationOtp(email, otp);
+    } catch (error) {
+      Object.assign(pendingRegistration, previousOtpState, { resendAvailableAt: now });
+      await pendingRegistration.save();
+      console.error('Patient registration resend email error:', error.message);
+      return res.status(503).json({ success: false, message: 'Unable to send a new code right now. Please try again later.' });
+    }
+
+    return res.status(200).json({ success: true, message: 'A new verification code has been sent.' });
+  } catch (error) {
+    console.error('Patient registration resend error:', error.message);
+    return res.status(500).json({ success: false, message: 'Unable to resend the verification code. Please try again.' });
+  }
+});
+
+router.post('/register/verify-otp', patientRegistrationOtpLimiter, async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  const otp = String(req.body.otp || '').trim();
+  if (!email || !/^\d{6}$/.test(otp)) {
+    return res.status(400).json({ success: false, message: 'Enter the 6-digit verification code sent to your email.' });
+  }
+
+  try {
+    const pendingRegistration = await PatientRegistrationOtp.findOne({ email });
+    const now = new Date();
+    if (!pendingRegistration || pendingRegistration.registrationExpiresAt <= now) {
+      if (pendingRegistration) await pendingRegistration.deleteOne();
+      return res.status(400).json({ success: false, message: 'No pending registration found. Please start again.' });
+    }
+    if (pendingRegistration.otpExpiresAt <= now) {
+      return res.status(400).json({ success: false, message: 'This verification code has expired. Request a new code.' });
+    }
+    if (pendingRegistration.otpAttempts >= 5) {
+      return res.status(429).json({ success: false, message: 'Too many incorrect codes. Request a new code to continue.' });
+    }
+    if (hashValue(otp) !== pendingRegistration.otpHash) {
+      pendingRegistration.otpAttempts += 1;
+      await pendingRegistration.save();
+      const remainingAttempts = Math.max(0, 5 - pendingRegistration.otpAttempts);
+      return res.status(400).json({
+        success: false,
+        message: remainingAttempts
+          ? `Incorrect verification code. ${remainingAttempts} attempts remaining.`
+          : 'Too many incorrect codes. Request a new code to continue.',
+      });
+    }
+
+    if (await User.exists({ email })) {
+      await pendingRegistration.deleteOne();
+      return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
+    }
+
+    const user = await User.create({
+      name: pendingRegistration.name,
+      firstName: pendingRegistration.firstName,
+      lastName: pendingRegistration.lastName,
+      middleInitial: pendingRegistration.middleInitial,
+      suffix: pendingRegistration.suffix,
+      age: pendingRegistration.age,
+      gender: pendingRegistration.gender,
+      email: pendingRegistration.email,
+      password: pendingRegistration.password,
+      role: 'patient',
+      patientId: await nextPatientId(),
+      phone: pendingRegistration.phone,
+    });
+    await pendingRegistration.deleteOne();
 
     broadcastRealtimeEvent(req.app.get('io'), {
       type: 'user',
@@ -189,8 +354,9 @@ router.post('/register', registrationLimiter, async (req, res) => {
     });
 
     return res.status(201).json({
-      message: 'Account created successfully.',
-      token,
+      success: true,
+      message: 'Email verified and patient account created successfully.',
+      token: createToken(user),
       user: {
         id: user._id,
         patientId: user.patientId,
@@ -200,8 +366,11 @@ router.post('/register', registrationLimiter, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Register error:', error);
-    return res.status(500).json({ message: 'Registration failed.', error: error.message });
+    console.error('Patient registration verification error:', error);
+    if (error.code === 11000) {
+      return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
+    }
+    return res.status(500).json({ success: false, message: 'Unable to verify the code. Please try again.' });
   }
 });
 
