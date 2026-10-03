@@ -762,7 +762,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                 <dialog id="patient-record-modal" class="confirmation-dialog patient-record-dialog">
                   <div class="confirmation-dialog__content">
                     <div class="dialog-header-row"><h3>Add New Patient Record</h3><button type="button" class="btn btn-secondary btn-icon" id="patient-record-close" aria-label="Close patient record form">×</button></div>
-                    <form id="patient-record-form" class="workflow-form patient-record-form">
+                    <form id="patient-record-form" class="workflow-form patient-record-form" novalidate>
                       <nav class="patient-progress" aria-label="Patient record steps"><button type="button" class="patient-progress-step is-current" data-step-target="0">Patient Record</button><button type="button" class="patient-progress-step" data-step-target="1">History</button><button type="button" class="patient-progress-step" data-step-target="2">Refraction</button><button type="button" class="patient-progress-step" data-step-target="3">Ocular Health</button><button type="button" class="patient-progress-step" data-step-target="4">Management</button><button type="button" class="patient-progress-step" data-step-target="5">Test</button><button type="button" class="patient-progress-step" data-step-target="6">Claim Stub</button></nav>
                       <section class="patient-form-section patient-form-step" data-step="0"><h4>Patient Record</h4><div class="field-group"><label for="patient-account-search">Search name, patient ID, email, or contact number</label><input id="patient-account-search" type="search" autocomplete="off" placeholder="Search existing patient account" /><div id="patient-account-results" class="patient-account-results" role="listbox"></div></div><input id="patient-account-id" name="patientId" type="hidden" /><p id="patient-account-selection" class="form-status">No account selected. Complete the manual patient fields below for a walk-in patient.</p><div class="field-row"><div class="field-group"><label for="patient-surname">Surname</label><input id="patient-surname" name="surname" required /></div><div class="field-group"><label for="patient-name">Name</label><input id="patient-name" name="name" required /></div><div class="field-group"><label for="patient-date">Date</label><input id="patient-date" name="date" type="date" /></div><div class="field-group"><label for="patient-referred-by">Referred by</label><input id="patient-referred-by" name="referredBy" /></div></div><div class="field-row"><div class="field-group"><label for="patient-brgy">Brgy</label><input id="patient-brgy" name="brgy" /></div><div class="field-group"><label for="patient-town">Town</label><input id="patient-town" name="town" /></div><div class="field-group"><label for="patient-age">Age</label><input id="patient-age" name="age" type="number" min="0" max="120" /></div><div class="field-group"><label for="patient-person">Person</label><input id="patient-person" name="person" /></div><div class="field-group"><label for="patient-online">Online FB/IG</label><input id="patient-online" name="online" /></div></div><div class="field-row"><div class="field-group"><label for="patient-contact">Contact Number</label><input id="patient-contact" name="phone" required /></div><div class="field-group"><label for="patient-gender">Gender</label><input id="patient-gender" name="gender" /></div><div class="field-group"><label for="patient-hospital">Hospital</label><input id="patient-hospital" name="hospital" /></div><div class="field-group"><label for="patient-passed-by">Passed by</label><input id="patient-passed-by" name="passedBy" /></div></div></section>
                       <section class="patient-form-section patient-form-step" data-step="1"><h4>History</h4><div class="field-group"><label for="patient-complaints">Complaints</label><textarea id="patient-complaints" name="complaints" rows="2"></textarea></div><div class="field-group"><label for="patient-activities">Activities</label><textarea id="patient-activities" name="activities" rows="2"></textarea></div><div class="field-group"><label for="patient-ocular-history">Ocular</label><textarea id="patient-ocular-history" name="ocularHistory" rows="2"></textarea></div><div class="field-row"><div class="field-group"><label for="patient-health">Health</label><input id="patient-health" name="health" /></div><div class="field-group"><label for="patient-allergies">Aller</label><input id="patient-allergies" name="allergies" /></div><div class="field-group"><label for="patient-bp">BP</label><input id="patient-bp" name="bp" placeholder="____ / ____" /></div></div></section>
@@ -817,6 +817,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             <div class="workflow-list">
               <div class="section-header split"><div><h2>Archived</h2></div></div>
               <div id="archived-record-list" class="record-list"><p class="empty-appointments">Loading archived records...</p></div>
+              <div id="archived-pagination" class="pagination" aria-label="Archived record pages"></div>
             </div>
           )}
 
@@ -862,6 +863,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     .patient-progress-step.is-current { border-bottom-color: var(--accent); color: var(--text); font-weight: 700; }
     .patient-progress-step.is-complete { border-bottom-color: var(--accent); color: var(--accent); }
     .patient-step-actions { display: flex; justify-content: flex-end; gap: .6rem; margin-top: .75rem; }
+    #patient-record-back[hidden], #patient-record-next[hidden], #patient-record-save[hidden] { display: none !important; }
     .claim-stub-step { background: #fff; color: #111; }
     .claim-stub-step h4 { letter-spacing: .22em; text-align: center; font-size: 1.25rem; }
     .claim-notes { border-top: 1px solid var(--line); margin-top: 1rem; padding-top: .75rem; font-size: .9rem; }
@@ -877,9 +879,13 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       .claim-stub-step { break-before: page; page-break-before: always; }
     }
     .patient-form-section h4 { margin: 0 0 .75rem; font-size: 1rem; }
-    .patient-account-results { display: grid; gap: .35rem; margin-top: .4rem; }
-    .patient-account-result { text-align: left; border: 1px solid var(--line); background: var(--bg); padding: .6rem .75rem; border-radius: 6px; cursor: pointer; color: var(--text); }
-    .patient-account-result:hover, .patient-account-result.is-selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg)); }
+    .patient-account-search-group { position: relative; z-index: 2; }
+    .patient-account-results { position: absolute; top: calc(100% + .3rem); left: 0; right: 0; z-index: 20; display: grid; gap: .35rem; max-height: min(16rem, 40vh); overflow-y: auto; margin-top: 0; padding: .35rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 12px 28px rgb(17 42 49 / 18%); }
+    .patient-account-results:empty { display: none; }
+    :global(.patient-account-result) { display: grid; gap: .2rem; width: 100%; text-align: left; border: 1px solid var(--line); background: var(--bg); padding: .6rem .75rem; border-radius: 6px; cursor: pointer; color: var(--text); }
+    :global(.patient-account-result strong), :global(.patient-account-result span) { display: block; }
+    #patient-account-selection[data-selected="true"] { color: var(--accent); font-weight: 700; }
+    :global(.patient-account-result:hover), :global(.patient-account-result.is-selected) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg)); }
     .record-form-grid { display: grid; gap: .45rem; align-items: center; }
     .record-form-grid input { min-width: 0; }
     .refraction-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
@@ -1911,6 +1917,83 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
 
     const archivedRecordList = document.getElementById('archived-record-list');
+    const archivedPagination = document.getElementById('archived-pagination');
+    const archivedPageSize = 5;
+    let archivedPage = 1;
+    let archivedItems = [];
+    const renderArchivedRecords = () => {
+      if (!archivedRecordList) return;
+      const pages = Math.max(1, Math.ceil(archivedItems.length / archivedPageSize));
+      archivedPage = Math.min(archivedPage, pages);
+      const visible = archivedItems.slice((archivedPage - 1) * archivedPageSize, archivedPage * archivedPageSize);
+      if (!archivedItems.length) {
+        archivedRecordList.innerHTML = '<p class="empty-appointments">No archived records found.</p>';
+        if (archivedPagination) archivedPagination.innerHTML = '';
+        return;
+      }
+      archivedRecordList.innerHTML = `
+        <div class="appointment-table-wrap">
+          <table class="appointment-table">
+            <thead>
+              <tr>
+                <th scope="col">Record</th>
+                <th scope="col">Type</th>
+                <th scope="col">Status</th>
+                <th scope="col">Archived</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${visible.map((record) => `
+                <tr>
+                  <td data-label="Record"><strong>${escapeHtml(record.label)}</strong></td>
+                  <td data-label="Type">${escapeHtml(record.type)}</td>
+                  <td data-label="Status"><span class="appointment-status status-cancelled">Archived</span></td>
+                  <td data-label="Archived">${escapeHtml(record.date ? new Date(`${record.date}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown date')}</td>
+                  <td data-label="Action"><button type="button" class="btn btn-secondary restore-archived-record" data-archive-type="${escapeHtml(record.category)}" data-archive-id="${escapeHtml(record.id)}">Restore</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      if (archivedPagination) {
+        archivedPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${archivedPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${archivedPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${archivedPage === pages ? 'disabled' : ''}>Next</button>` : '';
+        archivedPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { archivedPage -= 1; renderArchivedRecords(); });
+        archivedPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { archivedPage += 1; renderArchivedRecords(); });
+      }
+      archivedRecordList.querySelectorAll('.restore-archived-record').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const type = button.dataset.archiveType;
+          const id = button.dataset.archiveId;
+          if (!id) return;
+          if (!window.confirm('Restore this record to the active list?')) return;
+          try {
+            const endpoints = {
+              appointments: `${api}/api/appointments/${id}/archive`,
+              users: `${api}/api/admin/users/${id}/archive`,
+              operations: `${api}/api/clinic-operations/${id}/archive`,
+              'clinical-records': `${api}/api/clinical-records/${id}/archive`,
+              'claim-stubs': `${api}/api/claim-stubs/${id}/archive`,
+            };
+            const response = await fetch(endpoints[type] || '', { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: false }) });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.message || 'Unable to restore this record.');
+            if (type === 'appointments') {
+              appointments = appointments.filter((item) => item._id !== id);
+              if (appointmentList) renderAppointmentPage();
+            }
+            if (type === 'users') await loadUsers();
+            if (type === 'operations') await loadOperations();
+            if (type === 'clinical-records') await loadClinicalRecords();
+            if (type === 'claim-stubs' && typeof loadClaimStubs === 'function') await loadClaimStubs();
+            await loadArchivedRecords();
+          } catch (error) {
+            alert(error.message || 'Unable to restore the record.');
+          }
+        });
+      });
+    };
     const loadArchivedRecords = async () => {
       if (!archivedRecordList) return;
       archivedRecordList.innerHTML = '<p class="empty-appointments">Loading archived records...</p>';
@@ -1933,76 +2016,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           fetches.push(fetchWithTimeout(`${api}/api/clinical-records/mine?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.type || 'Clinical Record', label: item.title || 'Clinical record', status: item.status || 'archived', date: item.issuedAt || item.createdAt || '', canRestore: true, category: 'clinical-records', item }))));
         }
         const results = await Promise.all(fetches);
-        const archived = results.flat();
-        if (!archived.length) {
-          archivedRecordList.innerHTML = '<p class="empty-appointments">No archived records found.</p>';
-          return;
-        }
-        archivedRecordList.innerHTML = `
-          <div class="appointment-table-wrap">
-            <table class="appointment-table">
-              <thead>
-                <tr>
-                  <th scope="col">Record</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Archived</th>
-                  <th scope="col">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${archived.map((record) => `
-                  <tr>
-                    <td data-label="Record"><strong>${escapeHtml(record.label)}</strong></td>
-                    <td data-label="Type">${escapeHtml(record.type)}</td>
-                    <td data-label="Status"><span class="appointment-status status-cancelled">Archived</span></td>
-                    <td data-label="Archived">${escapeHtml(record.date ? new Date(`${record.date}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown date')}</td>
-                    <td data-label="Action"><button type="button" class="btn btn-secondary restore-archived-record" data-archive-type="${escapeHtml(record.category)}" data-archive-id="${escapeHtml(record.id)}">Restore</button></td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-        archivedRecordList.querySelectorAll('.restore-archived-record').forEach((button) => {
-          button.addEventListener('click', async () => {
-            const type = button.dataset.archiveType;
-            const id = button.dataset.archiveId;
-            if (!id) return;
-            if (!window.confirm('Restore this record to the active list?')) return;
-            try {
-              const endpoints = {
-                appointments: `${api}/api/appointments/${id}/archive`,
-                users: `${api}/api/admin/users/${id}/archive`,
-                operations: `${api}/api/clinic-operations/${id}/archive`,
-                'clinical-records': `${api}/api/clinical-records/${id}/archive`,
-                'claim-stubs': `${api}/api/claim-stubs/${id}/archive`,
-              };
-              const response = await fetch(endpoints[type] || '', { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: false }) });
-              const result = await response.json().catch(() => ({}));
-              if (!response.ok) throw new Error(result.message || 'Unable to restore this record.');
-              if (type === 'appointments') {
-                appointments = appointments.filter((item) => item._id !== id);
-                if (appointmentList) { renderAppointmentPage(); }
-              }
-              if (type === 'users') {
-                await loadUsers();
-              }
-              if (type === 'operations') {
-                await loadOperations();
-              }
-              if (type === 'clinical-records') {
-                await loadClinicalRecords();
-              }
-              if (type === 'claim-stubs' && typeof loadClaimStubs === 'function') {
-                await loadClaimStubs();
-              }
-              await loadArchivedRecords();
-            } catch (error) {
-              alert(error.message || 'Unable to restore the record.');
-            }
-          });
-        });
+        archivedItems = results.flat();
+        archivedPage = 1;
+        renderArchivedRecords();
       } catch (error) {
         archivedRecordList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message || 'Unable to load archived records.')}</p>`;
       }
@@ -2747,6 +2763,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const patientRecordClose = document.getElementById('patient-record-close');
     const patientAccountSearch = document.getElementById('patient-account-search');
     const patientAccountResults = document.getElementById('patient-account-results');
+    patientAccountResults?.parentElement?.classList.add('patient-account-search-group');
     const patientAccountId = document.getElementById('patient-account-id');
     const patientAccountSelection = document.getElementById('patient-account-selection');
     const patientRecordStatus = document.getElementById('patient-record-status');
@@ -2756,6 +2773,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const patientRecordNext = document.getElementById('patient-record-next');
     const patientRecordSave = document.getElementById('patient-record-save');
     let patientStepIndex = 0;
+    const patientDataFields = [...(patientRecordForm?.querySelectorAll('input:not([type="hidden"]):not(#patient-account-search), textarea, select') || [])];
+    patientDataFields.forEach((field) => {
+      field.required = true;
+      field.addEventListener('input', () => { if (field.value.trim()) field.setCustomValidity(''); });
+      field.addEventListener('change', () => { if (field.value.trim()) field.setCustomValidity(''); });
+    });
     const showPatientStep = (index) => {
       patientStepIndex = Math.max(0, Math.min(index, patientSteps.length - 1));
       patientSteps.forEach((step, stepIndex) => { step.hidden = stepIndex !== patientStepIndex; });
@@ -2764,13 +2787,24 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       if (patientRecordNext) patientRecordNext.hidden = patientStepIndex === patientSteps.length - 1;
       if (patientRecordSave) patientRecordSave.hidden = patientStepIndex !== patientSteps.length - 1;
     };
-    const validatePatientStep = () => {
-      const requiredFields = [...(patientSteps[patientStepIndex]?.querySelectorAll('[required]') || [])];
-      const invalidField = requiredFields.find((field) => !field.checkValidity());
+    const validatePatientStep = (index = patientStepIndex) => {
+      const requiredFields = [...(patientSteps[index]?.querySelectorAll('[required]') || [])];
+      const invalidField = requiredFields.find((field) => {
+        field.setCustomValidity(field.value.trim() ? '' : 'Please complete this field.');
+        return !field.checkValidity();
+      });
       if (invalidField) { invalidField.reportValidity(); return false; }
       return true;
     };
-    patientProgressSteps.forEach((step) => step.addEventListener('click', () => showPatientStep(Number(step.dataset.stepTarget))));
+    patientProgressSteps.forEach((step) => step.addEventListener('click', () => {
+      const targetIndex = Number(step.dataset.stepTarget);
+      if (targetIndex <= patientStepIndex) { showPatientStep(targetIndex); return; }
+      for (let index = patientStepIndex; index < targetIndex; index += 1) {
+        showPatientStep(index);
+        if (!validatePatientStep(index)) return;
+      }
+      showPatientStep(targetIndex);
+    }));
     patientRecordBack?.addEventListener('click', () => showPatientStep(patientStepIndex - 1));
     patientRecordNext?.addEventListener('click', () => { if (validatePatientStep()) showPatientStep(patientStepIndex + 1); });
     patientRecordForm?.addEventListener('click', (event) => {
@@ -2784,11 +2818,14 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const clearPatientAccount = () => {
       if (patientAccountId) patientAccountId.value = '';
       if (patientAccountSelection) patientAccountSelection.textContent = 'No account selected. Complete the manual patient fields below for a walk-in patient.';
+      patientAccountSelection?.removeAttribute('data-selected');
       patientAccountResults?.replaceChildren();
     };
     const selectPatientAccount = (patient) => {
       if (patientAccountId) patientAccountId.value = patient._id;
+      if (patientAccountSearch) patientAccountSearch.value = patient.name || patient.patientId || '';
       if (patientAccountSelection) patientAccountSelection.textContent = `Using account: ${patient.name} (${patient.patientId || patient.email})`;
+      patientAccountSelection?.setAttribute('data-selected', 'true');
       const name = patient.name || '';
       const nameParts = name.trim().split(/\s+/);
       if (patientField('name')) patientField('name').value = patient.firstName || nameParts[0] || '';
@@ -2809,7 +2846,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         patientAccountResults.querySelectorAll('[data-patient-id]').forEach((button, index) => button.addEventListener('click', () => selectPatientAccount(result.patients[index])));
       } catch (error) { patientAccountResults.innerHTML = `<span class="form-status error">${escapeHtml(error.message)}</span>`; }
     };
-    patientAccountSearch?.addEventListener('input', () => { window.clearTimeout(patientSearchTimer); patientSearchTimer = window.setTimeout(searchPatientAccounts, 250); });
+    patientAccountSearch?.addEventListener('input', () => {
+      if (patientAccountId?.value) {
+        patientAccountId.value = '';
+        if (patientAccountSelection) patientAccountSelection.textContent = 'No account selected. Complete the manual patient fields below for a walk-in patient.';
+        patientAccountSelection?.removeAttribute('data-selected');
+      }
+      window.clearTimeout(patientSearchTimer);
+      patientSearchTimer = window.setTimeout(searchPatientAccounts, 250);
+    });
     const closePatientRecordModal = () => {
       patientRecordModal?.close();
       patientRecordForm?.reset();
@@ -2839,6 +2884,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     patientRecordClose?.addEventListener('click', closePatientRecordModal);
     patientRecordForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
+      for (let index = 0; index < patientSteps.length; index += 1) {
+        showPatientStep(index);
+        if (!validatePatientStep(index)) return;
+      }
       const isEditMode = patientRecordModal?.dataset.mode === 'edit';
       const confirmMessage = isEditMode ? 'Save the recent changes?' : 'Create this patient record?';
       if (!window.confirm(confirmMessage)) return;
