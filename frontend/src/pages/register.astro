@@ -12,7 +12,7 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
       <h1>Create your account</h1>
       <p class="auth-intro">Your registration automatically creates a Patient account.</p>
 
-      <form id="register-form" class="auth-form active">
+      <form id="register-form" class="auth-form active register-form">
         <div class="field-row">
           <div class="field-group"><label for="first-name">First name</label><input id="first-name" name="firstName" type="text" required /></div>
           <div class="field-group"><label for="last-name">Last name</label><input id="last-name" name="lastName" type="text" required /></div>
@@ -25,10 +25,18 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
           <div class="field-group"><label for="age">Age</label><input id="age" name="age" type="number" inputmode="numeric" min="0" max="120" step="1" pattern="[0-9]*" required /></div>
           <div class="field-group"><label for="gender">Gender</label><select id="gender" name="gender" required><option value="">Select gender</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select></div>
         </div>
-        <div class="field-group"><label for="register-email">Email</label><input id="register-email" name="email" type="email" placeholder="name@example.com" required /></div>
-        <div class="field-group"><label for="register-phone">Contact number</label><input id="register-phone" name="phone" type="tel" inputmode="tel" placeholder="+63 000-000-0000" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" required /></div>
-        <div class="field-group"><label for="register-password">Password</label><div class="password-field"><input id="register-password" name="password" type="password" minlength="8" required /><button class="password-toggle" type="button" data-password-toggle="register-password" aria-label="Show password">Show</button></div></div>
-        <div class="field-group"><label for="confirm-password">Confirm password</label><div class="password-field"><input id="confirm-password" name="confirmPassword" type="password" minlength="8" required /><button class="password-toggle" type="button" data-password-toggle="confirm-password" aria-label="Show password">Show</button></div></div>
+        <div class="field-row">
+          <div class="field-group"><label for="register-barangay">Barangay</label><input id="register-barangay" name="barangay" type="text" autocomplete="address-level3" required /></div>
+          <div class="field-group"><label for="register-town">Town</label><input id="register-town" name="town" type="text" autocomplete="address-level2" required /></div>
+        </div>
+        <div class="field-row">
+          <div class="field-group"><label for="register-email">Email</label><input id="register-email" name="email" type="email" placeholder="name@example.com" autocomplete="email" required /></div>
+          <div class="field-group"><label for="register-phone">Contact number</label><input id="register-phone" name="phone" type="tel" inputmode="tel" placeholder="+63 000-000-0000" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" required /></div>
+        </div>
+        <div class="field-row">
+          <div class="field-group"><label for="register-password">Password</label><div class="password-field"><input id="register-password" name="password" type="password" minlength="8" autocomplete="new-password" required /><button class="password-toggle" type="button" data-password-toggle="register-password" aria-label="Show password">Show</button></div></div>
+          <div class="field-group"><label for="confirm-password">Confirm password</label><div class="password-field"><input id="confirm-password" name="confirmPassword" type="password" minlength="8" autocomplete="new-password" required /><button class="password-toggle" type="button" data-password-toggle="confirm-password" aria-label="Show password">Show</button></div></div>
+        </div>
         <button type="submit" class="btn btn-primary auth-submit">Create Patient Account</button>
         <p id="register-status" class="form-status" aria-live="polite"></p>
       </form>
@@ -63,6 +71,8 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
 
   <style>
     .auth-card-register [hidden] { display: none !important; }
+    .register-form { gap: 14px; }
+    .register-form .field-row { gap: 12px 18px; }
 
     .registration-success-dialog {
       width: min(480px, calc(100vw - 2rem));

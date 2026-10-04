@@ -6,11 +6,30 @@ import Appointment from '../models/Appointment.js';
 import ClinicalRecord from '../models/ClinicalRecord.js';
 import FollowUp from '../models/FollowUp.js';
 import ClinicOperation from '../models/ClinicOperation.js';
+import PatientNotification from '../models/PatientNotification.js';
 import { requireAuth, allowRoles } from '../middleware/auth.js';
 import { broadcastRealtimeEvent, publicUserPayload } from '../config/realtime.js';
 
 const router = express.Router();
 router.use(requireAuth);
+
+router.get('/notifications', allowRoles('patient'), async (req, res) => {
+  const notifications = await PatientNotification.find({ recipientId: req.user.id, readAt: null })
+    .sort({ createdAt: -1 })
+    .limit(20)
+    .lean();
+  return res.status(200).json({ notifications });
+});
+
+router.patch('/notifications/:id/read', allowRoles('patient'), async (req, res) => {
+  const notification = await PatientNotification.findOne({ _id: req.params.id, recipientId: req.user.id });
+  if (!notification) return res.status(404).json({ message: 'Notification not found.' });
+  if (!notification.readAt) {
+    notification.readAt = new Date();
+    await notification.save();
+  }
+  return res.status(200).json({ message: 'Notification marked as read.' });
+});
 
 router.get('/profile', allowRoles('patient'), async (req, res) => {
   const user = await User.findById(req.user.id).select('-password');

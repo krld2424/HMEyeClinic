@@ -986,6 +986,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const isOpen = notificationButton.getAttribute('aria-expanded') === 'true';
       notificationButton.setAttribute('aria-expanded', String(!isOpen));
       notificationPopover.hidden = isOpen;
+      if (!isOpen) loadNotifications().catch(() => { if (notificationList) notificationList.innerHTML = '<p>Notifications unavailable.</p>'; });
     });
     const notificationList = document.getElementById('notification-list');
     const notificationCount = document.getElementById('notification-count');
@@ -999,6 +1000,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       (appointmentResult.appointments || []).forEach((item) => {
         if (item.preferredDate >= today && ['pending', 'confirmed'].includes(item.status)) notifications.push({ id: `appointment-${item._id}-${item.status}`, text: `${role === 'patient' ? 'Appointment' : `Appointment request from ${item.name}`} ${item.status} for ${item.preferredDate}.`, href: `/dashboard/${role}/appointments` });
       });
+      if (role === 'patient') {
+        const response = await fetchWithTimeout(`${api}/api/workspace/notifications`, { headers });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to load patient notifications.');
+        (result.notifications || []).forEach((item) => notifications.push({ persistedId: item._id, text: item.message, href: item.href }));
+      }
       if (['owner', 'optometrist'].includes(role)) {
         const followUpResponse = await fetchWithTimeout(`${api}/api/follow-ups`, { headers });
         const followUpResult = await followUpResponse.json();
@@ -1009,14 +1016,27 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         (followUpResult.followUps || []).forEach((item) => { if (['requested', 'scheduled'].includes(item.status)) notifications.push({ id: `follow-up-${item._id}-${item.status}`, text: `Your follow-up is ${item.status}.`, href: `/dashboard/${role}/follow-ups` }); });
       }
       const readNotifications = JSON.parse(localStorage.getItem('hmVisionReadNotifications') || '[]');
-      const visible = notifications.filter((item) => !readNotifications.includes(item.id)).slice(0, 5);
+      const visible = notifications.filter((item) => item.persistedId || !readNotifications.includes(item.id)).slice(0, 5);
       notificationCount.hidden = !visible.length;
       notificationCount.textContent = visible.length ? visible.length : '';
-      notificationList.innerHTML = visible.length ? visible.map((item) => `<a class="notification-item" data-notification-id="${item.id}" href="${item.href}">${item.text}</a>`).join('') : '<p>No new notifications.</p>';
+      notificationList.innerHTML = visible.length ? visible.map((item) => `<a class="notification-item" ${item.persistedId ? `data-patient-notification-id="${escapeHtml(item.persistedId)}"` : `data-notification-id="${escapeHtml(item.id)}"`} href="${escapeHtml(item.href)}">${escapeHtml(item.text)}</a>`).join('') : '<p>No new notifications.</p>';
     };
     loadNotifications().catch(() => { if (notificationList) notificationList.innerHTML = '<p>Notifications unavailable.</p>'; });
-    notificationList?.addEventListener('click', (event) => {
+    notificationList?.addEventListener('click', async (event) => {
       const item = event.target.closest('[data-notification-id]');
+      const patientNotification = event.target.closest('[data-patient-notification-id]');
+      if (patientNotification) {
+        event.preventDefault();
+        try {
+          const response = await fetchWithTimeout(`${api}/api/workspace/notifications/${encodeURIComponent(patientNotification.dataset.patientNotificationId)}/read`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` } });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || 'Unable to mark notification as read.');
+          window.location.href = patientNotification.href;
+        } catch (error) {
+          notificationList.innerHTML = `<p>${escapeHtml(error.message || 'Unable to open notification.')}</p>`;
+        }
+        return;
+      }
       if (!item) return;
       const readNotifications = JSON.parse(localStorage.getItem('hmVisionReadNotifications') || '[]');
       if (!readNotifications.includes(item.dataset.notificationId)) readNotifications.push(item.dataset.notificationId);
@@ -2772,6 +2792,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const patientRecordBack = document.getElementById('patient-record-back');
     const patientRecordNext = document.getElementById('patient-record-next');
     const patientRecordSave = document.getElementById('patient-record-save');
+    const setPatientRecordDateToToday = () => {
+      const today = new Date();
+      const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      const dateField = document.getElementById('patient-date');
+      if (dateField) dateField.value = localDate;
+    };
     let patientStepIndex = 0;
     const patientDataFields = [...(patientRecordForm?.querySelectorAll('input:not([type="hidden"]):not(#patient-account-search), textarea, select') || [])];
     patientDataFields.forEach((field) => {
@@ -2878,6 +2904,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       delete patientRecordModal?.dataset.recordId;
       if (patientRecordForm) delete patientRecordForm.dataset.recordId;
       patientRecordForm?.reset();
+      setPatientRecordDateToToday();
       clearPatientAccount();
       patientRecordModal?.showModal();
     });
@@ -4337,7 +4364,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         if (refreshTargets.has('billing') && typeof refreshBilling === 'function') {
           await refreshBilling();
         }
-        if (section !== 'dashboard') {
+        const patientStatusChanged = role === 'patient' && (
+          event.type === 'appointment' && ['status-updated', 'rescheduled', 'completed'].includes(event.action)
+          || event.type === 'user' && String(event.entityId) === String(user?.id || user?._id)
+        );
+        if (section !== 'dashboard' || patientStatusChanged) {
           await loadNotifications();
         }
       } catch (error) {

@@ -24,4 +24,47 @@ import '../styles.css';
   <body>
     <slot />
   </body>
+  <script>
+    const localToday = () => {
+      const date = new Date();
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    };
+
+    const isDateFilter = (input) => {
+      const label = input.getAttribute('aria-label') || '';
+      return input.matches('[id$="-date-filter"], [id$="-date-from"], [id$="-date-to"], #today-patient-date')
+        || label.toLowerCase().startsWith('filter');
+    };
+
+    const setMinimumDate = (input) => {
+      if (input instanceof HTMLInputElement && input.type === 'date' && !isDateFilter(input)) {
+        input.min = localToday();
+      }
+    };
+
+    document.querySelectorAll('input[type="date"]').forEach(setMinimumDate);
+    document.addEventListener('focusin', (event) => setMinimumDate(event.target));
+    document.addEventListener('change', (event) => {
+      const input = event.target;
+      if (!(input instanceof HTMLInputElement) || input.type !== 'date' || isDateFilter(input)) return;
+
+      setMinimumDate(input);
+      const isPastDate = input.value && input.value < localToday();
+      input.setCustomValidity(isPastDate ? 'Choose today or a future date.' : '');
+      if (isPastDate) input.reportValidity();
+    });
+    document.addEventListener('submit', (event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement)) return;
+
+      const pastDateInput = [...form.querySelectorAll('input[type="date"]')]
+        .find((input) => !isDateFilter(input) && input.value && input.value < localToday());
+      if (!pastDateInput) return;
+
+      pastDateInput.setCustomValidity('Choose today or a future date.');
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      pastDateInput.reportValidity();
+    }, true);
+  </script>
 </html>

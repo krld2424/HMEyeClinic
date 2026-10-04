@@ -433,6 +433,7 @@ const groupIcons = {
       const isOpen = notificationButton.getAttribute('aria-expanded') === 'true';
       notificationButton.setAttribute('aria-expanded', String(!isOpen));
       notificationPopover.hidden = isOpen;
+      if (!isOpen) loadNotifications().catch(() => { if (notificationList) notificationList.innerHTML = '<p>Notifications unavailable.</p>'; });
     });
     const notificationList = document.getElementById('notification-list');
     const notificationCount = document.getElementById('notification-count');
@@ -446,6 +447,12 @@ const groupIcons = {
       (appointmentResult.appointments || []).forEach((item) => {
         if (item.preferredDate >= today && ['pending', 'confirmed'].includes(item.status)) notifications.push({ text: `${role === 'patient' ? 'Appointment' : `Appointment request from ${item.name}`} ${item.status} for ${item.preferredDate}.`, href: `/dashboard/${role}/appointments` });
       });
+      if (role === 'patient') {
+        const response = await fetch(`${api}/api/workspace/notifications`, { headers });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to load patient notifications.');
+        (result.notifications || []).forEach((item) => notifications.push({ persistedId: item._id, text: item.message, href: item.href }));
+      }
       if (['owner', 'optometrist'].includes(role)) {
         const followUpResponse = await fetch(`${api}/api/follow-ups`, { headers });
         const followUpResult = await followUpResponse.json();
@@ -458,9 +465,22 @@ const groupIcons = {
       const visible = notifications.slice(0, 5);
       notificationCount.hidden = !visible.length;
       notificationCount.textContent = visible.length;
-      notificationList.innerHTML = visible.length ? visible.map((item) => `<a class="notification-item" href="${item.href}">${item.text}</a>`).join('') : '<p>No new notifications.</p>';
+      notificationList.innerHTML = visible.length ? visible.map((item) => `<a class="notification-item" ${item.persistedId ? `data-patient-notification-id="${escapeHtml(item.persistedId)}"` : ''} href="${escapeHtml(item.href)}">${escapeHtml(item.text)}</a>`).join('') : '<p>No new notifications.</p>';
     };
     loadNotifications().catch(() => { if (notificationList) notificationList.innerHTML = '<p>Notifications unavailable.</p>'; });
+    notificationList?.addEventListener('click', async (event) => {
+      const item = event.target.closest('[data-patient-notification-id]');
+      if (!item) return;
+      event.preventDefault();
+      try {
+        const response = await fetch(`${api}/api/workspace/notifications/${encodeURIComponent(item.dataset.patientNotificationId)}/read`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` } });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to mark notification as read.');
+        window.location.href = item.href;
+      } catch (error) {
+        notificationList.innerHTML = `<p>${escapeHtml(error.message || 'Unable to open notification.')}</p>`;
+      }
+    });
 
     document.querySelectorAll('.sidebar-group-toggle').forEach((toggle) => {
       toggle.addEventListener('click', () => {

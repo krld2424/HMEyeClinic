@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
+import { createPatientNotification } from '../utils/patientNotification.js';
 import { requireAuth, allowRoles } from '../middleware/auth.js';
 import { broadcastRealtimeEvent, publicUserPayload } from '../config/realtime.js';
 
@@ -22,6 +23,7 @@ const broadcastUserChange = (req, user, action) => {
     entityId: String(user._id),
     payload: publicUserPayload(user),
     roles: ['owner'],
+    userIds: [String(user._id)],
   });
 };
 
@@ -62,13 +64,26 @@ router.patch('/users/:id/archive', async (req, res) => {
 router.patch('/users/:id/status', async (req, res) => {
   try {
     const { isActive } = req.body;
+    const previousUser = await User.findOne({ _id: req.params.id, role: { $ne: 'owner' } }).select('isActive role');
+    if (!previousUser) return res.status(404).json({ message: 'User not found.' });
+    const previousStatus = previousUser.isActive !== false;
+    const nextStatus = Boolean(isActive);
     const user = await User.findOneAndUpdate(
       { _id: req.params.id, role: { $ne: 'owner' } },
-      { isActive: Boolean(isActive) },
+      { isActive: nextStatus },
       { new: true }
     ).select('-password');
 
     if (!user) return res.status(404).json({ message: 'User not found.' });
+    if (user.role === 'patient' && previousStatus !== user.isActive) {
+      const statusLabel = user.isActive ? 'activated' : 'deactivated';
+      await createPatientNotification({
+        recipientId: user._id,
+        eventKey: `account-status:${user._id}:${previousStatus}:${user.isActive}:${user.updatedAt.getTime()}`,
+        message: `Your patient account has been ${statusLabel}.`,
+        href: '/dashboard/patient/dashboard',
+      });
+    }
     broadcastUserChange(req, user, user.isActive ? 'updated' : 'deleted');
     return res.status(200).json({ user });
   } catch (error) {

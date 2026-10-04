@@ -14,6 +14,8 @@ const patientRegistrationOtpSchema = new mongoose.Schema(
     lastName: String,
     middleInitial: String,
     suffix: String,
+    barangay: String,
+    town: String,
     age: { type: Number, required: true },
     gender: String,
     password: { type: String, required: true },

@@ -1,10 +1,12 @@
 import express from 'express';
 import Appointment from '../models/Appointment.js';
+import User from '../models/User.js';
 import AuditLog from '../models/AuditLog.js';
 import { requireAuth, optionalAuth, allowRoles } from '../middleware/auth.js';
 import { sendAppointmentNotifications } from '../config/mailer.js';
 import { appointmentCreationLimiter } from '../middleware/rateLimit.js';
 import { broadcastRealtimeEvent, publicAppointmentPayload } from '../config/realtime.js';
+import { createPatientNotification } from '../utils/patientNotification.js';
 import {
   getAvailableSlotsForDate,
   validateAppointmentTime,
@@ -295,6 +297,23 @@ router.patch('/:id/status', requireAuth, async (req, res) => {
       previousData: { status: previousStatus, archived: appointment.archived },
       newData: { status: appointment.status, archived: appointment.archived },
     });
+
+    if (!isPatient && previousStatus !== status) {
+      const recipient = (appointment.userId && await User.findOne({ _id: appointment.userId, role: 'patient' }).select('_id'))
+        || await User.findOne({ email: String(appointment.email || '').toLowerCase(), role: 'patient' }).select('_id');
+      if (recipient) {
+        const statusLabel = status.replace(/-/g, ' ');
+        const message = status === 'rescheduled'
+          ? `Your ${appointment.service} appointment has been rescheduled to ${appointment.preferredDate}${appointment.preferredTime ? ` at ${appointment.preferredTime}` : ''}.`
+          : `Your ${appointment.service} appointment status changed to ${statusLabel}.`;
+        await createPatientNotification({
+          recipientId: recipient._id,
+          eventKey: `appointment-status:${appointment._id}:${previousStatus}:${status}:${appointment.updatedAt.getTime()}`,
+          message,
+          href: '/dashboard/patient/appointments',
+        });
+      }
+    }
 
     const appointmentAction = status === 'rescheduled' ? 'rescheduled' : status === 'completed' ? 'completed' : 'status-updated';
     broadcastRealtimeEvent(req.app.get('io'), {

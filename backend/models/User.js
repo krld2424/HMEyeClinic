@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema(
     lastName: String,
     middleInitial: String,
     suffix: String,
+    barangay: String,
+    town: String,
     age: Number,
     gender: String,
     email: {
