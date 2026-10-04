@@ -48,6 +48,7 @@ const iconPaths = {
   'check-in': 'M5 4h14v16H5V4Zm3 4h8m-8 4h8m-8 4h5',
   'patient-records': 'M4 5h16v14H4V5Zm3 4h10m-10 4h7',
   'claim-stub': 'M6 3h12v18H6V3Zm3 5h6m-6 4h6m-6 4h4',
+  'eyeglass-job-orders': 'M4 6h16v14H4V6Zm4 0V4h8v2m-8 5h8m-8 4h8',
   billing: 'M6 3h12v18H6V3Zm3 5h6m-6 4h6m-6 4h4',
   reports: 'M5 20V10m7 10V4m7 16v-7',
   'manage-team': 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0-8 0 4 4 0 0 0 8 0Zm6-3a4 4 0 0 1 0-7.75M22 21v-2a4 4 0 0 0-3-3.87',
@@ -71,13 +72,13 @@ const sidebarGroups = {
   ],
   'eye-care-assistant': [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: 'Clinic Queue', slug: 'clinic-queue' }] },
-    { label: 'Operations', links: [{ label: 'Check-In', slug: 'check-in' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Patient Records', slug: 'patient-records' }] },
+    { label: 'Operations', links: [{ label: 'Check-In', slug: 'check-in' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Patient Records', slug: 'patient-records' }, { label: 'Eyeglass Job Orders', slug: 'eyeglass-job-orders' }] },
     { label: 'Billing', links: [{ label: 'Billing', slug: 'billing' }, { label: 'Claim Stub', slug: 'claim-stub' }] },
     { label: 'Archived', links: [{ label: 'Archived', slug: 'archived' }] },
   ],
   owner: [
     { label: 'Overview', links: [{ label: 'Dashboard', slug: 'dashboard' }, { label: 'Reports', slug: 'reports' }] },
-    { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Patient Records', slug: 'patient-records' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
+    { label: 'Clinical Work', links: [{ label: "Today's Patients", slug: 'today-patients' }, { label: 'Appointments', slug: 'appointments' }, { label: 'Consultations', slug: 'consultations' }, { label: 'Patient Records', slug: 'patient-records' }, { label: 'Eyeglass Job Orders', slug: 'eyeglass-job-orders' }, { label: 'Prescriptions', slug: 'prescriptions' }, { label: 'Follow-ups', slug: 'follow-ups' }] },
     { label: 'Management', links: [{ label: "User's Management", slug: 'manage-team' }, { label: 'Roles & Permissions', slug: 'roles-permissions' }] },
     { label: 'Supplier Transactions', links: [{ label: 'Suppliers', slug: 'suppliers' }, { label: 'Purchase Orders', slug: 'purchase-orders' }, { label: 'Receiving', slug: 'receiving' }, { label: 'Purchase History', slug: 'purchase-history' }] },
     { label: 'Inventory', links: [{ label: 'Inventory', slug: 'inventory' }, { label: 'Stock Movements', slug: 'stock-movements' }, { label: 'Stock Adjustment', slug: 'stock-adjustment' }, { label: 'Inventory History', slug: 'inventory-history' }] },

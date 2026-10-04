@@ -2,6 +2,7 @@
 import Layout from '../../../layouts/Layout.astro';
 import SidebarIcon from '../../../components/SidebarIcon.astro';
 import InvoiceTemplateBuilder from '../../../components/InvoiceTemplateBuilder.astro';
+import EyeglassJobOrders from '../../../components/EyeglassJobOrders.astro';
 import hmecLogo from '../../../assets/logo/HMEC logo blue.png';
 
 const { role, section } = Astro.params;
@@ -29,6 +30,7 @@ const iconPaths = {
   'audit-logs': 'M6 3h12v18H6V3Zm3 4h6m-6 4h6m-6 4h4',
   'clinic-settings': 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0-5v2m0 14v2m9-9h-2M5 12H3m15.36-6.36-1.42 1.42M7.06 16.94l-1.42 1.42m12.72 0-1.42-1.42M7.06 7.06 5.64 5.64',
   'claim-stub': 'M6 3h12v18H6V3Zm3 5h6m-6 4h6m-6 4h4',
+  'eyeglass-job-orders': 'M4 6h16v14H4V6Zm4 0V4h8v2m-8 5h8m-8 4h8',
   archived: 'M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6',
 };
 
@@ -62,6 +64,7 @@ const navigation = {
     appointments: 'Appointments',
     'clinic-queue': 'Clinic Queue',
     'patient-records': 'Patient Records',
+    'eyeglass-job-orders': 'Eyeglass Job Orders',
     billing: 'Billing',
     'claim-stub': 'Claim Stub',
     inventory: 'Inventory',
@@ -78,6 +81,7 @@ const navigation = {
     appointments: 'Appointments',
     consultations: 'Consultations',
     'patient-records': 'Patient Records',
+    'eyeglass-job-orders': 'Eyeglass Job Orders',
     prescriptions: 'Prescriptions',
     'follow-ups': 'Follow-ups',
     'manage-team': "User's Management",
@@ -109,8 +113,8 @@ const navigation = {
 const sidebarGroups = {
   patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions', 'claim-stub']], ['Account', ['notifications', 'profile', 'archived']]],
   optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Billing', ['claim-stub']], ['Archived', ['archived']]],
-  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records']], ['Billing', ['billing', 'claim-stub']], ['Archived', ['archived']]],
-  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances', 'claim-stub']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']], ['Archived', ['archived']]],
+  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'eyeglass-job-orders']], ['Billing', ['billing', 'claim-stub']], ['Archived', ['archived']]],
+  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'eyeglass-job-orders', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances', 'claim-stub']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']], ['Archived', ['archived']]],
 };
 const groupIcons = {
   Overview: 'overview',
@@ -132,13 +136,14 @@ const pageTitle = roleNavigation[section] || 'Workspace';
 const isValidRoute = Boolean(roleNavigation[section]);
 const inventorySections = ['inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history'];
 const canAccessInventory = ['owner', 'eye-care-assistant'].includes(role);
+const canAccessJobOrders = ['owner', 'eye-care-assistant'].includes(role);
 
 export function getStaticPaths() {
   return [
     ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'claim-stub'], ['patient', 'notifications'], ['patient', 'profile'], ['patient', 'archived'],
     ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'], ['optometrist', 'claim-stub'], ['optometrist', 'archived'],
-    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'claim-stub'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'], ['eye-care-assistant', 'archived'],
-    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'claim-stub'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'], ['owner', 'archived'],
+    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'eyeglass-job-orders'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'claim-stub'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'], ['eye-care-assistant', 'archived'],
+    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'eyeglass-job-orders'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'claim-stub'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'], ['owner', 'archived'],
   ].map(([routeRole, routeSection]) => ({ params: { role: routeRole, section: routeSection } }));
 }
 
@@ -158,6 +163,7 @@ const pageCopy = {
   'check-in': 'Find an arriving patient, verify the visit, and add them to the queue.',
   'clinic-queue': 'Monitor the live queue and update each patient\'s operational status.',
   'patient-records': 'Search registration and contact information without exposing restricted clinical data.',
+  'eyeglass-job-orders': 'Track eyeglass orders from lab processing through patient pickup and payment.',
   billing: 'Review charges, payment status, invoices, and transaction history.',
   'manage-team': 'Create staff accounts, review users, and manage access from one protected workspace.',
   'manage-users': 'Search accounts, filter by role and status, and manage user access.',
@@ -325,6 +331,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                     </div>
               </section>
             )}
+          {section === 'eyeglass-job-orders' && canAccessJobOrders ? (
+            <EyeglassJobOrders />
+          ) : (
           <section class={`container task-page-card card ${section === 'appointments' ? 'appointments-task-page' : ''} ${role === 'owner' ? 'owner-task-page' : ''} ${role === 'optometrist' ? 'optometrist-task-page' : ''} ${role === 'eye-care-assistant' ? 'eye-care-assistant-task-page' : ''} ${role === 'patient' ? 'patient-task-page' : ''}`}>
             <p class="task-page-description">{copy}</p>
             <div class="task-state" id="task-state">
@@ -843,7 +852,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <div class="empty-state task-empty"><h2>No records loaded yet</h2><p>Connect this workspace to clinic records as activity becomes available.</p></div>
             </div>
           )}
-        </section>
+          </section>
+          )}
           </>
         )
       )}

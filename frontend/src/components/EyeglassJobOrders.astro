@@ -1,0 +1,435 @@
+---
+import { Search } from '@lucide/astro';
+---
+
+<section class="container job-orders-workspace" aria-labelledby="job-orders-title">
+  <div class="job-orders-header">
+    <div>
+      <h2 id="job-orders-title">Eyeglass Job Orders</h2>
+      <p>Track lab progress, pickup, and outstanding balances.</p>
+    </div>
+    <button type="button" class="btn btn-primary" id="job-order-create">Add Job Order</button>
+  </div>
+
+  <div class="job-order-summary" aria-label="Job order summary">
+    <article><span>Ordered</span><strong id="job-summary-ordered">0</strong></article>
+    <article><span>In Process</span><strong id="job-summary-in-process">0</strong></article>
+    <article><span>Arrived</span><strong id="job-summary-arrived">0</strong></article>
+    <article><span>With Balance</span><strong id="job-summary-balance">0</strong></article>
+    <article><span>Claimed</span><strong id="job-summary-claimed">0</strong></article>
+  </div>
+
+  <div class="job-order-filters" aria-label="Filter job orders">
+    <label class="job-order-filter-control job-order-filter-search"><span>Search</span><input id="job-order-search" type="search" placeholder="Surname, name, contact, or JO number" aria-label="Search job orders" /></label>
+    <label class="job-order-filter-control"><span>Status</span><select id="job-order-status-filter" aria-label="Filter by status">
+      <option value="">All statuses</option>
+      <option>Pending Order</option>
+      <option>Ordered</option>
+      <option>In Process</option>
+      <option>Arrived</option>
+      <option>Claimed</option>
+    </select></label>
+    <label class="job-order-filter-control"><span>Balance</span><select id="job-order-balance-filter" aria-label="Filter by balance"><option value="">Any balance</option><option value="yes">Has balance</option><option value="no">No balance</option></select></label>
+    <label class="job-order-filter-control"><span>Rider pickup date</span><select id="job-order-rider-filter" aria-label="Filter by rider pickup date"><option value="">Any pickup date</option><option value="yes">Date set</option><option value="no">No date set</option></select></label>
+    <label class="job-order-filter-control"><span>Due from</span><input id="job-order-due-from" type="date" aria-label="Filter due date from" /></label>
+    <label class="job-order-filter-control"><span>Due to</span><input id="job-order-due-to" type="date" aria-label="Filter due date to" /></label>
+    <label class="job-order-filter-control job-order-filter-sort"><span>Sort by</span><select id="job-order-sort" aria-label="Sort job orders"><option value="transaction-desc">Transaction Date: newest</option><option value="transaction-asc">Transaction Date: oldest</option><option value="due-asc">Due Date: soonest</option><option value="due-desc">Due Date: latest</option></select></label>
+  </div>
+
+  <p id="job-order-status-message" class="form-status" role="status" aria-live="polite"></p>
+  <div class="job-order-table-wrap">
+    <table class="appointment-table job-order-table">
+      <thead><tr><th scope="col">Surname</th><th scope="col">Name</th><th scope="col">Contact</th><th scope="col">JO Number</th><th scope="col">Transaction Date</th><th scope="col">Order Date</th><th scope="col">Frame Model / Color Code</th><th scope="col">Lens Type</th><th scope="col">Rider Pickup Date</th><th scope="col">Balance</th><th scope="col">Due Date</th><th scope="col">Delivery Date</th><th scope="col">Date of Claiming</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+      <tbody id="job-order-table-body"><tr><td colspan="15">Loading job orders...</td></tr></tbody>
+    </table>
+  </div>
+  <div id="job-order-mobile-list" class="job-order-mobile-list" aria-live="polite"></div>
+  <div id="job-order-pagination" class="pagination" aria-label="Job order pages"></div>
+
+  <dialog id="job-order-form-dialog" class="confirmation-dialog job-order-dialog" aria-labelledby="job-order-form-title">
+    <div class="confirmation-dialog__content">
+      <div class="dialog-header-row"><h3 id="job-order-form-title">Add Job Order</h3><button type="button" class="btn btn-secondary btn-icon" id="job-order-form-close" aria-label="Close job order form">×</button></div>
+      <form id="job-order-form" class="workflow-form">
+        <input name="patientId" type="hidden" />
+        <div class="job-order-patient-link">
+          <label for="job-order-patient-search">Link existing patient record (optional)</label>
+          <div class="job-order-patient-search-control">
+            <input id="job-order-patient-search" type="search" autocomplete="off" placeholder="Search patient name, ID, email, or contact" />
+            <Search class="job-order-patient-search-icon" size={18} strokeWidth={1.8} aria-hidden="true" />
+            <div id="job-order-patient-results" class="job-order-patient-results" role="listbox"></div>
+          </div>
+          <p id="job-order-patient-selection" class="job-order-patient-selection">No patient linked.</p>
+        </div>
+        <div class="job-order-form-grid">
+          <div class="field-group"><label for="job-order-surname">Surname</label><input id="job-order-surname" name="surname" required /></div>
+          <div class="field-group"><label for="job-order-name">Name</label><input id="job-order-name" name="name" required /></div>
+          <div class="field-group"><label for="job-order-contact">Contact</label><input id="job-order-contact" name="contact" type="tel" required /></div>
+          <div class="field-group"><label for="job-order-number">JO Number</label><input id="job-order-number" name="joNumber" type="text" placeholder="e.g. 001-2026" pattern="[\p{N}\p{P}\p{S}]+" title="Use numbers and special characters only." autocomplete="off" required /></div>
+          <div class="field-group"><label for="job-order-transaction-date">Transaction Date</label><input id="job-order-transaction-date" name="transactionDate" type="date" required /></div>
+          <div class="field-group"><label for="job-order-order-date">Order Date</label><input id="job-order-order-date" name="orderDate" type="date" /></div>
+          <div class="field-group"><label for="job-order-frame">Frame Model / Color Code</label><input id="job-order-frame" name="frameModelColor" required /></div>
+          <div class="field-group"><label for="job-order-lens">Lens Type</label><input id="job-order-lens" name="lensType" required /></div>
+          <div class="field-group"><label for="job-order-rider-date">Rider Pickup Date</label><input id="job-order-rider-date" name="pickupByRiderDate" type="date" /></div>
+          <div class="field-group"><label for="job-order-balance">Balance</label><input id="job-order-balance" name="balance" type="number" min="0" step="0.01" value="0" required /></div>
+          <div class="field-group"><label for="job-order-due-date">Due Date</label><input id="job-order-due-date" name="dueDate" type="date" /></div>
+          <div class="field-group"><label for="job-order-delivery-date">Delivery Date</label><input id="job-order-delivery-date" name="deliveryDate" type="date" /></div>
+          <div class="field-group"><label for="job-order-claim-date">Date of Claiming</label><input id="job-order-claim-date" name="dateOfClaiming" type="date" /></div>
+          <div class="field-group"><label for="job-order-status-override">Status</label><select id="job-order-status-override" name="statusOverride"><option value="">Automatic</option><option>Ordered</option><option>In Process</option><option>Arrived</option><option>Claimed</option></select></div>
+        </div>
+        <div class="confirmation-actions">
+          <button type="button" class="btn btn-secondary" id="job-order-form-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="job-order-form-save">Save Job Order</button>
+        </div>
+        <p id="job-order-form-message" class="form-status" aria-live="polite"></p>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="job-order-view-dialog" class="confirmation-dialog job-order-dialog" aria-labelledby="job-order-view-title">
+    <div class="confirmation-dialog__content">
+      <div class="dialog-header-row"><h3 id="job-order-view-title">Job Order</h3><button type="button" class="btn btn-secondary btn-icon" id="job-order-view-close" aria-label="Close job order details">×</button></div>
+      <div id="job-order-view-body" class="job-order-view-body"></div>
+      <div class="confirmation-actions"><button type="button" class="btn btn-secondary" id="job-order-view-done">Close</button></div>
+    </div>
+  </dialog>
+</section>
+
+<style is="global">
+  .job-orders-workspace { padding-bottom: 2rem; }
+  .job-orders-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+  .job-orders-header h2 { margin: 0; }
+  .job-orders-header p { margin: .3rem 0 0; color: var(--muted); }
+  .job-order-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .75rem; margin-bottom: 1rem; }
+  .job-order-summary article { display: grid; gap: .4rem; min-width: 0; padding: .85rem 1rem; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+  .job-order-summary span { color: var(--muted); font-size: .78rem; font-weight: 700; }
+  .job-order-summary strong { color: var(--text); font-size: 1.35rem; }
+  .job-order-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; margin-bottom: .9rem; }
+  .job-order-filter-control { display: grid; gap: .3rem; min-width: 0; color: var(--muted); font-size: .72rem; font-weight: 700; }
+  .job-order-filter-control > input, .job-order-filter-control > select { box-sizing: border-box; min-width: 0; width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid rgba(13, 53, 55, .16); border-radius: 10px; background: #f9fefe; color: var(--text); font: inherit; }
+  .job-order-filter-control > select { padding-right: 2rem; cursor: pointer; }
+  .job-order-filter-control > select option { background: var(--white); color: var(--text); }
+  .job-order-filter-control > input:focus, .job-order-filter-control > select:focus { border-color: rgba(14, 132, 130, .5); outline: 2px solid rgba(14, 132, 130, .16); outline-offset: 0; }
+  .job-order-filter-search { grid-column: span 2; }
+  .job-order-table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+  .job-order-table { min-width: 1900px; }
+  .job-order-table th, .job-order-table td { vertical-align: middle; }
+  .job-order-table td { overflow-wrap: anywhere; }
+  .job-order-table td[data-label="Actions"] { min-width: 200px; }
+  .job-order-table .table-actions { justify-content: flex-start; gap: 8px; }
+  .job-order-status, .job-order-badge { display: inline-flex; align-items: center; width: fit-content; border-radius: 999px; padding: .25rem .55rem; font-size: .7rem; font-weight: 750; white-space: nowrap; }
+  .job-order-status { background: color-mix(in srgb, var(--primary) 12%, white); color: var(--primary-dark); }
+  .job-order-status.status-claimed { background: rgba(16, 126, 85, .12); color: #0b7650; }
+  .job-order-status.status-arrived { background: rgba(37, 99, 235, .12); color: #1d4ed8; }
+  .job-order-status.status-in-process { background: rgba(217, 119, 6, .14); color: #a35400; }
+  .job-order-badges { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }
+  .job-order-badge.balance { background: rgba(180, 83, 9, .12); color: #a34b00; }
+  .job-order-badge.overdue { background: rgba(185, 28, 28, .12); color: #b42318; }
+  .job-order-mobile-list { display: none; }
+  .job-order-pagination { display: flex; align-items: center; justify-content: flex-end; gap: .65rem; margin-top: .9rem; }
+  .job-order-pagination .btn { min-height: 34px; padding: 0 12px; font-size: .78rem; }
+  .job-order-dialog { width: min(920px, calc(100vw - 2rem)); max-height: min(92vh, calc(100vh - 2rem)); overflow-y: auto; }
+  .job-order-dialog .confirmation-dialog__content { overflow: visible; }
+  .job-order-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+  .job-order-form-grid > .field-group { min-width: 0; }
+  .job-order-form-grid .field-group > input, .job-order-form-grid .field-group > select { box-sizing: border-box; min-width: 0; }
+  .job-order-patient-link { display: grid; gap: .4rem; margin-bottom: 1rem; }
+  .job-order-patient-link > label { color: var(--text); font-size: .9rem; font-weight: 700; }
+  .job-order-patient-search-control { position: relative; min-width: 0; }
+  .job-order-patient-search-control > input { box-sizing: border-box; width: 100%; min-height: 44px; padding: .65rem 2.75rem .65rem .8rem; border: 1px solid rgba(13, 53, 55, .18); border-radius: 10px; background: #f9fefe; color: var(--text); font: inherit; }
+  .job-order-patient-search-control > input::placeholder { color: var(--muted); opacity: .85; }
+  .job-order-patient-search-control > input:focus { border-color: rgba(14, 132, 130, .55); outline: 2px solid rgba(14, 132, 130, .16); outline-offset: 0; }
+  .job-order-patient-search-icon { position: absolute; top: 50%; right: .85rem; color: var(--muted); pointer-events: none; transform: translateY(-50%); }
+  .job-order-patient-selection { margin: 0; color: var(--muted); font-size: .8rem; }
+  .job-order-patient-results { position: absolute; top: calc(100% + .3rem); left: 0; right: 0; z-index: 5; display: grid; gap: .25rem; max-height: 13rem; overflow-y: auto; padding: .35rem; border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: 0 12px 28px rgba(17, 56, 58, .16); }
+  .job-order-patient-results:empty { display: none; }
+  .job-order-patient-results button { display: grid; gap: .15rem; width: 100%; padding: .55rem; border: 1px solid transparent; border-radius: 6px; background: var(--surface); color: var(--text); text-align: left; cursor: pointer; }
+  .job-order-patient-results button:hover, .job-order-patient-results button:focus-visible { border-color: var(--primary); }
+  .job-order-view-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem 1rem; }
+  .job-order-view-body > div { min-width: 0; padding-bottom: .55rem; border-bottom: 1px solid var(--line); }
+  .job-order-view-body dt { color: var(--muted); font-size: .72rem; font-weight: 700; }
+  .job-order-view-body dd { margin: .2rem 0 0; overflow-wrap: anywhere; }
+  @media (max-width: 900px) {
+    .job-order-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .job-order-filter-search, .job-order-filter-sort { grid-column: 1 / -1; }
+  }
+  @media (max-width: 760px) {
+    .job-orders-header { align-items: flex-start; }
+    .job-order-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .job-order-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .job-order-table-wrap { display: none; }
+    .job-order-mobile-list { display: grid; gap: .7rem; }
+    .job-order-card { display: grid; gap: .7rem; min-width: 0; padding: .9rem; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+    .job-order-card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem; min-width: 0; }
+    .job-order-card-heading > div { min-width: 0; }
+    .job-order-card-heading strong { display: block; overflow-wrap: anywhere; }
+    .job-order-card-heading small { display: block; color: var(--muted); overflow-wrap: anywhere; }
+    .job-order-card-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem .8rem; min-width: 0; }
+    .job-order-card-fields > div { min-width: 0; }
+    .job-order-card-fields span { display: block; color: var(--muted); font-size: .68rem; font-weight: 700; }
+    .job-order-card-fields strong { display: block; overflow-wrap: anywhere; font-size: .82rem; font-weight: 600; }
+    .job-order-card .table-actions { display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 8px; max-width: 100%; }
+    .job-order-card .table-actions .table-action-btn { max-width: 100%; }
+  }
+  @media (max-width: 420px) {
+    .job-orders-header { display: grid; grid-template-columns: 1fr; }
+    .job-orders-header > .btn { justify-self: start; }
+    .job-order-summary { gap: .45rem; }
+    .job-order-summary article { padding: .7rem; }
+    .job-order-filters { grid-template-columns: minmax(0, 1fr); gap: .6rem; }
+    .job-order-filter-search, .job-order-filter-sort { grid-column: auto; }
+    .job-order-card-fields { column-gap: .55rem; }
+    .job-order-card .table-actions { gap: 6px; }
+    .job-order-card .table-actions .table-action-btn { padding: 0 9px; }
+    .job-order-form-grid { grid-template-columns: minmax(0, 1fr); }
+    .job-order-view-body { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+  const token = localStorage.getItem('hmVisionToken');
+  const authHeaders = () => ({ Authorization: `Bearer ${token}` });
+  const tableBody = document.getElementById('job-order-table-body');
+  const mobileList = document.getElementById('job-order-mobile-list');
+  const statusMessage = document.getElementById('job-order-status-message');
+  const pagination = document.getElementById('job-order-pagination');
+  const formDialog = document.getElementById('job-order-form-dialog');
+  const form = document.getElementById('job-order-form');
+  const formMessage = document.getElementById('job-order-form-message');
+  const viewDialog = document.getElementById('job-order-view-dialog');
+  const viewBody = document.getElementById('job-order-view-body');
+  const patientSearch = document.getElementById('job-order-patient-search');
+  const patientResults = document.getElementById('job-order-patient-results');
+  const patientSelection = document.getElementById('job-order-patient-selection');
+  const fields = ['surname', 'name', 'contact', 'joNumber', 'transactionDate', 'orderDate', 'frameModelColor', 'lensType', 'pickupByRiderDate', 'balance', 'dueDate', 'deliveryDate', 'dateOfClaiming', 'statusOverride', 'patientId'];
+  const summaries = {
+    Ordered: document.getElementById('job-summary-ordered'),
+    'In Process': document.getElementById('job-summary-in-process'),
+    Arrived: document.getElementById('job-summary-arrived'),
+    Claimed: document.getElementById('job-summary-claimed'),
+  };
+  let records = [];
+  let currentPage = 1;
+  let searchTimer;
+  const pageSize = 10;
+  const today = () => {
+    const date = new Date();
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+  const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]);
+  const formatDate = (value) => value ? new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+  const formatMoney = (value) => `\u20B1${Number(value || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const statusMarkup = (record) => {
+    const statusClass = String(record.status || '').toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, '');
+    const badges = `${record.balanceDue ? '<span class="job-order-badge balance">Balance Due</span>' : ''}${record.overdue ? '<span class="job-order-badge overdue">Overdue</span>' : ''}`;
+    return `<span class="job-order-status status-${statusClass}">${escapeHtml(record.status || 'Pending Order')}</span>${badges ? `<span class="job-order-badges">${badges}</span>` : ''}`;
+  };
+  const actionMarkup = (record) => {
+    const archiveButton = record.status === 'Claimed' && Number(record.balance || 0) === 0
+      ? `<button type="button" class="table-action-btn table-action-btn--archive table-action-btn--archive-gray action-archive user-archive-button" data-job-order-action="archive" data-job-order-id="${escapeHtml(record._id)}" aria-label="Archive ${escapeHtml(record.joNumber)}"><svg class="table-action-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4zM3 4h18v3H3zM9 12h6" /></svg><span class="table-action-btn__label">Archive</span></button>`
+      : '';
+    return `<div class="table-actions"><button type="button" class="table-action-btn table-action-btn--view appointment-overview-action appointment-detail-action" data-job-order-action="view" data-job-order-id="${escapeHtml(record._id)}" aria-label="View ${escapeHtml(record.joNumber)}"><svg class="table-action-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg><span class="table-action-btn__label">View</span></button><button type="button" class="table-action-btn table-action-btn--edit patient-record-edit-action" data-job-order-action="edit" data-job-order-id="${escapeHtml(record._id)}" aria-label="Edit ${escapeHtml(record.joNumber)}"><svg class="table-action-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.5-.8 4.3 4.3-.8L20 7.5 16.5 4 4 16.5Z" /><path d="m14.8 5.7 3.5 3.5" /></svg><span class="table-action-btn__label">Edit</span></button>${archiveButton}</div>`;
+  };
+  const field = (record, label, key, value = record[key]) => `<div><span>${label}</span><strong>${escapeHtml(value || '—')}</strong></div>`;
+  const cardMarkup = (record) => `<article class="job-order-card"><div class="job-order-card-heading"><div><strong>${escapeHtml(record.surname)}, ${escapeHtml(record.name)}</strong><small>${escapeHtml(record.joNumber)} · ${escapeHtml(record.contact)}</small></div>${statusMarkup(record)}</div><div class="job-order-card-fields">${field(record, 'Transaction Date', 'transactionDate', formatDate(record.transactionDate))}${field(record, 'Order Date', 'orderDate', formatDate(record.orderDate))}${field(record, 'Frame Model / Color Code', 'frameModelColor')}${field(record, 'Lens Type', 'lensType')}${field(record, 'Rider Pickup Date', 'pickupByRiderDate', formatDate(record.pickupByRiderDate))}${field(record, 'Balance', 'balance', formatMoney(record.balance))}${field(record, 'Due Date', 'dueDate', formatDate(record.dueDate))}${field(record, 'Delivery Date', 'deliveryDate', formatDate(record.deliveryDate))}${field(record, 'Date of Claiming', 'dateOfClaiming', formatDate(record.dateOfClaiming))}</div>${actionMarkup(record)}</article>`;
+  const tableRow = (record) => `<tr><td data-label="Surname">${escapeHtml(record.surname)}</td><td data-label="Name">${escapeHtml(record.name)}</td><td data-label="Contact">${escapeHtml(record.contact)}</td><td data-label="JO Number"><strong>${escapeHtml(record.joNumber)}</strong></td><td data-label="Transaction Date">${formatDate(record.transactionDate)}</td><td data-label="Order Date">${formatDate(record.orderDate)}</td><td data-label="Frame Model / Color Code">${escapeHtml(record.frameModelColor)}</td><td data-label="Lens Type">${escapeHtml(record.lensType)}</td><td data-label="Rider Pickup Date">${formatDate(record.pickupByRiderDate)}</td><td data-label="Balance">${formatMoney(record.balance)}</td><td data-label="Due Date">${formatDate(record.dueDate)}</td><td data-label="Delivery Date">${formatDate(record.deliveryDate)}</td><td data-label="Date of Claiming">${formatDate(record.dateOfClaiming)}</td><td data-label="Status">${statusMarkup(record)}</td><td data-label="Actions">${actionMarkup(record)}</td></tr>`;
+  const updateSummary = () => {
+    for (const [status, element] of Object.entries(summaries)) {
+      element.textContent = records.filter((record) => record.status === status).length;
+    }
+    document.getElementById('job-summary-balance').textContent = records.filter((record) => Number(record.balance || 0) > 0).length;
+  };
+  const filteredRecords = () => {
+    const query = document.getElementById('job-order-search').value.trim().toLowerCase();
+    const status = document.getElementById('job-order-status-filter').value;
+    const balance = document.getElementById('job-order-balance-filter').value;
+    const rider = document.getElementById('job-order-rider-filter').value;
+    const dueFrom = document.getElementById('job-order-due-from').value;
+    const dueTo = document.getElementById('job-order-due-to').value;
+    const sort = document.getElementById('job-order-sort').value;
+    const filtered = records.filter((record) => {
+      const searchable = [record.surname, record.name, record.contact, record.joNumber].join(' ').toLowerCase();
+      if (query && !searchable.includes(query)) return false;
+      if (status && record.status !== status) return false;
+      if (balance === 'yes' && Number(record.balance || 0) <= 0) return false;
+      if (balance === 'no' && Number(record.balance || 0) > 0) return false;
+      if (rider === 'yes' && !record.pickupByRiderDate) return false;
+      if (rider === 'no' && record.pickupByRiderDate) return false;
+      if (dueFrom && (!record.dueDate || record.dueDate < dueFrom)) return false;
+      if (dueTo && (!record.dueDate || record.dueDate > dueTo)) return false;
+      return true;
+    });
+    const [sortBy, direction] = sort.split('-');
+    const dateKey = sortBy === 'due' ? 'dueDate' : 'transactionDate';
+    return filtered.sort((first, second) => {
+      const left = first[dateKey] || (direction === 'asc' ? '9999-12-31' : '0000-01-01');
+      const right = second[dateKey] || (direction === 'asc' ? '9999-12-31' : '0000-01-01');
+      return direction === 'asc' ? String(left).localeCompare(String(right)) : String(right).localeCompare(String(left));
+    });
+  };
+  const render = () => {
+    updateSummary();
+    const filtered = filteredRecords();
+    const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+    currentPage = Math.min(currentPage, pageCount);
+    const pageItems = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    tableBody.innerHTML = pageItems.length ? pageItems.map(tableRow).join('') : '<tr><td colspan="15">No job orders match these filters.</td></tr>';
+    mobileList.innerHTML = pageItems.length ? pageItems.map(cardMarkup).join('') : '<p class="empty-appointments">No job orders match these filters.</p>';
+    pagination.innerHTML = `<button type="button" class="btn btn-secondary" data-page="prev" ${currentPage <= 1 ? 'disabled' : ''}>Previous</button><span>Page ${currentPage} of ${pageCount} · ${filtered.length} job orders</span><button type="button" class="btn btn-secondary" data-page="next" ${currentPage >= pageCount ? 'disabled' : ''}>Next</button>`;
+  };
+  const request = async (path, options = {}) => {
+    const response = await fetch(`${api}${path}`, {
+      ...options,
+      headers: { ...authHeaders(), ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) },
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || 'Unable to complete the job-order request.');
+    return result;
+  };
+  const loadRecords = async () => {
+    const result = await request('/api/job-orders');
+    records = result.jobOrders || [];
+    statusMessage.textContent = '';
+    render();
+  };
+  const resetForm = () => {
+    form.reset();
+    form.elements.namedItem('patientId').value = '';
+    form.elements.namedItem('transactionDate').value = today();
+    form.elements.namedItem('balance').value = '0';
+    form.elements.namedItem('pickupByRiderDate').value = '';
+    form.dataset.mode = 'create';
+    delete form.dataset.recordId;
+    patientSearch.value = '';
+    patientResults.replaceChildren();
+    patientSelection.textContent = 'No patient linked.';
+    formMessage.textContent = '';
+    document.getElementById('job-order-form-title').textContent = 'Add Job Order';
+    document.getElementById('job-order-form-save').textContent = 'Save Job Order';
+  };
+  const openForm = (record) => {
+    resetForm();
+    if (record) {
+      form.dataset.mode = 'edit';
+      form.dataset.recordId = record._id;
+      document.getElementById('job-order-form-title').textContent = 'Edit Job Order';
+      document.getElementById('job-order-form-save').textContent = 'Save Changes';
+      for (const name of fields) {
+        const control = form.elements.namedItem(name);
+        if (control) control.value = record[name] ?? '';
+      }
+      if (record.patientId) patientSelection.textContent = `Linked patient account: ${record.surname}, ${record.name}`;
+    }
+    formDialog.showModal();
+  };
+  const detailFields = [
+    ['Surname', 'surname'], ['Name', 'name'], ['Contact', 'contact'], ['JO Number', 'joNumber'],
+    ['Transaction Date', 'transactionDate', 'date'], ['Order Date', 'orderDate', 'date'],
+    ['Frame Model / Color Code', 'frameModelColor'], ['Lens Type', 'lensType'],
+    ['Rider Pickup Date', 'pickupByRiderDate', 'date'], ['Balance', 'balance', 'money'],
+    ['Due Date', 'dueDate', 'date'], ['Delivery Date', 'deliveryDate', 'date'],
+    ['Date of Claiming', 'dateOfClaiming', 'date'], ['Status', 'status'],
+  ];
+  const openView = (record) => {
+    document.getElementById('job-order-view-title').textContent = `Job Order ${record.joNumber}`;
+    viewBody.innerHTML = `<dl>${detailFields.map(([label, key, kind]) => {
+      let value = record[key];
+      if (kind === 'date') value = formatDate(value);
+      if (kind === 'money') value = formatMoney(value);
+      if (kind === 'yesno') value = value ? 'Yes' : 'No';
+      return `<div><dt>${label}</dt><dd>${escapeHtml(value || '—')}</dd></div>`;
+    }).join('')}</dl>${statusMarkup(record)}`;
+    viewDialog.showModal();
+  };
+  const updatePatientSearch = async () => {
+    const query = patientSearch.value.trim();
+    if (query.length < 2) { patientResults.replaceChildren(); return; }
+    try {
+      const result = await request(`/api/clinical-records/patient-search?q=${encodeURIComponent(query)}`);
+      patientResults.innerHTML = (result.patients || []).map((patient, index) => `<button type="button" data-patient-index="${index}"><strong>${escapeHtml(patient.name)}</strong><small>${escapeHtml(patient.patientId || 'No patient ID')} · ${escapeHtml(patient.email || '')} · ${escapeHtml(patient.phone || '')}</small></button>`).join('') || '<small>No patient accounts found.</small>';
+      patientResults.querySelectorAll('[data-patient-index]').forEach((button) => button.addEventListener('click', () => {
+        const patient = result.patients[Number(button.dataset.patientIndex)];
+        form.elements.namedItem('patientId').value = patient._id;
+        form.elements.namedItem('surname').value = patient.lastName || patient.name.split(/\s+/).slice(1).join(' ');
+        form.elements.namedItem('name').value = patient.firstName || patient.name.split(/\s+/)[0];
+        form.elements.namedItem('contact').value = patient.phone || '';
+        patientSelection.textContent = `Linked patient account: ${patient.name}`;
+        patientResults.replaceChildren();
+      }));
+    } catch (error) {
+      patientResults.innerHTML = `<small>${escapeHtml(error.message)}</small>`;
+    }
+  };
+
+  document.getElementById('job-order-create').addEventListener('click', () => openForm());
+  document.getElementById('job-order-form-close').addEventListener('click', () => formDialog.close());
+  document.getElementById('job-order-form-cancel').addEventListener('click', () => formDialog.close());
+  document.getElementById('job-order-view-close').addEventListener('click', () => viewDialog.close());
+  document.getElementById('job-order-view-done').addEventListener('click', () => viewDialog.close());
+  formDialog.addEventListener('close', resetForm);
+  document.getElementById('job-order-pagination').addEventListener('click', (event) => {
+    const direction = event.target.closest('[data-page]')?.dataset.page;
+    if (!direction) return;
+    currentPage += direction === 'next' ? 1 : -1;
+    render();
+  });
+  document.querySelector('.job-orders-workspace').addEventListener('click', async (event) => {
+    const action = event.target.closest('[data-job-order-action]');
+    if (!action) return;
+    const record = records.find((item) => String(item._id) === action.dataset.jobOrderId);
+    if (!record) return;
+    if (action.dataset.jobOrderAction === 'view') openView(record);
+    if (action.dataset.jobOrderAction === 'edit') openForm(record);
+    if (action.dataset.jobOrderAction === 'archive') {
+      if (record.status !== 'Claimed' || Number(record.balance || 0) !== 0) return;
+      if (!window.confirm(`Archive job order ${record.joNumber}?`)) return;
+      try {
+        const result = await request(`/api/job-orders/${encodeURIComponent(record._id)}/archive`, { method: 'PATCH', body: JSON.stringify({ archived: true }) });
+        statusMessage.textContent = result.message;
+        await loadRecords();
+      } catch (error) { statusMessage.textContent = error.message; statusMessage.classList.add('error'); }
+    }
+  });
+  const joNumberInput = document.getElementById('job-order-number');
+  joNumberInput.addEventListener('input', () => {
+    joNumberInput.value = joNumberInput.value.replace(/[^\p{N}\p{P}\p{S}]/gu, '');
+  });
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const data = Object.fromEntries(new FormData(form).entries());
+    data.balance = Number(data.balance);
+    const isEdit = form.dataset.mode === 'edit';
+    const path = isEdit ? `/api/job-orders/${encodeURIComponent(form.dataset.recordId)}` : '/api/job-orders';
+    const saveButton = document.getElementById('job-order-form-save');
+    saveButton.disabled = true;
+    formMessage.textContent = isEdit ? 'Saving changes...' : 'Saving job order...';
+    formMessage.classList.remove('error');
+    try {
+      const result = await request(path, { method: isEdit ? 'PATCH' : 'POST', body: JSON.stringify(data) });
+      formMessage.textContent = result.message;
+      await loadRecords();
+      window.setTimeout(() => formDialog.close(), 300);
+    } catch (error) {
+      formMessage.textContent = error.message;
+      formMessage.classList.add('error');
+    } finally {
+      saveButton.disabled = false;
+    }
+  });
+  patientSearch.addEventListener('input', () => {
+    window.clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(updatePatientSearch, 250);
+  });
+  document.querySelectorAll('.job-order-filters input, .job-order-filters select').forEach((control) => {
+    control.addEventListener('input', () => { currentPage = 1; render(); });
+    control.addEventListener('change', () => { currentPage = 1; render(); });
+  });
+
+  loadRecords().catch((error) => {
+    statusMessage.textContent = error.message;
+    statusMessage.classList.add('error');
+    tableBody.innerHTML = '<tr><td colspan="15">Unable to load job orders.</td></tr>';
+    mobileList.innerHTML = '<p class="empty-appointments">Unable to load job orders.</p>';
+  });
+</script>
