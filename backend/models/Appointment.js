@@ -29,6 +29,13 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    lastReschedule: {
+      previousDate: { type: String, trim: true },
+      previousTime: { type: String, trim: true },
+      newDate: { type: String, trim: true },
+      newTime: { type: String, trim: true },
+      rescheduledAt: { type: Date },
+    },
     message: {
       type: String,
       trim: true,

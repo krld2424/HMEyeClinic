@@ -163,14 +163,35 @@ router.get('/dashboard-summary', allowRoles('patient', 'owner', 'optometrist', '
       ] = ownerResults;
 
       const inventoryAlerts = inventoryItems.filter((item) => {
-        const quantity = Number(item.data?.quantity || 0);
+        if (String(item.data?.material || '').trim().toUpperCase() === 'SUBTOTAL') return false;
+        const quantity = Number(item.data?.endingBalance ?? item.data?.quantity ?? 0);
         const threshold = Number(item.data?.reorderLevel || item.data?.minimumStock || 0);
         return quantity <= 0 || (threshold > 0 && quantity <= threshold);
       }).map((item) => ({
-        name: item.data?.name || 'Unknown item',
+        name: [item.data?.brand, item.data?.material, item.data?.itemCode].filter(Boolean).join(' · ') || item.data?.name || 'Unknown item',
         sku: item.data?.sku || '',
-        quantity: Number(item.data?.quantity || 0),
+        quantity: Number(item.data?.endingBalance ?? item.data?.quantity ?? 0),
       }));
+      const inventoryByBrandMap = new Map();
+      for (const item of inventoryItems) {
+        const data = item.data || {};
+        const brand = String(data.brand || '').trim();
+        if (!brand || String(data.material || '').trim().toUpperCase() === 'SUBTOTAL') continue;
+        const beginningBalance = Number(data.beginningBalance ?? 0);
+        const endingBalance = Number(data.endingBalance ?? data.quantity ?? 0);
+        if (!Number.isFinite(beginningBalance) || !Number.isFinite(endingBalance)) continue;
+        const totals = inventoryByBrandMap.get(brand) || { beginningBalance: 0, endingBalance: 0 };
+        totals.beginningBalance += beginningBalance;
+        totals.endingBalance += endingBalance;
+        inventoryByBrandMap.set(brand, totals);
+      }
+      const inventoryByBrand = [...inventoryByBrandMap.entries()]
+        .map(([brand, totals]) => ({ brand, ...totals }))
+        .sort((first, second) => second.endingBalance - first.endingBalance || first.brand.localeCompare(second.brand));
+      const inventoryTotals = inventoryByBrand.reduce((totals, item) => ({
+        beginningBalance: totals.beginningBalance + item.beginningBalance,
+        endingBalance: totals.endingBalance + item.endingBalance,
+      }), { beginningBalance: 0, endingBalance: 0 });
 
       const activePayments = allPayments.filter((payment) => payment.data?.status !== 'reversed' && payment.data?.status !== 'cancelled');
       const openInvoices = allInvoices.filter((invoice) => !['paid', 'cancelled'].includes(invoice.data?.status));
@@ -180,6 +201,8 @@ router.get('/dashboard-summary', allowRoles('patient', 'owner', 'optometrist', '
         cancelledToday,
         todayRevenue: todayPayments.filter((payment) => payment.data?.status !== 'reversed').reduce((sum, payment) => sum + Number(payment.data?.amount || 0), 0),
         lowStockCount: inventoryAlerts.length,
+        inventoryTotals: { ...inventoryTotals, brandCount: inventoryByBrand.length },
+        inventoryByBrand: inventoryByBrand.slice(0, 5),
         outstandingBalance: openInvoices.reduce((sum, invoice) => sum + Number(invoice.data?.balance ?? invoice.data?.total ?? 0), 0),
         billing: {
           totalInvoiced: allInvoices.filter((invoice) => invoice.data?.status !== 'cancelled').reduce((sum, invoice) => sum + Number(invoice.data?.total || 0), 0),

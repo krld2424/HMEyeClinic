@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import { createHash } from 'node:crypto';
 import ClinicOperation from '../models/ClinicOperation.js';
 import AuditLog from '../models/AuditLog.js';
 import User from '../models/User.js';
@@ -59,6 +60,24 @@ const validateItems = (items) => {
   return null;
 };
 
+const inventoryItemPairKey = (data) => JSON.stringify([
+  String(data.itemCode || '').trim(),
+  String(data.colorCode || '').trim() || String(data.color || '').trim().toLowerCase(),
+]);
+const inventoryItemOperationKey = (data) => `inventory-item:${inventoryItemPairKey(data)}`;
+const inventoryImportDataKey = (data) => JSON.stringify([
+  String(data.brand || '').trim().toLowerCase(),
+  String(data.material || '').trim().toLowerCase(),
+  String(data.itemCode || '').trim(),
+  String(data.colorCode || '').trim(),
+  String(data.color || '').trim(),
+  Number(data.beginningBalance || 0),
+  Number(data.receipt || 0),
+  Number(data.sold || 0),
+  Number(data.endingBalance || 0),
+]);
+const inventoryImportOperationKey = (data, occurrence) => `inventory-import:${createHash('sha256').update(inventoryImportDataKey(data)).digest('hex')}:${occurrence}`;
+
 const validateRecord = (recordType, data) => {
   if (!data || typeof data !== 'object') return 'Record data is required.';
 
@@ -70,7 +89,7 @@ const validateRecord = (recordType, data) => {
   if (recordType === 'inventory-item') {
     if (!inventoryBrands.includes(data.brand)) return 'Choose a valid brand.';
     if (!inventoryMaterials.includes(data.material)) return 'Choose a valid material.';
-    if (!data.itemCode || !data.colorCode || !data.color) return 'Brand, material, item code, color code, and color are required.';
+    if (!data.itemCode) return 'Brand, material, and item code are required.';
     if (![data.beginningBalance, data.receipt, data.sold].every(isInventoryNumber)) return 'Beginning Balance, Receipt, and Sold must be non-negative numbers.';
   }
   if (inventoryChangeTypes.includes(recordType) && validateItems(data.items)) return validateItems(data.items);
@@ -469,6 +488,105 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+router.post('/inventory-items/import', async (req, res) => {
+  const items = req.body?.items;
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ message: 'At least one inventory item is required.' });
+  }
+  if (items.length > 500) {
+    return res.status(400).json({ message: 'Import no more than 500 inventory items at a time.' });
+  }
+
+  const operations = [];
+  const dataOccurrences = new Map();
+  for (const [index, item] of items.entries()) {
+    const validationError = validateRecord('inventory-item', item);
+    if (validationError) {
+      return res.status(400).json({ message: `Row ${index + 2}: ${validationError}` });
+    }
+    const data = normalizeInventoryData(item);
+    const dataKey = inventoryImportDataKey(data);
+    const occurrence = (dataOccurrences.get(dataKey) || 0) + 1;
+    dataOccurrences.set(dataKey, occurrence);
+    operations.push({
+      recordType: 'inventory-item',
+      operationKey: inventoryImportOperationKey(data, occurrence),
+      data,
+      createdBy: req.user.id,
+    });
+  }
+
+  try {
+    const operationsByKey = new Map(operations.map((operation) => [operation.operationKey, operation]));
+    const operationsByData = new Map();
+    operations.forEach((operation) => {
+      const dataKey = inventoryImportDataKey(operation.data);
+      const matches = operationsByData.get(dataKey) || [];
+      matches.push(operation);
+      operationsByData.set(dataKey, matches);
+    });
+    const existingRecords = await ClinicOperation.find({
+      recordType: 'inventory-item',
+      $or: [
+        { operationKey: { $in: operations.map(({ operationKey }) => operationKey) } },
+        ...operations.map(({ data }) => ({
+          'data.brand': data.brand,
+          'data.material': data.material,
+          'data.itemCode': data.itemCode,
+          'data.colorCode': data.colorCode,
+          'data.color': data.color,
+        })),
+      ],
+    });
+    const matchedOperationKeys = new Set();
+    const matchingExistingRecords = [];
+    for (const record of existingRecords) {
+      const exactKeyMatch = operationsByKey.get(record.operationKey);
+      const dataKey = inventoryImportDataKey(normalizeInventoryData(record.data || {}));
+      const incoming = exactKeyMatch || (operationsByData.get(dataKey) || []).find(({ operationKey }) => !matchedOperationKeys.has(operationKey));
+      if (!incoming || matchedOperationKeys.has(incoming.operationKey)) continue;
+      matchedOperationKeys.add(incoming.operationKey);
+      matchingExistingRecords.push(record);
+      if (!record.operationKey) {
+        record.operationKey = incoming.operationKey;
+        await record.save();
+      }
+    }
+
+    const newOperations = operations.filter(({ operationKey }) => !matchedOperationKeys.has(operationKey));
+    const createdRecords = newOperations.length
+      ? await ClinicOperation.insertMany(newOperations, { ordered: true })
+      : [];
+    const records = [...matchingExistingRecords, ...createdRecords];
+    const targets = records.map((record) => `inventory-item:${record._id}`);
+    const existingAuditTargets = new Set((await AuditLog.find({ target: { $in: targets } }).select('target').lean()).map((log) => log.target));
+    const auditEntries = records.filter((record) => !existingAuditTargets.has(`inventory-item:${record._id}`)).map((record) => ({
+      actorId: req.user.id,
+      action: 'Imported inventory-item',
+      target: `inventory-item:${record._id}`,
+      newData: record.data,
+    }));
+    if (auditEntries.length) await AuditLog.insertMany(auditEntries);
+    await broadcastRealtimeEvent(req.app.get('io'), {
+      type: 'inventory-item',
+      action: 'imported',
+      entityId: records[0]?._id,
+      payload: { count: records.length, imported: createdRecords.length, alreadyPresent: matchingExistingRecords.length },
+      roles: ['owner', 'eye-care-assistant'],
+    });
+    return res.status(201).json({
+      message: `${createdRecords.length} imported; ${matchingExistingRecords.length} already present.`,
+      count: records.length,
+      imported: createdRecords.length,
+      alreadyPresent: matchingExistingRecords.length,
+    });
+  } catch (error) {
+    return res.status(error.code === 11000 ? 409 : 500).json({
+      message: error.message || 'Unable to import inventory items.',
+    });
+  }
+});
+
 router.post('/:recordType', requireInventoryRecordType, async (req, res) => {
   const { recordType } = req.params;
   const data = req.body || {};
@@ -514,6 +632,11 @@ router.post('/:recordType', requireInventoryRecordType, async (req, res) => {
       data.receiptNumber = data.receiptNumber || await nextDocumentNumber('payment', 'RCPT');
       data.status = 'recorded';
       data.recordedBy = req.user.email || req.user.id;
+    }
+
+    if (recordType === 'inventory-item') {
+      Object.assign(data, normalizeInventoryData(data));
+      data.operationKey = data.operationKey || inventoryItemOperationKey(data);
     }
 
     const operation = await ClinicOperation.create({

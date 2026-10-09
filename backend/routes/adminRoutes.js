@@ -36,7 +36,7 @@ router.get('/users', async (req, res) => {
       await patient.save();
     }
 
-    const users = await User.find({ role: { $ne: 'owner' }, ...(archivedOnly ? {} : { archived: { $ne: true } }) })
+    const users = await User.find({ role: { $in: managedRoles }, ...(archivedOnly ? {} : { archived: { $ne: true } }) })
       .select('-password')
       .sort({ createdAt: -1 });
     return res.status(200).json({ users });

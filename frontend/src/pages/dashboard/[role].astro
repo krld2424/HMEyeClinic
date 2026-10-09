@@ -307,6 +307,12 @@ const groupIcons = {
       return actions.map(([status, label]) => `<button type="button" class="btn btn-secondary appointment-action action-${status}" data-appointment-id="${escapeHtml(appointment._id)}" data-status="${status}">${label}</button>`).join('');
     };
 
+    const paginationSummary = (total, page, pageSize) => {
+      const start = total ? (page - 1) * pageSize + 1 : 0;
+      const end = Math.min(page * pageSize, total);
+      return `<span class="pagination-total" aria-live="polite">Showing ${start}-${end} of ${total}</span>`;
+    };
+
     const renderAppointmentPage = () => {
       if (!appointmentList) return;
       const query = (appointmentSearch?.value || '').toLowerCase().trim();
@@ -317,10 +323,14 @@ const groupIcons = {
       appointmentPage = Math.min(appointmentPage, pages);
       const visible = filtered.slice((appointmentPage - 1) * pageSize, appointmentPage * pageSize);
       appointmentList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Examination / Appointment</th><th scope="col">Patient</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service)}</strong></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></td><td data-label="Actions"><div class="appointment-actions">${appointmentActions(item)}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No appointments match these filters.</p>';
-      appointmentPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : '';
+      appointmentPagination.innerHTML = `${paginationSummary(filtered.length, appointmentPage, pageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
       appointmentPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { appointmentPage -= 1; renderAppointmentPage(); });
       appointmentPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { appointmentPage += 1; renderAppointmentPage(); });
       appointmentList.querySelectorAll('.appointment-action').forEach((button) => button.addEventListener('click', async () => {
+        if (button.dataset.status === 'rescheduled') {
+          window.location.href = `/dashboard/${role}/appointments?reschedule=${encodeURIComponent(button.dataset.appointmentId)}`;
+          return;
+        }
         button.disabled = true;
         const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: button.dataset.status }) });
         if (!response.ok) { button.disabled = false; return; }

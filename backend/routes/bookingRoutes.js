@@ -279,11 +279,22 @@ router.patch('/:id/status', requireAuth, async (req, res) => {
     }
 
     const previousStatus = appointment.status;
+    const previousSchedule = {
+      preferredDate: appointment.preferredDate,
+      preferredTime: appointment.preferredTime,
+    };
     appointment.status = status;
     if (status === 'rejected') {
       appointment.archived = true;
     }
     if (status === 'rescheduled') {
+      appointment.lastReschedule = {
+        previousDate: appointment.preferredDate,
+        previousTime: appointment.preferredTime,
+        newDate: preferredDate,
+        newTime: preferredTime,
+        rescheduledAt: new Date(),
+      };
       appointment.preferredDate = preferredDate;
       appointment.preferredTime = preferredTime;
     }
@@ -294,11 +305,17 @@ router.patch('/:id/status', requireAuth, async (req, res) => {
       action: status === 'rejected' ? 'Rejected appointment and archived it' : `Appointment status changed to ${status}`,
       target: `Appointment for ${appointment.name}`,
       details: `${appointment.service} (${appointment.email})`,
-      previousData: { status: previousStatus, archived: appointment.archived },
-      newData: { status: appointment.status, archived: appointment.archived },
+      previousData: { status: previousStatus, archived: appointment.archived, ...previousSchedule },
+      newData: {
+        status: appointment.status,
+        archived: appointment.archived,
+        preferredDate: appointment.preferredDate,
+        preferredTime: appointment.preferredTime,
+        ...(status === 'rescheduled' ? { lastReschedule: appointment.lastReschedule } : {}),
+      },
     });
 
-    if (!isPatient && previousStatus !== status) {
+    if (!isPatient && (previousStatus !== status || status === 'rescheduled')) {
       const recipient = (appointment.userId && await User.findOne({ _id: appointment.userId, role: 'patient' }).select('_id'))
         || await User.findOne({ email: String(appointment.email || '').toLowerCase(), role: 'patient' }).select('_id');
       if (recipient) {

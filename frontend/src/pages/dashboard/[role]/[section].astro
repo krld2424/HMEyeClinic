@@ -4,6 +4,7 @@ import SidebarIcon from '../../../components/SidebarIcon.astro';
 import InvoiceTemplateBuilder from '../../../components/InvoiceTemplateBuilder.astro';
 import EyeglassJobOrders from '../../../components/EyeglassJobOrders.astro';
 import hmecLogo from '../../../assets/logo/HMEC logo blue.png';
+import { getArchivedFetchPlan } from '../../../utils/archiveAccess.js';
 
 const { role, section } = Astro.params;
 const hmecLogoUrl = hmecLogo.src;
@@ -389,8 +390,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                     </dialog>
                   </div>
                 )}
-                {section === 'inventory' && <><div id="inventory-summary" class="inventory-summary" aria-label="Inventory summary"></div><div class="list-toolbar inventory-toolbar"><input id="inventory-search" type="search" placeholder="Search SKU, product, category, brand, model, supplier, location, or batch" aria-label="Search inventory" /></div></>}
+                {section === 'inventory' && <><section id="inventory-summary" class="inventory-summary" aria-labelledby="inventory-summary-title"></section><div class="list-toolbar inventory-toolbar"><input id="inventory-search" type="search" placeholder="Search SKU, product, category, brand, model, supplier, location, or batch" aria-label="Search inventory" /></div></>}
                 <div id="operation-list" class="record-list"><p class="empty-appointments">Loading records...</p></div>
+                {section === 'inventory' && <dialog id="inventory-transfer-loading" class="inventory-loading-dialog" aria-labelledby="inventory-loading-title" aria-describedby="inventory-loading-message"><div class="inventory-loading-content"><span class="inventory-loading-spinner" aria-hidden="true"></span><h2 id="inventory-loading-title">Importing inventory</h2><p id="inventory-loading-message" role="status" aria-live="polite">Please wait while the file is processed.</p></div></dialog>}
               </div>
             )}
 
@@ -916,6 +918,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
   <script>
     import { connectClinicRealtime } from '../../../scripts/realtimeClient.js';
+    import { parseInventoryImportRows } from '../../../utils/inventoryImport.js';
+    import { summarizeInventoryByBrand } from '../../../utils/inventorySummary.js';
     import * as XLSX from 'xlsx';
 
     const hmecLogoUrl = document.querySelector('main')?.dataset.hmecLogo || '';
@@ -942,6 +946,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       owner: { dashboard: 'Owner Dashboard', 'today-patients': "Today's Patients", appointments: 'Appointments', consultations: 'Consultations', 'patient-records': 'Patient Records', prescriptions: 'Prescriptions', 'follow-ups': 'Follow-ups', 'manage-team': "User's Management", 'manage-users': 'Manage Users', 'roles-permissions': 'Roles & Permissions', 'audit-logs': 'Audit Logs', reports: 'Reports', 'clinic-settings': 'Clinic Settings', suppliers: 'Suppliers', 'purchase-orders': 'Purchase Orders', receiving: 'Receiving', 'purchase-history': 'Purchase History', inventory: 'Inventory', 'stock-movements': 'Stock Movements', 'stock-in': 'Stock In', 'stock-out': 'Stock Out', 'stock-adjustment': 'Stock Adjustment', 'inventory-history': 'Inventory History', 'billing-invoices': 'Billing / Invoices', 'invoice-templates': 'Invoice Templates', 'customer-payments': 'Customer Payments', 'payment-history': 'Payment History', 'outstanding-balances': 'Outstanding Balances', 'claim-stub': 'Claim Stub', archived: 'Archived' }
     };
     const pageTitle = (navigationData[role] || {})[section] || 'Workspace';
+    const paginationSummary = (total, page, pageSize) => {
+      const start = total ? (page - 1) * pageSize + 1 : 0;
+      const end = Math.min(page * pageSize, total);
+      return `<span class="pagination-total" aria-live="polite">Showing ${start}-${end} of ${total}</span>`;
+    };
     let refreshBilling = async () => {};
     let refreshOverviewAppointments = async () => {};
     let loadClaimStubs = async () => {};
@@ -1148,6 +1157,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         : '<p class="bento-empty">No appointment data for this period.</p>';
       const upcomingRows = (summary.upcomingAppointments || []).slice(0, 4).map((appointment) => `<li><span><strong>${escapeHtml(formatTo12Hour(appointment.preferredTime))}</strong><small>${escapeHtml(appointment.name || appointment.service)}</small></span><time>${dashboardDate(appointment.preferredDate)}</time></li>`).join('');
       const alertRows = (owner.inventoryAlerts || []).map((item) => `<li><span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.sku || 'No SKU')}</small></span><strong>${item.quantity}</strong></li>`).join('');
+      const inventoryTotals = owner.inventoryTotals || {};
+      const inventoryByBrandRows = (owner.inventoryByBrand || []).map((item) => `<li><span><strong>${escapeHtml(item.brand)}</strong><small>Beginning ${dashboardValue(item.beginningBalance)}</small></span><strong>${dashboardValue(item.endingBalance)}</strong></li>`).join('');
       const transactionRows = (owner.recentTransactions || []).map((item) => `<li><span><strong>${escapeHtml(item.method || 'Payment')}</strong><small>${formatWhen(item.createdAt)}</small></span><strong>${formatPeso(item.amount)}</strong></li>`).join('');
       const activityRows = (owner.recentActivity || []).map((item) => `<li><span><strong>${escapeHtml(item.action)}</strong><small>${escapeHtml(item.actor)}</small></span><time>${formatWhen(item.createdAt)}</time></li>`).join('');
       const billing = owner.billing || {};
@@ -1155,7 +1166,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         <a class="bento-card bento-kpi" href="/dashboard/owner/manage-team"><span class="bento-label">Total Patients</span><strong class="bento-number">${dashboardValue(metrics.totalPatients)}</strong><span class="bento-meta">Registered</span></a>
         <a class="bento-card bento-kpi" href="/dashboard/owner/today-patients"><span class="bento-label">Today's Appointments</span><strong class="bento-number">${dashboardValue(owner.todayTotal ?? metrics.todayAppointments)}</strong><span class="bento-meta">Today</span></a>
         <a class="bento-card bento-kpi" href="/dashboard/owner/payment-history"><span class="bento-label">Today's Revenue</span><strong class="bento-number">${formatPeso(owner.todayRevenue)}</strong><span class="bento-meta">Today</span></a>
-        <a class="bento-card bento-kpi" href="/dashboard/owner/inventory"><span class="bento-label">Low Stock Items</span><strong class="bento-number">${dashboardValue(owner.lowStockCount)}</strong><span class="bento-meta">Need attention</span></a>
+        <a class="bento-card bento-kpi" href="/dashboard/owner/inventory"><span class="bento-label">Ending Inventory</span><strong class="bento-number">${dashboardValue(inventoryTotals.endingBalance)}</strong><span class="bento-meta">${dashboardValue(inventoryTotals.brandCount)} brands · ${dashboardValue(owner.lowStockCount)} low-stock items</span></a>
         <section class="bento-card bento-card-billing">
           <div class="bento-card-heading"><span class="bento-label">Billing summary</span><a href="/dashboard/owner/billing-invoices">View invoices →</a></div>
           <div class="bento-billing-stats">
@@ -1179,10 +1190,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           ${upcomingRows ? `<ul class="bento-list">${upcomingRows}</ul>` : '<p class="bento-empty">No upcoming appointments.</p>'}
         </section>
         <section class="bento-card bento-card-alerts">
-          <div class="bento-card-heading"><span class="bento-label">Inventory Alerts</span><a href="/dashboard/owner/inventory">View details →</a></div>
-          <strong class="bento-summary-total">${dashboardValue(owner.lowStockCount)} <span>items</span></strong>
-          <p class="bento-meta">Need attention</p>
-          ${alertRows ? `<ul class="bento-list">${alertRows}</ul>` : '<p class="bento-empty">Stock levels look healthy.</p>'}
+          <div class="bento-card-heading"><span class="bento-label">Inventory by Brand</span><a href="/dashboard/owner/inventory">View inventory →</a></div>
+          <strong class="bento-summary-total">${dashboardValue(inventoryTotals.beginningBalance)} <span>beginning units</span></strong>
+          <p class="bento-meta">${dashboardValue(inventoryTotals.endingBalance)} ending units · ${dashboardValue(owner.lowStockCount)} low-stock items</p>
+          ${inventoryByBrandRows ? `<ul class="bento-list">${inventoryByBrandRows}</ul>` : '<p class="bento-empty">No inventory balances available.</p>'}
+          ${alertRows && !inventoryByBrandRows ? `<ul class="bento-list">${alertRows}</ul>` : ''}
         </section>
         <section class="bento-card bento-card-chart">
           <div class="bento-card-heading"><span class="bento-label">Appointment Activity</span><a href="/dashboard/owner/reports">View reports →</a></div>
@@ -1622,7 +1634,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           : `<tr class="${dimmed}"><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service)}</strong></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Time">${escapeHtml(formatTo12Hour(item.preferredTime || 'Time to be confirmed'))}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(appointmentStatusLabel(item.status))}</span></td><td class="${hasKebab ? 'appointment-actions-cell-with-kebab' : ''}" data-label="Actions"><div class="appointment-actions ${hasKebab ? 'appointment-actions-with-kebab' : ''}">${appointmentActions(item)}</div></td></tr>`;
           return patientRow; }).join('')}</tbody></table></div><div class="appointment-mobile-list">${visible.map(appointmentCardMarkup).join('')}</div>` : '<p class="empty-appointments">No appointments match these filters.</p>';
       appointmentList.querySelectorAll('[data-sort-key]').forEach((header) => header.addEventListener('click', () => { const key = header.dataset.sortKey; appointmentSort = { key, direction: appointmentSort.key === key && appointmentSort.direction === 'asc' ? 'desc' : 'asc' }; renderAppointmentPage(); }));
-      appointmentPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : '';
+      appointmentPagination.innerHTML = `${paginationSummary(filtered.length, appointmentPage, pageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
       appointmentPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { appointmentPage -= 1; renderAppointmentPage(); });
       appointmentPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { appointmentPage += 1; renderAppointmentPage(); });
       appointmentList.querySelectorAll('.appointment-detail-action').forEach((button) => button.addEventListener('click', () => openAppointmentDetails(button)));
@@ -1958,7 +1970,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const visible = archivedItems.slice((archivedPage - 1) * archivedPageSize, archivedPage * archivedPageSize);
       if (!archivedItems.length) {
         archivedRecordList.innerHTML = '<p class="empty-appointments">No archived records found.</p>';
-        if (archivedPagination) archivedPagination.innerHTML = '';
+        if (archivedPagination) archivedPagination.innerHTML = paginationSummary(0, archivedPage, archivedPageSize);
         return;
       }
       archivedRecordList.innerHTML = `
@@ -1988,7 +2000,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         </div>
       `;
       if (archivedPagination) {
-        archivedPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${archivedPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${archivedPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${archivedPage === pages ? 'disabled' : ''}>Next</button>` : '';
+        archivedPagination.innerHTML = `${paginationSummary(archivedItems.length, archivedPage, archivedPageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${archivedPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${archivedPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${archivedPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
         archivedPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { archivedPage -= 1; renderArchivedRecords(); });
         archivedPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { archivedPage += 1; renderArchivedRecords(); });
       }
@@ -2028,23 +2040,19 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       if (!archivedRecordList) return;
       archivedRecordList.innerHTML = '<p class="empty-appointments">Loading archived records...</p>';
       try {
-        const fetches = [];
-        if (['owner', 'optometrist', 'eye-care-assistant'].includes(role)) {
-          fetches.push(fetchWithTimeout(`${api}/api/appointments?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.appointments || []).map((item) => ({ id: item._id, type: 'Appointment', label: item.name || item.service || 'Appointment', status: item.status || 'archived', date: item.preferredDate || item.createdAt || '', canRestore: true, category: 'appointments', item }))));
-        }
-        if (role === 'owner') {
-          fetches.push(fetchWithTimeout(`${api}/api/admin/users?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.users || []).map((item) => ({ id: item._id, type: 'Staff Account', label: item.name || item.email || 'Account', status: item.isActive ? 'active' : 'inactive', date: item.createdAt || '', canRestore: true, category: 'users', item }))));
-          fetches.push(fetchWithTimeout(`${api}/api/clinic-operations?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.recordType || 'Operation', label: item.data?.name || item.data?.invoiceNumber || item.data?.reference || item.data?.itemCode || 'Operation', status: item.status || 'archived', date: item.createdAt || '', canRestore: true, category: 'operations', item }))));
-        }
-        if (['owner', 'optometrist'].includes(role)) {
-          fetches.push(fetchWithTimeout(`${api}/api/clinical-records?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.type || 'Clinical Record', label: item.title || 'Clinical record', status: item.status || 'archived', date: item.issuedAt || item.createdAt || '', canRestore: true, category: 'clinical-records', item }))));
-        }
-        if (['owner', 'optometrist', 'eye-care-assistant'].includes(role)) {
-          fetches.push(fetchWithTimeout(`${api}/api/claim-stubs?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.claimStubs || []).map((item) => ({ id: item._id, type: 'Claim Stub', label: item.patientName || 'Claim stub', status: item.status || 'archived', date: item.createdAt || item.visitDate || '', canRestore: true, category: 'claim-stubs', item }))));
-        }
-        if (role === 'patient') {
-          fetches.push(fetchWithTimeout(`${api}/api/clinical-records/mine?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.type || 'Clinical Record', label: item.title || 'Clinical record', status: item.status || 'archived', date: item.issuedAt || item.createdAt || '', canRestore: true, category: 'clinical-records', item }))));
-        }
+        const fetchPlan = getArchivedFetchPlan(role);
+        const fetchers = {
+          appointments: () => fetchWithTimeout(`${api}/api/appointments?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.appointments || []).map((item) => ({ id: item._id, type: 'Appointment', label: item.name || item.service || 'Appointment', status: item.status || 'archived', date: item.preferredDate || item.createdAt || '', canRestore: true, category: 'appointments', item }))),
+          users: () => fetchWithTimeout(`${api}/api/admin/users?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.users || []).map((item) => ({ id: item._id, type: 'Staff Account', label: item.name || item.email || 'Account', status: item.isActive ? 'active' : 'inactive', date: item.createdAt || '', canRestore: true, category: 'users', item }))),
+          operations: () => fetchWithTimeout(`${api}/api/clinic-operations?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.recordType || 'Operation', label: item.data?.name || item.data?.invoiceNumber || item.data?.reference || item.data?.itemCode || 'Operation', status: item.status || 'archived', date: item.createdAt || '', canRestore: true, category: 'operations', item }))),
+          'clinical-records': () => {
+            const endpoint = role === 'patient' ? `${api}/api/clinical-records/mine?archived=true` : `${api}/api/clinical-records?archived=true`;
+            return fetchWithTimeout(endpoint, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.records || []).map((item) => ({ id: item._id, type: item.type || 'Clinical Record', label: item.title || 'Clinical record', status: item.status || 'archived', date: item.issuedAt || item.createdAt || '', canRestore: true, category: 'clinical-records', item })));
+          },
+          'claim-stubs': () => fetchWithTimeout(`${api}/api/claim-stubs?archived=true`, { headers: { Authorization: `Bearer ${token}` } }).then((response) => response.json()).then((result) => (result.claimStubs || []).map((item) => ({ id: item._id, type: 'Claim Stub', label: item.patientName || 'Claim stub', status: item.status || 'archived', date: item.createdAt || item.visitDate || '', canRestore: true, category: 'claim-stubs', item }))),
+        };
+
+        const fetches = fetchPlan.map((entry) => fetchers[entry]?.()).filter(Boolean);
         const results = await Promise.all(fetches);
         archivedItems = results.flat();
         archivedPage = 1;
@@ -2598,7 +2606,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       followUpPage = Math.min(followUpPage, pages);
       const visible = filtered.slice((followUpPage - 1) * pageSize, followUpPage * pageSize);
       followUpList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Patient</th><th scope="col">Reason</th><th scope="col">Preferred Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Patient"><strong>${escapeHtml(item.patientName)}</strong><small>${escapeHtml(item.patientEmail)}</small></td><td data-label="Reason">${escapeHtml(item.reason)}</td><td data-label="Preferred Date">${escapeHtml(item.preferredDate || 'No date provided')}${item.scheduledDate ? `<small>Scheduled: ${escapeHtml(item.scheduledDate)}</small>` : ''}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></td><td data-label="Actions"><div class="appointment-actions">${role !== 'patient' ? `${item.status === 'requested' ? `${renderActionButton({ label: 'Schedule', variant: 'approve', classes: ['follow-up-action', 'action-scheduled'], dataAttrs: { id: item._id, status: 'scheduled' } })}${renderActionButton({ label: 'Reject', variant: 'danger', classes: ['follow-up-action', 'action-rejected'], dataAttrs: { id: item._id, status: 'rejected' } })}` : ''}${item.status === 'scheduled' ? `${renderActionButton({ label: 'Mark completed', variant: 'complete', classes: ['follow-up-action', 'action-completed'], dataAttrs: { id: item._id, status: 'completed' } })}${renderActionButton({ label: 'Cancel', variant: 'danger', classes: ['follow-up-action', 'action-cancelled'], dataAttrs: { id: item._id, status: 'cancelled' } })}` : ''}` : '<span class="appointment-action-empty">-</span>'}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No follow-up requests found.</p>';
-      followUpPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${followUpPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${followUpPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${followUpPage === pages ? 'disabled' : ''}>Next</button>` : '';
+      followUpPagination.innerHTML = `${paginationSummary(filtered.length, followUpPage, pageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${followUpPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${followUpPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${followUpPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
       followUpPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { followUpPage -= 1; renderFollowUps(); });
       followUpPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { followUpPage += 1; renderFollowUps(); });
       followUpList.querySelectorAll('.follow-up-action').forEach((button) => button.addEventListener('click', async () => {
@@ -3034,7 +3042,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const actor = item.actorId ? `<strong>${escapeHtml(item.actorId.name || 'Unknown')}</strong><small>${escapeHtml(item.actorId.role || '')}${item.actorId.email ? ` · ${escapeHtml(item.actorId.email)}` : ''}</small>` : '<strong>System</strong><small>Historical appointment record</small>';
         return `<tr><td data-label="Date"><strong>${stamp.day}</strong><small>${stamp.time}</small></td><td data-label="Performed By">${actor}</td><td data-label="Action"><span class="audit-action ${auditActionClass(item.action)}">${escapeHtml(auditActionLabel(item.action))}</span></td><td data-label="Module">${escapeHtml(auditModule(item))}</td><td data-label="Target">${escapeHtml(auditSubject(item))}</td><td data-label="Status"><span class="audit-success">Successful</span></td><td data-label="Details"><button type="button" class="btn btn-secondary audit-details-button" data-audit-id="${escapeHtml(item._id)}">View</button></td></tr>`;
       }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No audit logs match these filters.</p>';
-      auditPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${auditPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${auditPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${auditPage === pages ? 'disabled' : ''}>Next</button>` : '';
+      auditPagination.innerHTML = `${paginationSummary(filtered.length, auditPage, pageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${auditPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${auditPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${auditPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
       auditPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { auditPage -= 1; renderAuditLogs(); });
       auditPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { auditPage += 1; renderAuditLogs(); });
     };
@@ -3200,7 +3208,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         ? `<div class="appointment-table-wrap"><table class="appointment-table manage-team-table"><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Identifier</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Name"><div class="manage-team-name"><strong>${escapeHtml(item.name)}</strong><span class="manage-team-mobile-status appointment-status ${item.isActive ? 'status-confirmed' : 'status-cancelled'}">${item.isActive ? 'Active' : 'Inactive'}</span></div></td><td data-label="Email">${escapeHtml(item.email)}</td><td data-label="Role">${escapeHtml(item.role)}</td><td data-label="Identifier">${escapeHtml(item.patientId || item._id)}</td><td class="manage-team-status-cell" data-label="Status"><span class="appointment-status ${item.isActive ? 'status-confirmed' : 'status-cancelled'}">${item.isActive ? 'Active' : 'Inactive'}</span></td><td class="manage-team-action-cell" data-label="Action"><div class="table-actions">${renderActionButton({ label: item.isActive ? 'Deactivate' : 'Activate', variant: item.isActive ? 'deactivate' : 'approve', icon: `<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true">${item.isActive ? '<path d="M7 7l10 10M17 7L7 17"/>' : '<path d="M5 12.5 9 16l10-10"/>'}</svg>`, classes: ['user-status-button', item.isActive ? 'action-deactivate' : 'action-activate'], dataAttrs: { 'user-id': item._id, active: item.isActive }, ariaLabel: item.isActive ? 'Deactivate user' : 'Activate user' })}${renderActionButton({ label: item.archived ? 'Restore' : 'Archive', variant: item.archived ? 'archive' : 'archive', icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6"/></svg>', classes: ['user-archive-button', item.archived ? 'action-restore' : 'action-archive'], dataAttrs: { 'user-id': item._id, archived: Boolean(item.archived) }, ariaLabel: item.archived ? 'Restore user' : 'Archive user' })}</div></td></tr>`).join('')}</tbody></table></div>`
         : '<p class="empty-appointments">No matching users.</p>';
       const userPagination = document.getElementById('user-pagination');
-      userPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${userPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${userPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${userPage === pages ? 'disabled' : ''}>Next</button>` : '';
+      userPagination.innerHTML = `${paginationSummary(filtered.length, userPage, pageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${userPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${userPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${userPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
       userPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { userPage -= 1; renderUsers(); });
       userPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { userPage += 1; renderUsers(); });
       managedUsers.querySelectorAll('.user-status-button').forEach((button) => button.addEventListener('click', async () => {
@@ -3233,13 +3241,34 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     userRoleFilter?.addEventListener('change', () => { userPage = 1; renderUsers(); });
     userStatusFilter?.addEventListener('change', () => { userPage = 1; renderUsers(); });
     loadUsers().catch((error) => { if (managedUsers) managedUsers.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
-    const inventoryBrands = ['ADIDAS', 'ALTER EGO', 'BABY', 'DALE AND ADY', 'FISHER PRICE', 'HYPE!', 'IOS', 'JECKSEN', 'JECKSEN KIDS', 'KIDS', 'LAFONT', "LET'S GROOVE", 'MUSTAFA', 'PROMO', 'RC', 'SEZEN', 'TOKYOFLEX', 'VALETTE', 'YOKOTA', 'YORK'];
+    const inventoryLoadingDialog = document.getElementById('inventory-transfer-loading');
+    const inventoryLoadingTitle = document.getElementById('inventory-loading-title');
+    const inventoryLoadingMessage = document.getElementById('inventory-loading-message');
+    let inventoryTransferInProgress = false;
+    const startInventoryTransfer = async (title, message) => {
+      if (inventoryTransferInProgress) return false;
+      inventoryTransferInProgress = true;
+      inventoryLoadingTitle.textContent = title;
+      inventoryLoadingMessage.textContent = message;
+      document.getElementById('inventory-import-button').disabled = true;
+      document.getElementById('inventory-export')?.setAttribute('disabled', '');
+      if (!inventoryLoadingDialog.open) inventoryLoadingDialog.showModal();
+      await new Promise((resolve) => window.setTimeout(resolve, 80));
+      return true;
+    };
+    const finishInventoryTransfer = () => {
+      if (inventoryLoadingDialog.open) inventoryLoadingDialog.close();
+      document.getElementById('inventory-import-button').disabled = false;
+      document.getElementById('inventory-export')?.removeAttribute('disabled');
+      inventoryTransferInProgress = false;
+    };
+    const inventoryBrands = ['ADIDAS', 'ALTER EGO', 'BABY', 'DALE AND ADY', 'FISHER PRICE', 'HYPE!', 'IOS', 'JECKSEN', 'JECKSEN KIDS', 'KIDS', 'LAFONT', "LET'S GROOVE", 'MUSTAFA', 'PAGE', 'PROMO', 'RC', 'SEZEN', 'TOKYOFLEX', 'VALETTE', 'YOKOTA', 'YORK'];
     const inventoryMaterials = ['Acetate', 'Alloy Metal', 'Aviator', 'Cats Eye', 'Clubmaster', 'Combination', 'Double Bar', 'Injected Metal on Temple', 'Light', 'Metal', 'Oval', 'Oversize', 'Oversize Square', 'Plastic', 'Sports', 'Stainless', 'SUBTOTAL', 'Titanium', 'TR Metal', 'TR90', 'Ultem', 'Women', 'Wood'];
     if (section === 'inventory') {
       const inventoryForm = document.getElementById('operation-form');
       const options = (values, label) => `<option value="">Select a ${label.toLowerCase()}</option>${values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}`;
       if (inventoryForm) {
-        inventoryForm.innerHTML = `<div class="field-row"><div class="field-group"><label for="operation-brand">Brand</label><select id="operation-brand" name="brand" required>${options(inventoryBrands, 'brand')}</select></div><div class="field-group"><label for="operation-material">Material</label><select id="operation-material" name="material" required>${options(inventoryMaterials, 'material')}</select></div></div><div class="field-row"><div class="field-group"><label for="operation-item-code">Item Code</label><input id="operation-item-code" name="itemCode" required /></div><div class="field-group"><label for="operation-color-code">Color Code</label><input id="operation-color-code" name="colorCode" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-color">Color</label><input id="operation-color" name="color" required /></div><div class="field-group"><label for="operation-beginning-balance">Beginning Balance</label><input id="operation-beginning-balance" name="beginningBalance" type="number" min="0" step="1" inputmode="numeric" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-receipt">Receipt</label><input id="operation-receipt" name="receipt" type="number" min="0" step="1" inputmode="numeric" required /></div><div class="field-group"><label for="operation-sold">Sold</label><input id="operation-sold" name="sold" type="number" min="0" step="1" inputmode="numeric" required /></div></div><div class="field-group"><label for="operation-ending-balance">Ending Balance</label><input id="operation-ending-balance" name="endingBalance" type="number" readonly aria-readonly="true" /></div><div class="confirmation-actions confirmation-actions--stacked"><button type="button" class="btn btn-secondary" id="operation-form-cancel">Cancel</button><button type="submit" class="btn btn-primary">Save ${pageTitle}</button></div><p id="operation-status" class="form-status" aria-live="polite"></p>`;
+        inventoryForm.innerHTML = `<div class="field-row"><div class="field-group"><label for="operation-brand">Brand</label><select id="operation-brand" name="brand" required>${options(inventoryBrands, 'brand')}</select></div><div class="field-group"><label for="operation-material">Material</label><select id="operation-material" name="material" required>${options(inventoryMaterials, 'material')}</select></div></div><div class="field-row"><div class="field-group"><label for="operation-item-code">Item Code</label><input id="operation-item-code" name="itemCode" required /></div><div class="field-group"><label for="operation-color-code">Color Code</label><input id="operation-color-code" name="colorCode" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-color">Color</label><input id="operation-color" name="color" /></div><div class="field-group"><label for="operation-beginning-balance">Beginning Balance</label><input id="operation-beginning-balance" name="beginningBalance" type="number" min="0" step="1" inputmode="numeric" required /></div></div><div class="field-row"><div class="field-group"><label for="operation-receipt">Receipt</label><input id="operation-receipt" name="receipt" type="number" min="0" step="1" inputmode="numeric" required /></div><div class="field-group"><label for="operation-sold">Sold</label><input id="operation-sold" name="sold" type="number" min="0" step="1" inputmode="numeric" required /></div></div><div class="field-group"><label for="operation-ending-balance">Ending Balance</label><input id="operation-ending-balance" name="endingBalance" type="number" readonly aria-readonly="true" /></div><div class="confirmation-actions confirmation-actions--stacked"><button type="button" class="btn btn-secondary" id="operation-form-cancel">Cancel</button><button type="submit" class="btn btn-primary">Save ${pageTitle}</button></div><p id="operation-status" class="form-status" aria-live="polite"></p>`;
         const updateEndingBalance = () => {
           const value = (name) => Number(inventoryForm.elements.namedItem(name)?.value || 0);
           inventoryForm.elements.namedItem('endingBalance').value = value('beginningBalance') + value('receipt') - value('sold');
@@ -3257,28 +3286,24 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         importFile?.addEventListener('change', async () => {
           const file = importFile.files?.[0];
           if (!file) return;
+          if (!await startInventoryTransfer('Importing inventory', `Reading ${file.name} and importing its records...`)) return;
           try {
             const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
             const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1, defval: '' });
-            const headers = rows.shift().map((value) => String(value).trim().toLowerCase().replace(/[^a-z]/g, ''));
-            const expected = ['brand', 'material', 'itemcode', 'colorcode', 'color', 'beginningbalance', 'receipt', 'sold', 'endingbalance'];
-            if (headers.length < expected.length || expected.some((header, index) => headers[index] !== header)) throw new Error(`The first row must contain: ${expected.map((header) => header.replace(/([a-z])([A-Z])/g, '$1 $2')).join(', ')}`);
-            const records = rows.filter((row) => row.some((value) => String(value).trim())).map((row, index) => {
-              const data = Object.fromEntries(expected.slice(0, 8).map((header, column) => [header, row[column]]));
-              if (!inventoryBrands.includes(data.brand) || !inventoryMaterials.includes(data.material) || !data.itemcode || !data.colorcode || !data.color) throw new Error(`Invalid Brand, Material, or text value on row ${index + 2}.`);
-              if ([data.beginningbalance, data.receipt, data.sold].some((value) => value === '' || !Number.isFinite(Number(value)) || Number(value) < 0)) throw new Error(`Beginning Balance, Receipt, and Sold must be non-negative numbers on row ${index + 2}.`);
-              return { brand: data.brand, material: data.material, itemCode: String(data.itemcode).trim(), colorCode: String(data.colorcode).trim(), color: String(data.color).trim(), beginningBalance: Number(data.beginningbalance), receipt: Number(data.receipt), sold: Number(data.sold) };
+            const records = parseInventoryImportRows(rows, inventoryBrands, inventoryMaterials);
+            const response = await fetch(`${api}/api/clinic-operations/inventory-items/import`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ items: records }),
             });
-            for (const data of records) {
-              const response = await fetch(`${api}/api/clinic-operations/inventory-item`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
-              const result = await response.json();
-              if (!response.ok) throw new Error(result.message || 'Unable to import inventory row.');
-            }
-            setOperationStatus(`${records.length} inventory record${records.length === 1 ? '' : 's'} imported.`, 'success');
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Unable to import inventory items.');
+            setOperationStatus(result.message || `${records.length} inventory records imported.`, 'success');
             await loadOperations();
           } catch (error) {
             setOperationStatus(error.message || 'Unable to import inventory file.', 'error');
           } finally {
+            finishInventoryTransfer();
             importFile.value = '';
           }
         });
@@ -3347,7 +3372,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       operationPhone.value = `+63 ${[digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean).join('-')}`;
     });
     const editableOperationTypes = ['supplier', 'purchase-order', 'inventory-item', 'invoice', 'payment'];
-    const operationActionCell = (record) => `<td data-label="Actions"><div class="table-actions">${renderActionButton({ label: 'Edit', variant: 'edit', classes: ['operation-edit', 'action-edit'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>', dataAttrs: { 'operation-id': record._id }, disabled: !editableOperationTypes.includes(record.recordType), ariaLabel: 'Edit record' })}${renderActionButton({ label: record.archived ? 'Restore' : 'Archive', variant: 'archive', classes: ['operation-archive', record.archived ? 'action-restore' : 'action-archive'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6"/></svg>', dataAttrs: { 'operation-id': record._id, archived: Boolean(record.archived) }, ariaLabel: record.archived ? 'Restore record' : 'Archive record' })}${renderActionButton({ label: 'Remove', variant: 'danger', classes: ['operation-remove', 'action-delete'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14H5V6"/><path d="M10 11v5m4-5v5"/></svg>', dataAttrs: { 'operation-id': record._id }, ariaLabel: 'Remove record' })}</div></td>`;
+    const operationActionCell = (record, compact = false) => `<td data-label="Actions"><div class="table-actions${compact ? ' inventory-row-actions' : ''}">${renderActionButton({ label: 'Edit', variant: 'edit', classes: ['operation-edit', 'action-edit'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>', dataAttrs: { 'operation-id': record._id }, disabled: !editableOperationTypes.includes(record.recordType), ariaLabel: record.recordType === 'inventory-item' ? 'Edit inventory item' : 'Edit record' })}${renderActionButton({ label: record.archived ? 'Restore' : 'Archive', variant: 'archive', classes: ['operation-archive', record.archived ? 'action-restore' : 'action-archive'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v12H5V7Zm0 0V5h14v2M9 12h6"/></svg>', dataAttrs: { 'operation-id': record._id, archived: Boolean(record.archived) }, ariaLabel: record.archived ? 'Restore record' : 'Archive record' })}${renderActionButton({ label: 'Remove', variant: 'danger', classes: ['operation-remove', 'action-delete'], icon: '<svg class="action-button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14H5V6"/><path d="M10 11v5m4-5v5"/></svg>', dataAttrs: { 'operation-id': record._id }, ariaLabel: record.recordType === 'inventory-item' ? 'Remove inventory item' : 'Remove record' })}</div></td>`;
     const operationValue = (record, key) => record?.data?.[key] ?? record?.[key] ?? '';
     const operationLabel = (record) => {
       const data = record.data || {};
@@ -3399,7 +3424,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       if (itemValues.length) push('Items', itemValues.join(', '));
       operationConfirmSummary.innerHTML = summary.length ? summary.map((item) => `<div class="confirmation-summary__item"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.value)}</strong></div>`).join('') : '<div class="confirmation-summary__item"><span>Record</span><strong>Ready to save</strong></div>';
     };
+    let inventoryPage = 1;
+    const inventoryPageSize = 5;
+    let inventoryBrandSearchTimer;
     const renderInventoryTable = (records) => {
+      window.clearTimeout(inventoryBrandSearchTimer);
       const search = String(document.getElementById('inventory-search')?.value || '').toLowerCase().trim();
       const brand = document.getElementById('inventory-brand-filter')?.value || '';
       const material = document.getElementById('inventory-material-filter')?.value || '';
@@ -3408,18 +3437,177 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const searchable = [data.brand, data.material, data.itemCode, data.colorCode, data.color, data.beginningBalance, data.receipt, data.sold, data.endingBalance].join(' ').toLowerCase();
         return (!search || searchable.includes(search)) && (!brand || data.brand === brand) && (!material || data.material === material);
       });
-      const rows = filtered.map((record) => {
+      const pageCount = Math.max(1, Math.ceil(filtered.length / inventoryPageSize));
+      inventoryPage = Math.min(inventoryPage, pageCount);
+      const pageRecords = filtered.slice((inventoryPage - 1) * inventoryPageSize, inventoryPage * inventoryPageSize);
+      const brandSummaryEntries = summarizeInventoryByBrand(filtered);
+      const summary = document.getElementById('inventory-summary');
+      if (summary) {
+        const formatBalance = (value) => Number(value).toLocaleString('en-PH', { maximumFractionDigits: 2 });
+        const previousSearch = summary.querySelector('#inventory-brand-summary-search')?.value || '';
+        const previousSort = summary.querySelector('#inventory-brand-summary-sort')?.value || 'ending-desc';
+        summary.innerHTML = `
+          <div class="inventory-summary-heading">
+            <h2 id="inventory-summary-title">Inventory Summary</h2>
+            <div class="inventory-summary-controls">
+              <input id="inventory-brand-summary-search" type="search" placeholder="Search brands" aria-label="Search inventory summary brands" value="${escapeHtml(previousSearch)}" />
+              <select id="inventory-brand-summary-sort" aria-label="Sort inventory summary brands">
+                <option value="ending-desc"${previousSort === 'ending-desc' ? ' selected' : ''}>Ending balance: high to low</option>
+                <option value="ending-asc"${previousSort === 'ending-asc' ? ' selected' : ''}>Ending balance: low to high</option>
+                <option value="brand-asc"${previousSort === 'brand-asc' ? ' selected' : ''}>Brand: A to Z</option>
+              </select>
+            </div>
+          </div>
+          <section class="inventory-summary-section" aria-labelledby="inventory-pinned-heading">
+            <h3 id="inventory-pinned-heading">Pinned</h3>
+            <div class="inventory-brand-summary-grid" data-pinned-brands></div>
+          </section>
+          <section class="inventory-summary-section" aria-labelledby="inventory-other-heading">
+            <h3 id="inventory-other-heading">Other brands</h3>
+            <div class="inventory-brand-summary-chips" data-other-brands></div>
+          </section>
+          <dialog class="inventory-brand-picker" aria-labelledby="inventory-brand-picker-title">
+            <div class="inventory-brand-picker-content">
+              <div class="inventory-brand-picker-heading">
+                <h3 id="inventory-brand-picker-title">Pin a brand</h3>
+                <button type="button" class="btn btn-secondary" data-close-brand-picker>Close</button>
+              </div>
+              <div class="inventory-brand-picker-list"></div>
+            </div>
+          </dialog>
+        `;
+        const searchInput = summary.querySelector('#inventory-brand-summary-search');
+        const sortSelect = summary.querySelector('#inventory-brand-summary-sort');
+        const pinnedGrid = summary.querySelector('[data-pinned-brands]');
+        const otherBrands = summary.querySelector('[data-other-brands]');
+        const brandPicker = summary.querySelector('.inventory-brand-picker');
+        const pickerList = summary.querySelector('.inventory-brand-picker-list');
+        const pinStorageKey = `hmVisionInventoryPinnedBrands:${user?.id || user?._id || user?.email || role}`;
+        const storedPins = localStorage.getItem(pinStorageKey);
+        let pinnedBrandNames = null;
+        if (storedPins) {
+          try {
+            const parsedPins = JSON.parse(storedPins);
+            if (Array.isArray(parsedPins) && parsedPins.every((name) => typeof name === 'string')) pinnedBrandNames = parsedPins;
+            else console.warn('Ignoring invalid saved inventory brand pins.');
+          } catch (error) {
+            if (!(error instanceof SyntaxError)) throw error;
+            console.warn('Ignoring malformed saved inventory brand pins.', error);
+          }
+        }
+        const sortedBrands = () => [...brandSummaryEntries].sort((first, second) => {
+          const sortValue = sortSelect.value;
+          if (sortValue === 'brand-asc') return first.brand.localeCompare(second.brand);
+          const balanceDifference = first.endingBalance - second.endingBalance;
+          return sortValue === 'ending-asc'
+            ? balanceDifference || first.brand.localeCompare(second.brand)
+            : -balanceDifference || first.brand.localeCompare(second.brand);
+        });
+        const currentPinnedBrands = () => {
+          if (pinnedBrandNames !== null) {
+            const storedNames = new Set(pinnedBrandNames);
+            return sortedBrands().filter(({ brand }) => storedNames.has(brand));
+          }
+          return sortedBrands().slice(0, 3);
+        };
+        const pinButton = (brand, isPinned) => `<button type="button" class="inventory-brand-pin${isPinned ? ' is-pinned' : ''}" data-toggle-brand-pin="${escapeHtml(brand)}" aria-label="${isPinned ? 'Unpin' : 'Pin'} ${escapeHtml(brand)}" aria-pressed="${isPinned}" title="${isPinned ? 'Unpin brand' : 'Pin brand'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3 21 8l-4 1-4 4-1 5-2-2-5 5 5-7-2-2 5-1 4-4z"/></svg></button>`;
+        const renderBrandCards = () => {
+          const searchValue = searchInput.value.trim().toLocaleLowerCase();
+          const pinnedNames = new Set(currentPinnedBrands().map(({ brand }) => brand));
+          const matchingBrands = sortedBrands().filter(({ brand }) => brand.toLocaleLowerCase().includes(searchValue));
+          const matchingPinned = matchingBrands.filter(({ brand }) => pinnedNames.has(brand));
+          const matchingOther = matchingBrands.filter(({ brand }) => !pinnedNames.has(brand));
+          const cardMarkup = ({ brand, beginningBalance, endingBalance }) => {
+            const delta = endingBalance - beginningBalance;
+            const deltaClass = delta > 0 ? 'inventory-brand-delta--increase' : delta < 0 ? 'inventory-brand-delta--decrease' : 'inventory-brand-delta--neutral';
+            const deltaLabel = delta > 0 ? `+${formatBalance(delta)}` : delta < 0 ? `−${formatBalance(Math.abs(delta))}` : '±0';
+            return `
+              <article class="inventory-brand-summary-card">
+                <div class="inventory-brand-summary-card-heading">
+                  <h4>${escapeHtml(brand)}</h4>
+                  ${pinButton(brand, true)}
+                </div>
+                <dl>
+                  <div><dt>Beginning</dt><dd>${formatBalance(beginningBalance)}</dd></div>
+                  <div><dt>Ending</dt><dd>${formatBalance(endingBalance)}</dd></div>
+                </dl>
+                ${delta !== 0 ? `<span class="inventory-brand-summary-delta ${deltaClass}">${deltaLabel}</span>` : ''}
+              </article>
+            `;
+          };
+          pinnedGrid.innerHTML = matchingPinned.map(cardMarkup).join('');
+          if (currentPinnedBrands().length < 3) {
+            pinnedGrid.insertAdjacentHTML('beforeend', '<button type="button" class="inventory-brand-pin-placeholder" data-open-brand-picker>+ Pin a brand</button>');
+          }
+          otherBrands.innerHTML = matchingOther.map(({ brand, beginningBalance, endingBalance }) => `
+            <div class="inventory-brand-summary-chip">
+              <span>${escapeHtml(brand)}</span>
+              <small>${formatBalance(beginningBalance)} → ${formatBalance(endingBalance)}</small>
+              ${pinButton(brand, false)}
+            </div>
+          `).join('');
+          if (!brandSummaryEntries.length) {
+            pinnedGrid.innerHTML = '<p class="inventory-summary-empty">No inventory balances available.</p>';
+            otherBrands.innerHTML = '';
+          } else if (!matchingPinned.length && !matchingOther.length) {
+            otherBrands.innerHTML = '<p class="inventory-summary-empty">No brands match your search.</p>';
+          }
+          pickerList.innerHTML = sortedBrands()
+            .filter(({ brand }) => !pinnedNames.has(brand))
+            .map(({ brand }) => `<button type="button" class="inventory-brand-picker-option" data-toggle-brand-pin="${escapeHtml(brand)}">${escapeHtml(brand)}<span>Pin</span></button>`)
+            .join('') || '<p class="inventory-summary-empty">All brands are pinned.</p>';
+        };
+        renderBrandCards();
+        searchInput.addEventListener('input', () => {
+          window.clearTimeout(inventoryBrandSearchTimer);
+          inventoryBrandSearchTimer = window.setTimeout(renderBrandCards, 200);
+        });
+        sortSelect.addEventListener('change', renderBrandCards);
+        summary.onclick = (event) => {
+          const target = event.target instanceof Element ? event.target : null;
+          const pinToggle = target?.closest('[data-toggle-brand-pin]');
+          if (pinToggle) {
+            const selectedBrand = pinToggle.getAttribute('data-toggle-brand-pin');
+            if (pinnedBrandNames === null) pinnedBrandNames = currentPinnedBrands().map(({ brand }) => brand);
+            const pinIndex = pinnedBrandNames.indexOf(selectedBrand);
+            if (pinIndex >= 0) pinnedBrandNames.splice(pinIndex, 1);
+            else pinnedBrandNames.push(selectedBrand);
+            localStorage.setItem(pinStorageKey, JSON.stringify(pinnedBrandNames));
+            renderBrandCards();
+            return;
+          }
+          if (target?.closest('[data-open-brand-picker]')) {
+            brandPicker.showModal();
+            return;
+          }
+          if (target?.closest('[data-close-brand-picker]')) brandPicker.close();
+        };
+        brandPicker.addEventListener('click', (event) => {
+          if (event.target === brandPicker) brandPicker.close();
+          else if (event.target instanceof Element && event.target.closest('[data-toggle-brand-pin]')) brandPicker.close();
+        });
+      }
+      const rows = pageRecords.map((record) => {
         const data = record.data || {};
-        return `<tr><td data-label="Brand">${escapeHtml(data.brand || '—')}</td><td data-label="Material">${escapeHtml(data.material || '—')}</td><td data-label="Item Code"><strong>${escapeHtml(data.itemCode || '—')}</strong></td><td data-label="Color Code">${escapeHtml(data.colorCode || '—')}</td><td data-label="Color">${escapeHtml(data.color || '—')}</td><td data-label="Beginning Balance" class="table-number">${Number(data.beginningBalance || 0)}</td><td data-label="Receipt" class="table-number">${Number(data.receipt || 0)}</td><td data-label="Sold" class="table-number">${Number(data.sold || 0)}</td><td data-label="Ending Balance" class="table-number">${Number(data.endingBalance || 0)}</td>${operationActionCell(record)}</tr>`;
+        return `<tr><td data-label="Brand">${escapeHtml(data.brand || '—')}</td><td data-label="Material">${escapeHtml(data.material || '—')}</td><td data-label="Item Code"><strong>${escapeHtml(data.itemCode || '—')}</strong></td><td data-label="Color Code">${escapeHtml(data.colorCode || '—')}</td><td data-label="Color">${escapeHtml(data.color || '—')}</td><td data-label="Beg. Bal." class="table-number"><span class="inventory-balance-pill">${Number(data.beginningBalance || 0)}</span></td><td data-label="Receipt" class="table-number">${Number(data.receipt || 0)}</td><td data-label="Sold" class="table-number">${Number(data.sold || 0)}</td><td data-label="End. Bal." class="table-number"><span class="inventory-balance-pill">${Number(data.endingBalance || 0)}</span></td>${operationActionCell(record, true)}</tr>`;
       }).join('');
-      operationList.innerHTML = rows ? `<div class="appointment-table-wrap"><table class="appointment-table operation-records-table inventory-table"><thead><tr><th>Brand</th><th>Material</th><th>Item Code</th><th>Color Code</th><th>Color</th><th>Beginning Balance</th><th>Receipt</th><th>Sold</th><th>Ending Balance</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-appointments">No inventory items match the selected filters.</p>';
+      const pagination = `<div class="pagination inventory-pagination" aria-label="Inventory pages">${paginationSummary(filtered.length, inventoryPage, inventoryPageSize)}${filtered.length > inventoryPageSize ? `<button type="button" class="btn btn-secondary" data-inventory-page="prev" ${inventoryPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${inventoryPage} of ${pageCount}</span><button type="button" class="btn btn-secondary" data-inventory-page="next" ${inventoryPage === pageCount ? 'disabled' : ''}>Next</button>` : ''}</div>`;
+      operationList.innerHTML = `${rows ? `<div class="appointment-table-wrap"><table class="appointment-table operation-records-table inventory-table"><thead><tr><th scope="col">Brand</th><th scope="col">Material</th><th scope="col">Item Code</th><th scope="col">Color Code</th><th scope="col">Color</th><th scope="col">Beg. Bal.</th><th scope="col">Receipt</th><th scope="col">Sold</th><th scope="col">End. Bal.</th><th scope="col">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-appointments">No inventory items match the selected filters.</p>'}${pagination}`;
+      operationList.querySelectorAll('.inventory-row-actions button').forEach((button) => { button.title = button.getAttribute('aria-label') || 'Inventory action'; });
+      operationList.querySelector('[data-inventory-page="prev"]')?.addEventListener('click', () => { inventoryPage -= 1; renderInventoryTable(records); });
+      operationList.querySelector('[data-inventory-page="next"]')?.addEventListener('click', () => { inventoryPage += 1; renderInventoryTable(records); });
       bindOperationActions(records);
       document.getElementById('inventory-export')?.replaceWith(Object.assign(document.createElement('button'), { type: 'button', id: 'inventory-export', className: 'btn btn-secondary', textContent: 'Export CSV' }));
-      document.getElementById('inventory-export')?.addEventListener('click', () => {
-        const headers = ['Brand', 'Material', 'Item Code', 'Color Code', 'Color', 'Beginning Balance', 'Receipt', 'Sold', 'Ending Balance'];
-        const csvRows = filtered.map(({ data = {} }) => [data.brand, data.material, data.itemCode, data.colorCode, data.color, data.beginningBalance, data.receipt, data.sold, data.endingBalance].map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`).join(','));
-        const blob = new Blob([[headers.join(','), ...csvRows].join('\n')], { type: 'text/csv' });
-        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'inventory.csv'; link.click(); URL.revokeObjectURL(link.href);
+      document.getElementById('inventory-export')?.addEventListener('click', async () => {
+        if (!await startInventoryTransfer('Exporting inventory', 'Preparing the CSV download...')) return;
+        try {
+          const headers = ['Brand', 'Material', 'Item Code', 'Color Code', 'Color', 'Beginning Balance', 'Receipt', 'Sold', 'Ending Balance'];
+          const csvRows = filtered.map(({ data = {} }) => [data.brand, data.material, data.itemCode, data.colorCode, data.color, data.beginningBalance, data.receipt, data.sold, data.endingBalance].map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`).join(','));
+          const blob = new Blob([[headers.join(','), ...csvRows].join('\n')], { type: 'text/csv' });
+          const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'inventory.csv'; link.click(); URL.revokeObjectURL(link.href);
+        } finally {
+          finishInventoryTransfer();
+        }
       });
     };
     const renderOperations = (records) => {
@@ -3644,7 +3832,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     });
     ['inventory-search', 'inventory-brand-filter', 'inventory-material-filter'].forEach((id) => {
       const control = document.getElementById(id);
-      control?.addEventListener(control.tagName === 'SELECT' ? 'change' : 'input', () => { void loadOperations(); });
+      control?.addEventListener(control.tagName === 'SELECT' ? 'change' : 'input', () => { inventoryPage = 1; void loadOperations(); });
     });
     loadOperations().catch((error) => { if (operationList) operationList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
 
@@ -4019,7 +4207,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             const locked = Number(data.paid || 0) > 0 || data.status === 'cancelled';
             return `<tr class="${data.status === 'overdue' ? 'is-overdue' : ''}"><td data-label="Invoice"><strong>${escapeHtml(data.invoiceNumber)}</strong></td><td data-label="Customer">${escapeHtml(data.patientName)}<small>${escapeHtml(data.customerEmail || data.customerPhone || '')}</small></td><td data-label="Date">${escapeHtml(data.invoiceDate || '—')}</td><td data-label="Due">${escapeHtml(data.dueDate || '—')}</td><td data-label="Total" class="table-number">${peso(data.total)}</td><td data-label="Paid" class="table-number">${peso(data.paid)}</td><td data-label="Balance" class="table-number">${peso(data.balance)}</td><td data-label="Status"><span class="${statusClass(data.status)}">${statusLabel(data.status)}</span></td><td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary" data-billing-view="invoice" data-id="${invoice._id}">View</button><button type="button" class="btn btn-secondary action-edit" data-billing-edit="${invoice._id}" ${locked ? 'disabled' : ''}>Edit</button><button type="button" class="btn btn-secondary action-delete" data-billing-cancel="${invoice._id}" ${locked ? 'disabled' : ''}>Cancel</button></div></td></tr>`;
           }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No invoices match these filters.</p>';
-          billingPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${billingPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${billingPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${billingPage === pages ? 'disabled' : ''}>Next</button>` : '';
+          billingPagination.innerHTML = `${paginationSummary(filtered.length, billingPage, billingPageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${billingPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${billingPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${billingPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
           billingPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { billingPage -= 1; renderBilling(); });
           billingPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { billingPage += 1; renderBilling(); });
           return;
@@ -4037,7 +4225,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             const data = invoice.data || {};
             return `<tr class="${data.status === 'overdue' ? 'is-overdue' : ''}"><td data-label="Customer">${escapeHtml(data.patientName)}</td><td data-label="Invoice">${escapeHtml(data.invoiceNumber)}</td><td data-label="Invoice date">${escapeHtml(data.invoiceDate || '—')}</td><td data-label="Due date">${escapeHtml(data.dueDate || '—')}</td><td data-label="Total" class="table-number">${peso(data.total)}</td><td data-label="Paid" class="table-number">${peso(data.paid)}</td><td data-label="Outstanding" class="table-number">${peso(data.balance)}</td><td data-label="Status"><span class="${statusClass(data.status)}">${statusLabel(data.status)}</span></td><td data-label="Days overdue">${invoice.daysOverdue || 0}</td><td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary" data-billing-view="invoice" data-id="${invoice._id}">View</button><button type="button" class="btn btn-primary" data-billing-pay="${invoice._id}">Record payment</button><button type="button" class="btn btn-secondary" data-billing-remind="${invoice._id}">Remind</button></div></td></tr>`;
           }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No outstanding balances.</p>';
-          billingPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${billingPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${billingPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${billingPage === pages ? 'disabled' : ''}>Next</button>` : '';
+          billingPagination.innerHTML = `${paginationSummary(filtered.length, billingPage, billingPageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${billingPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${billingPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${billingPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
           billingPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { billingPage -= 1; renderBilling(); });
           billingPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { billingPage += 1; renderBilling(); });
           return;
@@ -4060,7 +4248,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           const reversed = data.status === 'reversed';
           return `<tr><td data-label="Payment ID"><small>${escapeHtml(payment._id)}</small></td><td data-label="Receipt">${escapeHtml(data.receiptNumber || '—')}</td><td data-label="Customer">${escapeHtml(data.patientName || '—')}</td><td data-label="Invoice">${escapeHtml(data.invoiceNumber || '—')}</td><td data-label="Date">${escapeHtml(data.paymentDate || '—')}</td><td data-label="Amount" class="table-number">${peso(data.amount)}</td><td data-label="Method">${escapeHtml(data.method || '—')}</td><td data-label="Reference">${escapeHtml(data.reference || '—')}</td><td data-label="Recorded by">${escapeHtml(payment.createdBy?.name || data.recordedBy || '—')}</td><td data-label="Status"><span class="${statusClass(data.status)}">${statusLabel(data.status)}</span></td><td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary" data-billing-view="payment" data-id="${payment._id}">View</button>${reversed ? '' : `<button type="button" class="btn btn-secondary action-delete" data-billing-reverse="${payment._id}">Reverse</button>`}</div></td></tr>`;
         }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No payments match these filters.</p>';
-        billingPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${billingPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${billingPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${billingPage === pages ? 'disabled' : ''}>Next</button>` : '';
+        billingPagination.innerHTML = `${paginationSummary(filtered2.length, billingPage, billingPageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${billingPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${billingPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${billingPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
         billingPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { billingPage -= 1; renderBilling(); });
         billingPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { billingPage += 1; renderBilling(); });
       };
@@ -4429,7 +4617,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         appointmentPage = Math.min(appointmentPage, pages);
         const visible = filtered.slice((appointmentPage - 1) * pageSize, appointmentPage * pageSize);
         appointmentList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th scope="col">Examination / Appointment</th><th scope="col">Patient</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>${visible.map((item) => `<tr><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service)}</strong></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></td><td data-label="Actions"><div class="appointment-actions">${appointmentActions(item)}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="empty-appointments">No appointments match these filters.</p>';
-        appointmentPagination.innerHTML = pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : '';
+        appointmentPagination.innerHTML = `${paginationSummary(filtered.length, appointmentPage, pageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
         appointmentPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { appointmentPage -= 1; renderAppointmentPage(); });
         appointmentPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { appointmentPage += 1; renderAppointmentPage(); });
         appointmentList.querySelectorAll('.appointment-action').forEach((button) => button.addEventListener('click', async () => {
