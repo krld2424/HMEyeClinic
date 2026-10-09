@@ -52,6 +52,7 @@ export const publicAppointmentPayload = (appointment) => {
     service: source.service,
     preferredDate: source.preferredDate,
     preferredTime: source.preferredTime,
+    lastReschedule: source.lastReschedule || null,
     status: source.status,
     userId: source.userId ? String(source.userId) : null,
     message: source.message,

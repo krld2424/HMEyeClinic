@@ -1661,6 +1661,43 @@ textarea {
   width: 100%;
 }
 
+.appointment-reschedule-comparison {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.appointment-reschedule-comparison > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.appointment-reschedule-comparison > div > span,
+.appointment-confirmation-previous-row {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.appointment-reschedule-comparison > div:first-child del {
+  color: var(--muted);
+}
+
+.appointment-reschedule-comparison > div:last-child strong {
+  color: var(--heading);
+}
+
+.appointment-reschedule-arrow {
+  color: var(--muted);
+}
+
+.appointment-confirmation-previous-row {
+  margin-top: -0.35rem;
+}
+
 .appointment-confirmation-meta {
   color: rgba(15, 23, 42, 0.74);
   font-size: 0.64rem;

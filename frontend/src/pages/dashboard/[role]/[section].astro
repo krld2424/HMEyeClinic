@@ -651,6 +651,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                     <div class="confirmation-actions"><button type="button" class="btn btn-secondary" id="appointment-reschedule-cancel">Cancel</button><button type="button" class="btn btn-primary" id="appointment-reschedule-confirm">Confirm reschedule</button></div>
                   </div>
                 </dialog>
+                <dialog id="appointment-reschedule-review-dialog" class="confirmation-dialog appointment-reschedule-dialog" aria-labelledby="appointment-reschedule-review-title">
+                  <div class="confirmation-dialog__content">
+                    <div class="dialog-header-row"><h3 id="appointment-reschedule-review-title">Appointment rescheduled</h3></div>
+                    <p id="appointment-reschedule-review-copy" class="booking-result-message"></p>
+                    <div id="appointment-reschedule-comparison" class="appointment-reschedule-comparison"></div>
+                    <p id="appointment-reschedule-review-error" class="form-status error" aria-live="polite"></p>
+                    <div class="confirmation-actions"><button type="button" class="btn btn-secondary" id="appointment-reschedule-edit">Edit date</button><button type="button" class="btn btn-primary" id="appointment-reschedule-commit">Confirm</button></div>
+                  </div>
+                </dialog>
                 <dialog id="appointment-detail-dialog" class="confirmation-dialog appointment-detail-dialog">
                   <div class="confirmation-dialog__content">
                     <div class="dialog-header-row"><h3 id="appointment-detail-title">Appointment details</h3><button type="button" class="btn btn-secondary btn-icon" id="appointment-detail-close" aria-label="Close appointment details">×</button></div>
@@ -1294,6 +1303,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const rescheduleSummary = document.getElementById('appointment-reschedule-summary');
     const rescheduleError = document.getElementById('appointment-reschedule-error');
     const rescheduleConfirm = document.getElementById('appointment-reschedule-confirm');
+    const rescheduleReviewDialog = document.getElementById('appointment-reschedule-review-dialog');
+    const rescheduleReviewCopy = document.getElementById('appointment-reschedule-review-copy');
+    const rescheduleComparison = document.getElementById('appointment-reschedule-comparison');
+    const rescheduleReviewError = document.getElementById('appointment-reschedule-review-error');
+    const rescheduleCommit = document.getElementById('appointment-reschedule-commit');
     const appointmentDetailDialog = document.getElementById('appointment-detail-dialog');
     const appointmentDetailTitle = document.getElementById('appointment-detail-title');
     const appointmentDetailContent = document.getElementById('appointment-detail-content');
@@ -1349,6 +1363,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       rescheduleError && (rescheduleError.textContent = '');
       rescheduleDialog?.close();
     };
+
+    const formatScheduleValue = (date, time) => `${date ? new Date(`${date}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date unavailable'}${time ? `, ${formatTo12Hour(time)}` : ''}`;
 
     const closeCorrectionDialog = () => {
       pendingCompletedCorrection = null;
@@ -1710,26 +1726,46 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         return;
       }
       const { appointment } = pendingReschedule;
-      const newDate = rescheduleDateInput.value;
-      const newTime = rescheduleTimeInput.value;
-      rescheduleConfirm.disabled = true;
+      pendingReschedule = { ...pendingReschedule, newDate: rescheduleDateInput.value, newTime: rescheduleTimeInput.value };
+      if (rescheduleReviewCopy) rescheduleReviewCopy.textContent = `${appointment.name}'s appointment has been moved. Please confirm the new schedule works before notifying the patient.`;
+      if (rescheduleComparison) rescheduleComparison.innerHTML = `<div><span>Previous</span><del>${escapeHtml(formatScheduleValue(appointment.preferredDate, appointment.preferredTime))}</del></div><span class="appointment-reschedule-arrow" aria-hidden="true">→</span><div><span>New</span><strong>${escapeHtml(formatScheduleValue(pendingReschedule.newDate, pendingReschedule.newTime))}</strong></div>`;
+      rescheduleError && (rescheduleError.textContent = '');
+      rescheduleDialog?.close();
+      rescheduleReviewDialog?.showModal();
+    });
+    rescheduleCommit?.addEventListener('click', async () => {
+      if (!pendingReschedule?.newDate || !pendingReschedule?.newTime) return;
+      const { appointment, newDate, newTime } = pendingReschedule;
+      rescheduleCommit.disabled = true;
       try {
         const response = await fetch(`${api}/api/appointments/${appointment._id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: 'rescheduled', preferredDate: newDate, preferredTime: newTime }) });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.message || 'The appointment could not be rescheduled.');
-        appointments = appointments.map((item) => item._id === appointment._id ? { ...item, status: 'rescheduled', preferredDate: newDate, preferredTime: newTime } : item);
-        closeRescheduleDialog();
-        showAppointmentActionStatus('Appointment rescheduled successfully.', 'success');
+        appointments = appointments.map((item) => item._id === appointment._id ? { ...item, status: 'rescheduled', preferredDate: newDate, preferredTime: newTime, lastReschedule: result.appointment?.lastReschedule || { previousDate: appointment.preferredDate, previousTime: appointment.preferredTime, newDate, newTime } } : item);
+        pendingReschedule = null;
+        rescheduleReviewDialog?.close();
+        showAppointmentActionStatus('Appointment rescheduled and patient notified.', 'success');
         renderAppointmentStats();
         appointmentCalendarCursor = new Date(`${newDate}T00:00:00`);
         renderMainAppointmentCalendar();
         renderAppointmentPage();
       } catch (error) {
-        if (rescheduleError) rescheduleError.textContent = error.message || 'The appointment could not be rescheduled.';
+        if (rescheduleReviewError) rescheduleReviewError.textContent = error.message || 'The appointment could not be rescheduled.';
         showAppointmentActionStatus(error.message || 'The appointment could not be rescheduled.', 'error');
       } finally {
-        rescheduleConfirm.disabled = false;
+        rescheduleCommit.disabled = false;
       }
+    });
+    document.getElementById('appointment-reschedule-edit')?.addEventListener('click', () => {
+      if (!pendingReschedule) return;
+      rescheduleReviewDialog?.close();
+      rescheduleDateInput.value = pendingReschedule.newDate;
+      rescheduleDialog?.showModal();
+      loadRescheduleTimes(pendingReschedule.newDate, pendingReschedule.newTime);
+    });
+    rescheduleReviewDialog?.addEventListener('cancel', () => {
+      pendingReschedule = null;
+      if (rescheduleReviewError) rescheduleReviewError.textContent = '';
     });
     document.getElementById('appointment-reschedule-close')?.addEventListener('click', closeRescheduleDialog);
     document.getElementById('appointment-reschedule-cancel')?.addEventListener('click', closeRescheduleDialog);
@@ -1937,7 +1973,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             }
 
             const confirmedAppointment = [...appointments]
-              .filter((appointment) => ['confirmed', 'scheduled', 'accepted'].includes(String(appointment.status || '').toLowerCase()))
+              .filter((appointment) => ['confirmed', 'scheduled', 'accepted', 'rescheduled'].includes(String(appointment.status || '').toLowerCase()))
               .sort((left, right) => {
                 const leftValue = new Date(`${left.preferredDate || '1970-01-01'}T${left.preferredTime || '00:00'}:00`).getTime();
                 const rightValue = new Date(`${right.preferredDate || '1970-01-01'}T${right.preferredTime || '00:00'}:00`).getTime();
@@ -2319,11 +2355,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const showAcceptedBookingConfirmation = (appointment) => {
       if (!appointment || role !== 'patient' || !bookingConfirmedModal || !bookingConfirmedTitle || !bookingConfirmedMessage || !bookingConfirmedDetails) return;
       const normalizedStatus = String(appointment.status || '').toLowerCase();
-      if (!['confirmed', 'scheduled', 'accepted'].includes(normalizedStatus)) return;
+      const isRescheduled = normalizedStatus === 'rescheduled';
+      if (!['confirmed', 'scheduled', 'accepted', 'rescheduled'].includes(normalizedStatus)) return;
 
       const patientName = user?.name || 'There';
       const patientFirstName = patientName.split(' ')[0] || 'There';
-      const appointmentKey = `${appointment._id || appointment.service || 'appointment'}:${appointment.preferredDate || ''}:${appointment.preferredTime || ''}`;
+      const appointmentKey = `${appointment._id || appointment.service || 'appointment'}:${appointment.preferredDate || ''}:${appointment.preferredTime || ''}:${appointment.lastReschedule?.rescheduledAt || ''}`;
       const stored = getStoredAcceptedBooking();
       if (stored && stored.id === appointmentKey) return;
 
@@ -2340,7 +2377,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <path d="M14 22h36M20 12V8m24 4V8M22 34l8 8 15-18" class="appointment-confirmation-calendar-mark"></path>
             </svg>
           </div>
-          <p class="appointment-confirmation-headline">${escapeHtml(patientFirstName)}, your appointment has been confirmed.</p>
+          <p class="appointment-confirmation-headline">${escapeHtml(patientFirstName)}, ${isRescheduled ? 'your appointment has been rescheduled.' : 'your appointment has been confirmed.'}</p>
           <div class="appointment-confirmation-summary-row">
             <span class="appointment-confirmation-time">${escapeHtml(formatTo12Hour(appointment.preferredTime || 'Time to be confirmed'))}</span>
             <span class="appointment-confirmation-divider">|</span>
@@ -2349,8 +2386,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           <div class="appointment-confirmation-meta-row">
             <span class="appointment-confirmation-meta">${escapeHtml(formattedDate)}</span>
           </div>
+          ${isRescheduled && appointment.lastReschedule?.previousDate ? `<div class="appointment-confirmation-previous-row"><span>Previously: <s>${escapeHtml(formatScheduleValue(appointment.lastReschedule.previousDate, appointment.lastReschedule.previousTime))}</s></span></div>` : ''}
           <div class="appointment-confirmation-detail-row">
-            <span class="appointment-status status-confirmed" style="text-transform: uppercase;">SCHEDULED</span>
+            <span class="appointment-status ${isRescheduled ? 'status-rescheduled' : 'status-confirmed'}" style="text-transform: uppercase;">${isRescheduled ? 'RESCHEDULED' : 'SCHEDULED'}</span>
           </div>
         </div>
       `;
