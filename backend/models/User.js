@@ -32,6 +32,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    mustResetPassword: { type: Boolean, default: false },
     role: {
       type: String,
       enum: ['patient', 'owner', 'optometrist', 'eye-care-assistant'],

@@ -6938,6 +6938,8 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   background: rgba(34, 197, 94, 0.12);
   color: #1f8f4a !important;
 }
+.appointment-status.status-checked-in { background: #e4f5f2; color: #11685f; }
+.appointment-status.status-in-progress { background: #eee9fb; color: #5b42a1; }
 
 .appointment-status.status-pending {
   background: rgba(245, 158, 11, 0.12);

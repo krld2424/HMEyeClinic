@@ -1,0 +1,66 @@
+---
+const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Live Queue Status | HM VisionSync</title>
+  </head>
+  <body>
+    <main class="queue-status-card">
+      <p class="eyebrow">Hernandez Mercado Eye Clinic</p>
+      <h1>Live Queue Status</h1>
+      <p id="queue-status-message" role="status">Loading your ticket…</p>
+      <div id="queue-status-details" hidden>
+        <p class="queue-number">Queue <strong id="queue-number">—</strong></p>
+        <p>Service <strong id="queue-service">—</strong></p>
+        <p>Date <strong id="queue-date">—</strong></p>
+        <p>Status <strong id="queue-state">—</strong></p>
+        <p>Position <strong id="queue-position">—</strong></p>
+        <p>Estimated wait <strong id="queue-wait">—</strong></p>
+      </div>
+      <small>Updates automatically every 15 seconds.</small>
+    </main>
+  </body>
+</html>
+
+<style>
+  :global(*) { box-sizing: border-box; }
+  :global(body) { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 1rem; background: #f2f7f6; color: #17343a; font: 16px/1.5 system-ui, sans-serif; }
+  .queue-status-card { width: min(100%, 460px); padding: 2rem; border: 1px solid #d6e2e0; border-radius: 18px; background: #fff; box-shadow: 0 16px 50px #17343a14; }
+  .eyebrow { color: #187d72; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; }
+  h1 { margin: .2rem 0 1rem; font-size: 1.6rem; }
+  #queue-status-details { border-top: 1px solid #e0e8e7; margin-top: 1rem; padding-top: .5rem; }
+  #queue-status-details p { display: flex; justify-content: space-between; gap: 1rem; }
+  .queue-number { font-size: 1.3rem; }
+  small { display: block; margin-top: 1.5rem; color: #627477; }
+</style>
+
+<script define:vars={{ api }}>
+  const params = new URLSearchParams(window.location.search);
+  const queueToken = params.get('token');
+  const message = document.getElementById('queue-status-message');
+  const details = document.getElementById('queue-status-details');
+  const get = (id) => document.getElementById(id);
+  const loadStatus = async () => {
+    if (!queueToken) { message.textContent = 'This ticket link is missing its queue code.'; return; }
+    try {
+      const response = await fetch(`${api}/api/appointments/queue/status/${encodeURIComponent(queueToken)}`, { cache: 'no-store' });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load this queue ticket.');
+      get('queue-number').textContent = `#${result.queueNumber}`;
+      get('queue-service').textContent = result.service;
+      get('queue-date').textContent = result.date;
+      get('queue-state').textContent = result.status.replace(/_/g, ' ');
+      const isFinished = ['completed', 'cancelled', 'no-show', 'rejected'].includes(result.status);
+      get('queue-position').textContent = result.position ? `${result.position}` : isFinished ? '—' : 'Updating';
+      get('queue-wait').textContent = result.position ? `About ${result.estimatedWaitMinutes} minutes` : isFinished ? 'No wait' : 'Updating';
+      details.hidden = false;
+      message.textContent = result.status === 'in_progress' ? 'You are being seen now.' : result.status === 'completed' ? 'Your visit is complete.' : ['cancelled', 'no-show', 'rejected'].includes(result.status) ? 'This queue ticket is no longer active.' : 'Your place in the queue is up to date.';
+    } catch (error) { message.textContent = error.message; }
+  };
+  loadStatus();
+  window.setInterval(loadStatus, 15000);
+</script>

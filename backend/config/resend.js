@@ -33,3 +33,18 @@ export const sendPatientRegistrationOtp = async (email, otp) => {
   if (result.error) throw new Error(result.error.message || 'Resend rejected the email.');
   return result.data;
 };
+
+export const sendWalkInAccountInvite = async ({ email, name, temporaryPassword, loginUrl = '' }) => {
+  if (!process.env.RESEND_API_KEY || !process.env.MAIL_FROM) {
+    throw new Error('Patient account invitation email is not configured.');
+  }
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const result = await resend.emails.send({
+    from: process.env.MAIL_FROM,
+    to: email,
+    subject: 'Your Hernandez Mercado Eye Clinic account',
+    html: `<p>Hello ${String(name).replace(/[&<>"']/g, '')},</p><p>Your patient account is ready. Use this temporary password to sign in: <strong>${String(temporaryPassword).replace(/[&<>"']/g, '')}</strong></p><p>You must reset your password before accessing your account.</p>${loginUrl ? `<p><a href="${loginUrl}">Sign in</a></p>` : ''}`,
+  });
+  if (result.error) throw new Error(result.error.message || 'Resend rejected the invitation email.');
+  return result.data;
+};

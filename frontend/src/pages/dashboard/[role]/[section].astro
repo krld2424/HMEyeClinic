@@ -688,12 +688,25 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             </div>
           )}
 
-          {section === 'today-patients' && ['owner', 'optometrist'].includes(role) && (
-            <div class="workflow-list appointments-workspace">
-              <div class="list-toolbar"><input id="today-patient-search" type="search" placeholder="Search patient or service" /><select id="today-patient-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select><input id="today-patient-date" type="date" aria-label="Today's patient date" /></div>
-              <div id="today-patient-list" class="appointment-list"><p class="empty-appointments">Loading today's patients...</p></div>
-              <div id="today-patient-pagination" class="pagination" aria-label="Today's patient pages"></div>
+          {section === 'check-in' && role === 'eye-care-assistant' && (
+            <div class="workflow-list walk-in-workspace">
+              <div class="list-toolbar"><input id="walk-in-patient-search" type="search" placeholder="Find patient by name or phone" /><div id="walk-in-patient-results" class="patient-account-results" role="listbox"></div></div>
+              <form id="walk-in-form" class="workflow-form">
+                <h2>Register walk-in patient</h2>
+                <input type="hidden" name="patientId" />
+                <div class="field-row"><div class="field-group"><label for="walk-in-surname">Surname</label><input id="walk-in-surname" name="surname" required /></div><div class="field-group"><label for="walk-in-name">Name</label><input id="walk-in-name" name="name" required /></div><div class="field-group"><label for="walk-in-date">Date</label><input id="walk-in-date" name="date" type="date" /></div></div>
+                <div class="field-row"><div class="field-group"><label for="walk-in-brgy">Brgy</label><input id="walk-in-brgy" name="brgy" /></div><div class="field-group"><label for="walk-in-town">Town</label><input id="walk-in-town" name="town" /></div><div class="field-group"><label for="walk-in-age">Age</label><input id="walk-in-age" name="age" type="number" min="0" max="120" /></div><div class="field-group"><label for="walk-in-phone">Contact Number</label><input id="walk-in-phone" name="phone" required /></div><div class="field-group"><label for="walk-in-gender">Gender</label><input id="walk-in-gender" name="gender" /></div></div>
+                <div class="field-row"><div class="field-group"><label for="walk-in-service">Service needed</label><select id="walk-in-service" name="service" required><option value="">Select a service</option><option>Comprehensive Eye Examination</option><option>Vision Assessment</option><option>Eye Health Screening</option><option>Optical Consultation</option></select></div></div>
+                <div class="patient-referral-section"><h5>Referral Information</h5><div class="field-row"><div class="field-group"><label for="walk-in-referred-by">Referred by</label><input id="walk-in-referred-by" name="referredBy" /></div><div class="field-group"><label for="walk-in-person">Person</label><input id="walk-in-person" name="person" /></div><div class="field-group"><label for="walk-in-hospital">Hospital</label><input id="walk-in-hospital" name="hospital" /></div><div class="field-group"><label for="walk-in-online">Online: FB/IG</label><select id="walk-in-online" name="online"><option value="">Select platform</option><option>Facebook</option><option>Instagram</option></select></div><div class="field-group"><label for="walk-in-passed-by">Passed by</label><input id="walk-in-passed-by" name="passedBy" /></div></div></div>
+                <fieldset class="walk-in-account-choice"><legend>Would this patient like an account created?</legend><label><input type="radio" name="accountRequested" value="no" checked /> No</label><label><input type="radio" name="accountRequested" value="yes" /> Yes</label><div class="field-group" id="walk-in-account-email-group" hidden><label for="walk-in-account-email">Email for account invitation</label><input id="walk-in-account-email" name="accountEmail" type="email" autocomplete="email" /></div></fieldset>
+                <button type="submit" class="btn btn-primary">Add to today’s queue</button><p id="walk-in-status" class="form-status" aria-live="polite"></p>
+              </form>
+              <section class="walk-in-ticket" id="walk-in-ticket" hidden></section>
             </div>
+          )}
+
+          {(section === 'clinic-queue' || section === 'today-patients') && ['owner', 'optometrist', 'eye-care-assistant'].includes(role) && (
+            <section class="workflow-list clinic-queue-workspace" aria-labelledby="clinic-queue-title"><div class="list-toolbar"><div><h2 id="clinic-queue-title">Today's Queue</h2><p id="clinic-queue-date" class="clinic-queue-date">Loading date...</p></div><button type="button" class="btn btn-secondary" id="clinic-queue-refresh">Refresh</button></div><p id="clinic-queue-status" class="form-status" aria-live="polite"></p><div id="clinic-queue-list" class="appointment-list"><p class="empty-appointments">Loading today's queue...</p></div></section>
           )}
 
           {section === 'follow-ups' && (
@@ -793,7 +806,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                     <div class="dialog-header-row"><h3>Add New Patient Record</h3><button type="button" class="btn btn-secondary btn-icon" id="patient-record-close" aria-label="Close patient record form">×</button></div>
                     <form id="patient-record-form" class="workflow-form patient-record-form" novalidate>
                       <nav class="patient-progress" aria-label="Patient record steps"><button type="button" class="patient-progress-step is-current" data-step-target="0">Patient Record</button><button type="button" class="patient-progress-step" data-step-target="1">History</button><button type="button" class="patient-progress-step" data-step-target="2">Refraction</button><button type="button" class="patient-progress-step" data-step-target="3">Ocular Health</button><button type="button" class="patient-progress-step" data-step-target="4">Management</button><button type="button" class="patient-progress-step" data-step-target="5">Test</button><button type="button" class="patient-progress-step" data-step-target="6">Claim Stub</button></nav>
-                      <section class="patient-form-section patient-form-step" data-step="0"><h4>Patient Record</h4><div class="field-group"><label for="patient-account-search">Search name, patient ID, email, or contact number</label><input id="patient-account-search" type="search" autocomplete="off" placeholder="Search existing patient account" /><div id="patient-account-results" class="patient-account-results" role="listbox"></div></div><input id="patient-account-id" name="patientId" type="hidden" /><p id="patient-account-selection" class="form-status">No account selected. Complete the manual patient fields below for a walk-in patient.</p><div class="field-row"><div class="field-group"><label for="patient-surname">Surname</label><input id="patient-surname" name="surname" required /></div><div class="field-group"><label for="patient-name">Name</label><input id="patient-name" name="name" required /></div><div class="field-group"><label for="patient-date">Date</label><input id="patient-date" name="date" type="date" /></div><div class="field-group"><label for="patient-referred-by">Referred by</label><input id="patient-referred-by" name="referredBy" /></div></div><div class="field-row"><div class="field-group"><label for="patient-brgy">Brgy</label><input id="patient-brgy" name="brgy" /></div><div class="field-group"><label for="patient-town">Town</label><input id="patient-town" name="town" /></div><div class="field-group"><label for="patient-age">Age</label><input id="patient-age" name="age" type="number" min="0" max="120" /></div><div class="field-group"><label for="patient-person">Person</label><input id="patient-person" name="person" /></div><div class="field-group"><label for="patient-online">Online FB/IG</label><input id="patient-online" name="online" /></div></div><div class="field-row"><div class="field-group"><label for="patient-contact">Contact Number</label><input id="patient-contact" name="phone" required /></div><div class="field-group"><label for="patient-gender">Gender</label><input id="patient-gender" name="gender" /></div><div class="field-group"><label for="patient-hospital">Hospital</label><input id="patient-hospital" name="hospital" /></div><div class="field-group"><label for="patient-passed-by">Passed by</label><input id="patient-passed-by" name="passedBy" /></div></div></section>
+                      <section class="patient-form-section patient-form-step" data-step="0"><h4>Patient Record</h4><div class="field-group"><label for="patient-account-search">Search name, patient ID, email, or contact number</label><input id="patient-account-search" type="search" autocomplete="off" placeholder="Search existing patient account" /><div id="patient-account-results" class="patient-account-results" role="listbox"></div></div><input id="patient-account-id" name="patientId" type="hidden" /><p id="patient-account-selection" class="form-status">No account selected. Complete the manual patient fields below for a walk-in patient.</p><div class="field-row"><div class="field-group"><label for="patient-surname">Surname</label><input id="patient-surname" name="surname" required /></div><div class="field-group"><label for="patient-name">Name</label><input id="patient-name" name="name" required /></div><div class="field-group"><label for="patient-date">Date</label><input id="patient-date" name="date" type="date" /></div></div><div class="field-row"><div class="field-group"><label for="patient-service">Service needed</label><select id="patient-service" name="service"><option value="">Select a service</option><option>Comprehensive Eye Examination</option><option>Vision Assessment</option><option>Eye Health Screening</option><option>Optical Consultation</option></select></div><div class="field-group"><label for="patient-brgy">Brgy</label><input id="patient-brgy" name="brgy" /></div><div class="field-group"><label for="patient-town">Town</label><input id="patient-town" name="town" /></div><div class="field-group"><label for="patient-age">Age</label><input id="patient-age" name="age" type="number" min="0" max="120" /></div></div><div class="patient-referral-section"><h5>Referral Information</h5><div class="field-row"><div class="field-group"><label for="patient-referred-by">Referred by</label><input id="patient-referred-by" name="referredBy" /></div><div class="field-group"><label for="patient-person">Person</label><input id="patient-person" name="person" /></div><div class="field-group"><label for="patient-hospital">Hospital</label><input id="patient-hospital" name="hospital" /></div><div class="field-group"><label for="patient-online">Online: FB/IG</label><select id="patient-online" name="online"><option value="">Select platform</option><option value="Facebook">Facebook</option><option value="Instagram">Instagram</option></select></div><div class="field-group"><label for="patient-passed-by">Passed by</label><input id="patient-passed-by" name="passedBy" /></div></div></div><div class="field-row"><div class="field-group"><label for="patient-contact">Contact Number</label><input id="patient-contact" name="phone" required /></div><div class="field-group"><label for="patient-gender">Gender</label><input id="patient-gender" name="gender" /></div></div></section>
                       <section class="patient-form-section patient-form-step" data-step="1"><h4>History</h4><div class="field-group"><label for="patient-complaints">Complaints</label><textarea id="patient-complaints" name="complaints" rows="2"></textarea></div><div class="field-group"><label for="patient-activities">Activities</label><textarea id="patient-activities" name="activities" rows="2"></textarea></div><div class="field-group"><label for="patient-ocular-history">Ocular</label><textarea id="patient-ocular-history" name="ocularHistory" rows="2"></textarea></div><div class="field-row"><div class="field-group"><label for="patient-health">Health</label><input id="patient-health" name="health" /></div><div class="field-group"><label for="patient-allergies">Aller</label><input id="patient-allergies" name="allergies" /></div><div class="field-group"><label for="patient-bp">BP</label><input id="patient-bp" name="bp" placeholder="____ / ____" /></div></div></section>
                       <section class="patient-form-section patient-form-step" data-step="2"><h4>Refraction</h4><div class="record-form-grid refraction-grid"><strong></strong><strong>Present</strong><strong>HVA</strong><strong>UVA</strong><strong>Full</strong><strong>BCVA</strong><strong>Final</strong><strong>MPD</strong><strong>OD</strong><input name="odPresent" /><input name="odHva" placeholder="20/" /><input name="odUva" placeholder="20/" /><input name="odFull" /><input name="odBcva" placeholder="20/" /><input name="odFinal" /><input name="odMpd" /><strong>OS</strong><input name="osPresent" /><input name="osHva" placeholder="20/" /><input name="osUva" placeholder="20/" /><input name="osFull" /><input name="osBcva" placeholder="20/" /><input name="osFinal" /><input name="osMpd" /><span></span><span></span><span></span><span></span><input name="refractionN" placeholder="N" /><input name="refractionAt" placeholder="@" /><input name="refractionCm" placeholder="cm" /><span></span></div></section>
                       <section class="patient-form-section patient-form-step" data-step="3"><h4>Ocular Health</h4><div class="record-form-grid ocular-grid"><strong>Internal OD</strong><strong>Internal</strong><strong>Internal OS</strong><strong>External OD</strong><strong>External</strong><strong>External OS</strong>{['Media','CD Ratio','AV Ratio','Macula','Pupil','Lids/Lashes','Conjunctiva','Cornea','VH','Tears'].map((label) => <><label>{label}</label><input name={`ocular_${label.replace(/[^A-Za-z]/g, '').toLowerCase()}`} /><input name={`ocular_${label.replace(/[^A-Za-z]/g, '').toLowerCase()}_note`} /></>)}</div></section>
@@ -866,7 +879,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             <form id="clinic-settings-form" class="workflow-form"><div class="field-group"><label for="clinic-name">Clinic name</label><input id="clinic-name" name="name" required /></div><div class="field-row"><div class="field-group"><label for="clinic-phone">Phone</label><input id="clinic-phone" name="phone" /></div><div class="field-group"><label for="clinic-email">Email</label><input id="clinic-email" name="email" type="email" /></div></div><div class="field-group"><label for="clinic-address">Address</label><input id="clinic-address" name="address" /></div><div class="field-group"><label for="clinic-hours">Hours</label><input id="clinic-hours" name="hours" /></div><div class="field-group"><label for="clinic-logo">Clinic Logo</label><div style="display: flex; gap: 0.5rem; align-items: center;"><input id="clinic-logo" name="logo" placeholder="URL or uploaded image" style="flex: 1;" /><label for="clinic-logo-upload" class="btn btn-secondary" style="margin: 0; padding: 0.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; height: 38px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></label><input id="clinic-logo-upload" type="file" accept="image/*" style="display: none;" /></div></div><button type="submit" class="btn btn-primary">Save clinic settings</button><p id="settings-status" class="form-status" aria-live="polite"></p></form>
           )}
 
-          {section !== 'dashboard' && section !== 'book-exam' && section !== 'appointments' && section !== 'today-patients' && section !== 'follow-ups' && section !== 'profile' && !['medical-records', 'prescriptions', 'clinical-records', 'patient-records', 'consultations', 'claim-stub', 'manage-team', 'manage-users', 'roles-permissions', 'audit-logs', 'clinic-settings', 'suppliers', 'purchase-orders', 'receiving', 'purchase-history', 'inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history', 'billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances'].includes(section) && (
+          {section !== 'dashboard' && section !== 'book-exam' && section !== 'appointments' && section !== 'today-patients' && section !== 'clinic-queue' && section !== 'check-in' && section !== 'follow-ups' && section !== 'profile' && !['medical-records', 'prescriptions', 'clinical-records', 'patient-records', 'consultations', 'claim-stub', 'manage-team', 'manage-users', 'roles-permissions', 'audit-logs', 'clinic-settings', 'suppliers', 'purchase-orders', 'receiving', 'purchase-history', 'inventory', 'stock-movements', 'stock-in', 'stock-out', 'stock-adjustment', 'inventory-history', 'billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances'].includes(section) && (
             <div class="task-grid">
               {role !== 'owner' && <><article class="task-summary-card"><span>Access scope</span><strong>{role === 'patient' ? 'Personal records only' : role === 'optometrist' ? 'Authorized clinical care' : role === 'eye-care-assistant' ? 'Clinic operations' : 'Clinic administration and clinical care'}</strong><small>Protected by role permissions</small></article><article class="task-summary-card"><span>Current state</span><strong>Ready to review</strong><small>Use this workspace for {pageTitle.toLowerCase()}</small></article></>}
               <div class="empty-state task-empty"><h2>No records loaded yet</h2><p>Connect this workspace to clinic records as activity becomes available.</p></div>
@@ -887,6 +900,23 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     .patient-record-dialog { width: min(1100px, calc(100vw - 2rem)); max-height: min(92vh, calc(100vh - 2rem)); overflow: hidden; }
     .patient-record-form { max-height: none; overflow: visible; padding-right: .25rem; }
     .patient-form-section { border: 1px solid var(--line); padding: 1rem; margin-bottom: .9rem; background: var(--surface); }
+    .patient-referral-section { border-top: 1px solid var(--line); margin-top: .75rem; padding-top: .75rem; }
+    .patient-referral-section h5 { margin: 0 0 .65rem; font-size: .9rem; }
+    .walk-in-workspace { display: grid; gap: 1rem; }
+    .walk-in-account-choice { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; border: 1px solid var(--line); padding: .9rem; }
+    .walk-in-account-choice legend { font-weight: 700; }
+    .walk-in-account-choice label { display: inline-flex; align-items: center; gap: .35rem; }
+    .walk-in-account-choice input[type="radio"] { width: auto; }
+    .walk-in-account-choice #walk-in-account-email-group { flex-basis: 100%; }
+    .walk-in-ticket { display: flex; flex-direction: column; align-items: center; border: 1px dashed var(--line); padding: 1rem; text-align: center; background: var(--surface); }
+    .walk-in-ticket img { display: block; align-self: center; margin: .5rem auto 1rem; width: 200px; height: 200px; }
+    .walk-in-ticket > div { display: flex; justify-content: center; width: 100%; }
+    .clinic-queue-workspace .list-toolbar { display: flex; align-items: center; justify-content: space-between; }
+    .clinic-queue-workspace h2 { margin: 0; }
+    .clinic-queue-date { margin: .25rem 0 0; color: var(--muted); font-size: .9rem; }
+    .clinic-queue-type { display: inline-block; margin-left: .35rem; border-radius: 999px; padding: .15rem .45rem; background: var(--surface); color: var(--muted); font-size: .7rem; font-weight: 700; white-space: nowrap; }
+    .queue-call-next:disabled { opacity: .5; cursor: not-allowed; }
+    .queue-call-availability { display: block; color: var(--muted); font-size: .78rem; }
     .patient-form-step[hidden] { display: none; }
     .patient-progress { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .35rem; margin-bottom: 1rem; }
     .patient-progress-step { border: 0; border-bottom: 3px solid var(--line); background: transparent; color: var(--muted); padding: .65rem .35rem; font: inherit; font-size: .78rem; cursor: pointer; }
@@ -1335,6 +1365,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const APPOINTMENT_STATUS_CONFIG = {
       pending: { label: 'Pending', chip: 'status-pending', dot: '#d89516' },
       confirmed: { label: 'Scheduled', chip: 'status-confirmed', dot: '#2473b8' },
+      checked_in: { label: 'Checked-in', chip: 'status-checked-in', dot: '#108578' },
+      waiting: { label: 'Waiting', chip: 'status-checked-in', dot: '#108578' },
+      in_progress: { label: 'In Progress', chip: 'status-in-progress', dot: '#7254bf' },
       completed: { label: 'Completed', chip: 'status-completed', dot: '#23865b' },
       cancelled: { label: 'Cancelled', chip: 'status-cancelled', dot: '#d04444', muted: true, strike: true },
       rejected: { label: 'rejected', chip: 'status-rejected', dot: '#717780' },
@@ -1621,7 +1654,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       if (role === 'patient') return patientAppointmentMenu(appointment);
       const actions = {
         pending: [['confirmed', `${appointmentIcons.confirm}Confirm patient`], ['cancelled', `${appointmentIcons.cancel}Reject`], ['rescheduled', `${appointmentIcons.reschedule}Reschedule`]],
-        confirmed: [['completed', `${appointmentIcons.complete}Mark completed`], ['rescheduled', `${appointmentIcons.reschedule}Reschedule`], ['cancelled', `${appointmentIcons.cancel}Cancel`]],
+        confirmed: [['checked_in', 'Check in'], ['completed', `${appointmentIcons.complete}Mark completed`], ['rescheduled', `${appointmentIcons.reschedule}Reschedule`], ['cancelled', `${appointmentIcons.cancel}Cancel`]],
+        checked_in: [['in_progress', 'Call next'], ['completed', `${appointmentIcons.complete}Mark completed`]],
+        waiting: [['in_progress', 'Call next'], ['completed', `${appointmentIcons.complete}Mark completed`]],
+        in_progress: [['completed', `${appointmentIcons.complete}Mark completed`]],
         rescheduled: [['confirmed', `${appointmentIcons.confirm}Confirm patient`], ['cancelled', `${appointmentIcons.cancel}Reject`], ['rescheduled', `${appointmentIcons.reschedule}Reschedule`]],
         completed: [],
         cancelled: [['confirmed', `${appointmentIcons.confirm}Confirm patient`], ['rescheduled', `${appointmentIcons.reschedule}Reschedule`], ['completed', `${appointmentIcons.complete}Mark completed`]],
@@ -3084,6 +3120,114 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         window.setTimeout(closePatientRecordModal, 500);
       } catch (error) { if (patientRecordStatus) { patientRecordStatus.textContent = error.message; patientRecordStatus.classList.add('error'); } }
     });
+
+    const walkInForm = document.getElementById('walk-in-form');
+    const walkInSearch = document.getElementById('walk-in-patient-search');
+    const walkInResults = document.getElementById('walk-in-patient-results');
+    const walkInTicket = document.getElementById('walk-in-ticket');
+    const walkInStatus = document.getElementById('walk-in-status');
+    const walkInAccountEmailGroup = document.getElementById('walk-in-account-email-group');
+    const walkInDateField = walkInForm?.elements.namedItem('date');
+    if (walkInDateField && !walkInDateField.value) {
+      const now = new Date();
+      walkInDateField.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
+    walkInForm?.querySelectorAll('[name="accountRequested"]').forEach((input) => input.addEventListener('change', () => {
+      const wantsAccount = walkInForm.elements.namedItem('accountRequested').value === 'yes';
+      walkInAccountEmailGroup.hidden = !wantsAccount;
+      walkInForm.elements.namedItem('accountEmail').required = wantsAccount;
+    }));
+    let walkInSearchTimer;
+    walkInSearch?.addEventListener('input', () => {
+      window.clearTimeout(walkInSearchTimer);
+      walkInSearchTimer = window.setTimeout(async () => {
+        const query = walkInSearch.value.trim();
+        if (query.length < 2) { walkInResults?.replaceChildren(); return; }
+        try {
+          const response = await fetch(`${api}/api/clinical-records/patient-search?q=${encodeURIComponent(query)}`, { headers: { Authorization: `Bearer ${token}` } });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || 'Patient search failed.');
+          walkInResults.innerHTML = result.patients?.length ? result.patients.map((item, index) => `<button type="button" class="patient-account-result" data-walk-in-patient="${index}"><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.patientId || 'Patient record')} · ${escapeHtml(item.phone || '')}</span></button>`).join('') : '<span class="form-status">No matching patient. Complete the registration fields.</span>';
+          walkInResults.querySelectorAll('[data-walk-in-patient]').forEach((button) => button.addEventListener('click', () => {
+            const patient = result.patients[Number(button.dataset.walkInPatient)];
+            walkInForm.elements.namedItem('patientId').value = patient._id;
+            walkInForm.elements.namedItem('name').value = patient.firstName || patient.name.split(/\s+/)[0] || '';
+            walkInForm.elements.namedItem('surname').value = patient.lastName || patient.name.split(/\s+/).slice(1).join(' ');
+            walkInForm.elements.namedItem('phone').value = patient.phone || '';
+            walkInForm.elements.namedItem('age').value = patient.age || '';
+            walkInForm.elements.namedItem('gender').value = patient.gender || '';
+            walkInSearch.value = patient.name;
+            walkInResults.replaceChildren();
+          }));
+        } catch (error) { walkInResults.innerHTML = `<span class="form-status error">${escapeHtml(error.message)}</span>`; }
+      }, 250);
+    });
+    walkInForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!walkInForm.reportValidity()) return;
+      if (walkInStatus) { walkInStatus.textContent = 'Registering walk-in...'; walkInStatus.classList.remove('error'); }
+      const values = Object.fromEntries(new FormData(walkInForm).entries());
+      const patient = { patientId: values.patientId || undefined, name: values.name, surname: values.surname, phone: values.phone, age: values.age, gender: values.gender, brgy: values.brgy, town: values.town };
+      const record = { date: values.date, referredBy: values.referredBy, person: values.person, online: values.online, hospital: values.hospital, passedBy: values.passedBy, service: values.service };
+      try {
+        const response = await fetch(`${api}/api/appointments/walk-in`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ patient, record, accountRequested: values.accountRequested === 'yes', accountEmail: values.accountEmail }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to register walk-in.');
+        if (walkInStatus) walkInStatus.textContent = result.invitationSent ? 'Patient registered. Account invitation sent.' : result.accountLinked ? 'Patient registered and linked to the existing account.' : (values.accountRequested === 'yes' ? 'Patient record and queue ticket created. The account could not be set up; staff can link or invite an account later.' : 'Patient registered and added to today’s queue.');
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(result.ticketUrl)}`;
+        walkInTicket.hidden = false;
+        walkInTicket.innerHTML = `<h2>Queue ticket</h2><p><strong>Queue number:</strong> ${escapeHtml(result.appointment.queueNumber)}</p><p><strong>Date:</strong> ${escapeHtml(result.appointment.preferredDate)}</p><p><strong>Service:</strong> ${escapeHtml(result.appointment.service)}</p><img src="${qrUrl}" alt="QR code for live queue status" /><div><button type="button" class="btn btn-secondary" id="walk-in-print-ticket">Print ticket</button></div>`;
+        walkInTicket.querySelector('#walk-in-print-ticket')?.addEventListener('click', () => {
+          const printWindow = window.open('', '_blank', 'width=480,height=640');
+          if (!printWindow) return;
+          printWindow.document.write(`<title>Queue ticket</title><main style="font:16px Arial;text-align:center;padding:24px"><h1>Queue ticket</h1><h2>#${escapeHtml(result.appointment.queueNumber)}</h2><p>${escapeHtml(result.appointment.preferredDate)}</p><p>${escapeHtml(result.appointment.service)}</p><img width="200" height="200" src="${qrUrl}" alt="Queue status QR" /></main>`);
+          printWindow.document.close(); printWindow.focus(); printWindow.print();
+        });
+        walkInForm.reset();
+        if (walkInDateField) walkInDateField.value = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`;
+        walkInForm.elements.namedItem('accountRequested').value = 'no';
+        walkInAccountEmailGroup.hidden = true;
+        if (walkInSearch) walkInSearch.value = '';
+        await loadClinicQueue();
+      } catch (error) { if (walkInStatus) { walkInStatus.textContent = error.message; walkInStatus.classList.add('error'); } }
+    });
+
+    const clinicQueueList = document.getElementById('clinic-queue-list');
+    const clinicQueueDate = document.getElementById('clinic-queue-date');
+    const clinicQueueStatus = document.getElementById('clinic-queue-status');
+    const loadClinicQueue = async () => {
+      const ownerQueuePanel = document.getElementById('owner-today-list');
+      if (!clinicQueueList && !ownerQueuePanel) return;
+      try {
+        const response = await fetch(`${api}/api/appointments/queue/today`, { headers: { Authorization: `Bearer ${token}` } });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to load today’s queue.');
+        if (clinicQueueDate) clinicQueueDate.textContent = new Date(`${result.date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        if (clinicQueueStatus) clinicQueueStatus.textContent = '';
+        const items = result.appointments || [];
+        if (ownerQueuePanel) ownerQueuePanel.innerHTML = items.length ? items.map((item) => `<button type="button" class="owner-today-appointment" data-owner-appointment-id="${escapeHtml(item._id)}"><span>Queue #${escapeHtml(item.queueNumber || item.queuePosition)}</span><strong>${escapeHtml(item.name || 'Patient')}</strong><em class="appointment-status ${appointmentStatusConfig(item.status).chip}">${escapeHtml(appointmentStatusLabel(item.status))}</em></button>`).join('') : '<div class="owner-today-empty"><span aria-hidden="true">▢</span><p>No patients checked in today</p></div>';
+        if (!clinicQueueList) return;
+        clinicQueueList.innerHTML = items.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead><tr><th>Queue</th><th>Patient</th><th>Service</th><th>Wait</th><th>Status</th><th>Action</th></tr></thead><tbody>${items.map((item) => {
+          const typeLabel = item.bookingType === 'walk_in' ? 'Walk-in' : 'Appointment';
+          const canBeCalled = ['checked_in', 'waiting'].includes(item.status);
+          const waitLabel = item.bookingType === 'walk_in' && !item.callable ? `<button type="button" class="btn btn-primary queue-call-next" disabled aria-disabled="true">Call next</button><small class="queue-call-availability">Available in ${escapeHtml(item.availableInMinutes)} min</small>` : canBeCalled ? `<button type="button" class="btn btn-primary queue-call-next" data-appointment-id="${escapeHtml(item._id)}">Call next</button>` : '';
+          return `<tr><td data-label="Queue"><strong>#${escapeHtml(item.queueNumber || item.queuePosition)}</strong><span class="clinic-queue-type">${typeLabel}</span><small>Position ${escapeHtml(item.queuePosition)}</small></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong></td><td data-label="Service">${escapeHtml(item.service)}</td><td data-label="Wait">${escapeHtml(item.waitMinutes)} min</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(item.status.replace(/_/g, ' '))}</span></td><td data-label="Action">${waitLabel}</td></tr>`;
+        }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No patients are checked in today.</p>';
+        clinicQueueList.querySelectorAll('.queue-call-next').forEach((button) => button.addEventListener('click', async () => {
+          button.disabled = true;
+          const update = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: 'in_progress' }) });
+          const payload = await update.json();
+          if (!update.ok) { button.disabled = false; await loadClinicQueue(); if (clinicQueueStatus) clinicQueueStatus.textContent = payload.message || 'Unable to call patient.'; return; }
+          await loadClinicQueue();
+        }));
+      } catch (error) {
+        if (clinicQueueList) clinicQueueList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`;
+        if (ownerQueuePanel) ownerQueuePanel.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`;
+      }
+    };
+    document.getElementById('clinic-queue-refresh')?.addEventListener('click', loadClinicQueue);
+    loadClinicQueue();
+    if (clinicQueueList) window.setInterval(loadClinicQueue, 20000);
     loadPatientRecords().catch((error) => { if (patientRecordList) patientRecordList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
     loadClinicalRecords().catch((error) => { if (clinicalRecordList) clinicalRecordList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`; });
 

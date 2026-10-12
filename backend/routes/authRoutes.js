@@ -176,6 +176,7 @@ router.post('/reset-password', async (req, res) => {
   if (!user) return res.status(400).json({ success: false, message: 'Invalid or expired password reset session.' });
 
   user.password = await bcrypt.hash(password, 10);
+  user.mustResetPassword = false;
   user.passwordResetTokenHash = undefined;
   user.passwordResetTokenExpiresAt = undefined;
   await user.save();
@@ -402,6 +403,10 @@ router.post('/login', loginLimiter, async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({ message: 'Invalid email or password.' });
+    }
+
+    if (user.mustResetPassword) {
+      return res.status(403).json({ message: 'This temporary password cannot access the portal. Use Forgot password to verify your email and set a new password.' });
     }
 
     if (user.role === 'patient' && !user.patientId) {

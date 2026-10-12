@@ -9,7 +9,7 @@ const appointmentSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: true,
+      default: '',
       trim: true,
     },
     phone: {
@@ -44,9 +44,16 @@ const appointmentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    bookingType: { type: String, enum: ['scheduled', 'walk_in'], default: 'scheduled', index: true },
+    queueNumber: { type: Number, index: true },
+    checkInTime: { type: Date, index: true },
+    calledAt: { type: Date },
+    queueToken: { type: String, unique: true, sparse: true, index: true },
+    patientRecordId: { type: mongoose.Schema.Types.ObjectId, ref: 'ClinicalRecord' },
+    accountRequested: { type: Boolean, default: false },
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'completed', 'cancelled', 'rejected', 'rescheduled', 'no-show'],
+      enum: ['pending', 'confirmed', 'checked_in', 'waiting', 'in_progress', 'completed', 'cancelled', 'rejected', 'rescheduled', 'no-show'],
       default: 'pending',
     },
     archived: {
