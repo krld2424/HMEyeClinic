@@ -170,7 +170,7 @@ router.get('/mine', requireAuth, async (req, res) => {
       ...(archivedOnly ? {} : { archived: { $ne: true } }),
       $or: [{ userId: req.user.id }, { email: req.user.email }],
     }).sort({ createdAt: -1 });
-    return res.status(200).json({ appointments });
+    return res.status(200).json({ appointments, statuses: Appointment.schema.path('status').enumValues });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to load your appointments.', error: error.message });
   }
@@ -184,7 +184,7 @@ router.get('/', requireAuth, allowRoles('owner', 'optometrist', 'eye-care-assist
   try {
     const archivedOnly = String(req.query.archived || '').toLowerCase() === 'true';
     const appointments = await Appointment.find({ ...(archivedOnly ? {} : { archived: { $ne: true } }) }).sort({ preferredDate: 1, createdAt: -1 });
-    return res.status(200).json({ appointments });
+    return res.status(200).json({ appointments, statuses: Appointment.schema.path('status').enumValues });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to load appointments.', error: error.message });
   }

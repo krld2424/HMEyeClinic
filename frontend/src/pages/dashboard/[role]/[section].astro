@@ -322,16 +322,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           </>
         ) : (
           <>
-          {section === 'appointments' && (
-            <section class={`container card appointments-calendar-card ${role === 'patient' ? 'patient-calendar-card' : ''}`} aria-label="Appointments calendar">
-              <div class="appointment-calendar-panel">
-                <div class="booking-calendar appointment-calendar">
-                  <div class="calendar-heading"><strong id="appointment-calendar-month">Appointments calendar</strong><div class="calendar-nav"><button type="button" id="appointment-calendar-prev" aria-label="Previous month">&lt;</button><button type="button" id="appointment-calendar-next" aria-label="Next month">&gt;</button></div></div>
-                  <div class="calendar-grid" id="appointment-calendar-grid"></div>
-                </div>
-                    </div>
-              </section>
-            )}
           {section === 'eyeglass-job-orders' && canAccessJobOrders ? (
             <EyeglassJobOrders />
           ) : (
@@ -601,14 +591,34 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
           {section === 'appointments' && (
             <div class="workflow-list appointments-workspace">
-              <div class="appointments-results">
+              <>
+                  <div class="appointment-view-toggle" role="group" aria-label="Appointment view">
+                    <button type="button" class="is-active" data-appointment-workspace-view="calendar" aria-pressed="true">Calendar</button>
+                    <button type="button" data-appointment-workspace-view="list" aria-pressed="false">List</button>
+                  </div>
+                  <div class="owner-appointments-layout" id="owner-appointments-calendar-view">
+                    <section class="owner-month-calendar" aria-label="Appointment calendar">
+                      <header class="owner-month-calendar-header"><h2 id="owner-calendar-title"></h2><div><button type="button" class="btn btn-secondary" id="owner-calendar-today">Today</button><button type="button" class="btn btn-secondary" id="owner-calendar-prev" aria-label="Previous month">‹</button><button type="button" class="btn btn-secondary" id="owner-calendar-next" aria-label="Next month">›</button></div></header>
+                      <div class="owner-calendar-weekdays" role="row">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => <span role="columnheader">{day}</span>)}</div>
+                      <div id="owner-calendar-grid" class="owner-calendar-grid" role="grid" aria-label="Appointments by day"></div>
+                    </section>
+                    <aside class="owner-today-panel" aria-labelledby="owner-today-title">
+                      <h2 id="owner-today-title"><span aria-hidden="true">◷</span> Today's Appointments</h2>
+                      <h3>Status Legend</h3><div id="owner-status-legend" class="owner-status-legend"></div>
+                      <div id="owner-today-list" class="owner-today-list"></div>
+                    </aside>
+                  </div>
+                  <dialog id="owner-day-appointments" class="owner-day-dialog" aria-labelledby="owner-day-title"><div class="owner-day-dialog-header"><h2 id="owner-day-title"></h2><button type="button" class="btn btn-secondary" id="owner-day-close" aria-label="Close appointments">Close</button></div><div id="owner-day-list"></div></dialog>
+              </>
+              <div class="appointments-results" id="owner-appointments-results" hidden>
                 <div class="appointments-filter-bar">
                 <input id="appointment-search" type="search" placeholder="Search patient or service" />
                 <select id="appointment-status-filter"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="rescheduled">Rescheduled</option><option value="no-show">No-show</option></select>
                 <input id="appointment-date-filter" type="date" aria-label="Filter by appointment date" />
               </div>
               <div id="appointment-list" class="appointment-list"><p class="empty-appointments">Loading appointments...</p></div>
-              <div id="appointment-pagination" class="pagination" aria-label="Appointment pages"></div>
+              <div id="appointment-pagination" class="pagination" aria-label="Appointment pages" hidden></div>
+              </div>
                 <p id="appointment-action-status" class="task-state" aria-live="polite" hidden></p>
                 {role === 'patient' && (
                   <>
@@ -675,7 +685,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                     <div class="confirmation-actions"><button type="button" class="btn btn-secondary" id="appointment-correction-cancel">Cancel</button><button type="button" class="btn btn-primary" id="appointment-correction-confirm">Correct record</button></div>
                   </div>
                 </dialog>
-              </div>
             </div>
           )}
 
@@ -1285,17 +1294,17 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const appointmentStatusFilter = document.getElementById('appointment-status-filter') || document.getElementById('today-patient-status');
     const appointmentDateFilter = document.getElementById('appointment-date-filter') || document.getElementById('today-patient-date');
     const appointmentPagination = document.getElementById('appointment-pagination') || document.getElementById('today-patient-pagination');
-    const appointmentCalendarGrid = document.getElementById('appointment-calendar-grid');
-    const appointmentCalendarMonth = document.getElementById('appointment-calendar-month');
-    const appointmentMainCalendarGrid = document.getElementById('appointment-main-calendar-grid');
-    const appointmentCalendarViewTitle = document.getElementById('appointment-calendar-view-title');
-    const appointmentStatList = document.getElementById('appointment-stat-list');
     const appointmentDatePicker = document.querySelector('.appointment-date-picker');
     const appointmentDateTrigger = document.getElementById('appointment-date-trigger');
     const appointmentDateLabel = document.getElementById('appointment-date-label');
     const appointmentCalendarPopover = document.getElementById('appointment-calendar-popover');
     const appointmentCalendarClear = document.getElementById('appointment-calendar-clear');
     const appointmentCalendarApply = document.getElementById('appointment-calendar-apply');
+    const appointmentCalendarGrid = document.getElementById('appointment-calendar-grid');
+    const appointmentCalendarMonth = document.getElementById('appointment-calendar-month');
+    const appointmentMainCalendarGrid = document.getElementById('appointment-main-calendar-grid');
+    const appointmentCalendarViewTitle = document.getElementById('appointment-calendar-view-title');
+    const appointmentStatList = document.getElementById('appointment-stat-list');
     const appointmentActionStatus = document.getElementById('appointment-action-status');
     const rescheduleDialog = document.getElementById('appointment-reschedule-dialog');
     const rescheduleDateInput = document.getElementById('appointment-reschedule-date');
@@ -1323,6 +1332,33 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     let appointmentCalendarView = 'month';
     let appointmentSort = { key: 'preferredDate', direction: 'desc' };
     const pageSize = 5;
+    const APPOINTMENT_STATUS_CONFIG = {
+      pending: { label: 'Pending', chip: 'status-pending', dot: '#d89516' },
+      confirmed: { label: 'Scheduled', chip: 'status-confirmed', dot: '#2473b8' },
+      completed: { label: 'Completed', chip: 'status-completed', dot: '#23865b' },
+      cancelled: { label: 'Cancelled', chip: 'status-cancelled', dot: '#d04444', muted: true, strike: true },
+      rejected: { label: 'rejected', chip: 'status-rejected', dot: '#717780' },
+      rescheduled: { label: 'Rescheduled', chip: 'status-rescheduled', dot: '#7254bf' },
+      'no-show': { label: 'No-show', chip: 'status-no-show', dot: '#717780', muted: true, strike: true },
+    };
+    let appointmentStatuses = Object.keys(APPOINTMENT_STATUS_CONFIG);
+    const appointmentStatusConfig = (status) => APPOINTMENT_STATUS_CONFIG[status] || { label: status || 'Unknown', chip: 'status-neutral', dot: '#858b91' };
+    const clinicToday = () => {
+      const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+      return `${values.year}-${values.month}-${values.day}`;
+    };
+    const ownerCalendarCursor = new Date(`${clinicToday()}T12:00:00`);
+    const ownerCalendarGrid = document.getElementById('owner-calendar-grid');
+    const ownerCalendarTitle = document.getElementById('owner-calendar-title');
+    const ownerTodayList = document.getElementById('owner-today-list');
+    const ownerStatusLegend = document.getElementById('owner-status-legend');
+    const ownerDayDialog = document.getElementById('owner-day-appointments');
+    const appointmentFilter = document.getElementById('appointment-status-filter');
+    const renderAppointmentStatusFilter = () => {
+      if (appointmentFilter) appointmentFilter.innerHTML = `<option value="">All statuses</option>${appointmentStatuses.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(appointmentStatusConfig(value).label)}</option>`).join('')}`;
+    };
+    renderAppointmentStatusFilter();
 
     const renderAppointmentStats = () => {
       if (!appointmentStatList) return;
@@ -1524,14 +1560,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
 
     const appointmentRecordsHref = () => `/dashboard/${role}/${['owner', 'optometrist'].includes(role) ? 'patient-records' : 'clinical-records'}`;
-    const appointmentStatusLabel = (status) => ({
-      pending: 'Pending',
-      confirmed: 'Scheduled',
-      completed: 'Completed',
-      cancelled: 'Cancelled',
-      rescheduled: 'Rescheduled',
-      'no-show': 'No-show',
-    }[status] || status);
+    const appointmentStatusLabel = (status) => appointmentStatusConfig(status).label;
     const appointmentWhenLabel = (item) => {
       const today = new Date().toISOString().slice(0, 10);
       const next = new Date();
@@ -1618,14 +1647,65 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       if (role === 'patient') return patientAppointmentMenu(appointment);
       return `${appointmentPrimaryAction(appointment)}${appointmentKebabMenu(appointment)}`;
     };
+    const ownerAppointmentMarkup = (item, className = 'owner-day-appointment') => `<button type="button" class="${className}" data-owner-appointment-id="${escapeHtml(item._id)}"><span>${escapeHtml(formatTo12Hour(item.preferredTime || 'Time TBD'))}</span><strong>${escapeHtml(item.name || 'Patient')}</strong><em class="appointment-status ${appointmentStatusConfig(item.status).chip}">${escapeHtml(appointmentStatusLabel(item.status))}</em></button>`;
+    const ownerDayKey = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const ownerStatusMarkup = (item, date) => {
+      const config = appointmentStatusConfig(item.status);
+      const pastCompleted = item.status === 'completed' && date < clinicToday();
+      return `<button type="button" class="owner-calendar-chip ${config.chip}${config.muted || pastCompleted ? ' is-muted' : ''}${config.strike ? ' is-struck' : ''}" data-owner-appointment-id="${escapeHtml(item._id)}" aria-label="${escapeHtml(`${formatTo12Hour(item.preferredTime || 'Time TBD')}, ${item.name || 'Patient'}, ${config.label}`)}">${escapeHtml(formatTo12Hour(item.preferredTime || 'Time TBD'))}</button>`;
+    };
+    const renderOwnerAppointments = () => {
+      if (!ownerCalendarGrid) return;
+      const year = ownerCalendarCursor.getFullYear();
+      const month = ownerCalendarCursor.getMonth();
+      ownerCalendarTitle.textContent = ownerCalendarCursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      const first = new Date(year, month, 1);
+      const start = new Date(year, month, 1 - first.getDay());
+      ownerCalendarGrid.innerHTML = Array.from({ length: 42 }, (_, i) => {
+        const date = new Date(start); date.setDate(start.getDate() + i);
+        const key = ownerDayKey(date);
+        const dayItems = appointments.filter((item) => !item.archived && item.preferredDate === key).sort((a, b) => String(a.preferredTime || '').localeCompare(String(b.preferredTime || '')));
+        const today = key === clinicToday();
+        return `<div class="owner-calendar-day${date.getMonth() !== month ? ' is-outside' : ''}${today ? ' is-today' : ''}" role="gridcell" aria-label="${escapeHtml(date.toLocaleDateString(undefined, { dateStyle: 'full' }))}"><span class="owner-calendar-date${today ? ' is-today' : ''}">${date.getDate()}</span><div class="owner-calendar-day-items">${dayItems.slice(0, 2).map((item) => ownerStatusMarkup(item, key)).join('')}${dayItems.length > 2 ? `<button type="button" class="owner-calendar-more" data-owner-day="${key}">+${dayItems.length - 2} more</button>` : ''}</div></div>`;
+      }).join('');
+      ownerStatusLegend.innerHTML = appointmentStatuses.map((status) => { const config = appointmentStatusConfig(status); return `<span><i style="--status-dot:${config.dot}" aria-hidden="true"></i>${escapeHtml(config.label)}</span>`; }).join('');
+      const todayItems = appointments.filter((item) => !item.archived && item.preferredDate === clinicToday()).sort((a, b) => String(a.preferredTime || '').localeCompare(String(b.preferredTime || '')));
+      ownerTodayList.innerHTML = todayItems.length ? todayItems.map((item) => ownerAppointmentMarkup(item, 'owner-today-appointment')).join('') : '<div class="owner-today-empty"><span aria-hidden="true">▢</span><p>No appointments today</p></div>';
+    };
+    document.getElementById('owner-calendar-prev')?.addEventListener('click', () => { ownerCalendarCursor.setDate(1); ownerCalendarCursor.setMonth(ownerCalendarCursor.getMonth() - 1); renderOwnerAppointments(); });
+    document.getElementById('owner-calendar-next')?.addEventListener('click', () => { ownerCalendarCursor.setDate(1); ownerCalendarCursor.setMonth(ownerCalendarCursor.getMonth() + 1); renderOwnerAppointments(); });
+    document.getElementById('owner-calendar-today')?.addEventListener('click', () => { const today = new Date(`${clinicToday()}T12:00:00`); ownerCalendarCursor.setFullYear(today.getFullYear(), today.getMonth(), 1); renderOwnerAppointments(); });
+    document.getElementById('owner-day-close')?.addEventListener('click', () => ownerDayDialog?.close());
+    ownerCalendarGrid?.addEventListener('click', (event) => {
+      const more = event.target.closest('[data-owner-day]');
+      const appointmentButton = event.target.closest('[data-owner-appointment-id]');
+      if (more) {
+        const items = appointments.filter((item) => !item.archived && item.preferredDate === more.dataset.ownerDay).sort((a, b) => String(a.preferredTime || '').localeCompare(String(b.preferredTime || '')));
+        document.getElementById('owner-day-title').textContent = new Date(`${more.dataset.ownerDay}T12:00:00`).toLocaleDateString(undefined, { dateStyle: 'full' });
+        document.getElementById('owner-day-list').innerHTML = items.map((item) => ownerAppointmentMarkup(item)).join('');
+        ownerDayDialog?.showModal();
+      } else if (appointmentButton) openAppointmentDetails({ dataset: { appointmentId: appointmentButton.dataset.ownerAppointmentId } });
+    });
+    [ownerTodayList, document.getElementById('owner-day-list')].forEach((container) => container?.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-owner-appointment-id]');
+      if (button) { ownerDayDialog?.close(); openAppointmentDetails({ dataset: { appointmentId: button.dataset.ownerAppointmentId } }); }
+    }));
+    document.querySelectorAll('[data-appointment-workspace-view]').forEach((button) => button.addEventListener('click', () => {
+      const calendar = button.dataset.appointmentWorkspaceView === 'calendar';
+      document.getElementById('owner-appointments-calendar-view').hidden = !calendar;
+      document.getElementById('owner-appointments-results').hidden = calendar;
+      appointmentPagination.hidden = calendar;
+      document.querySelectorAll('[data-appointment-workspace-view]').forEach((toggle) => { const active = toggle === button; toggle.classList.toggle('is-active', active); toggle.setAttribute('aria-pressed', String(active)); });
+    }));
     const appointmentCardMarkup = (item) => {
       const dimmed = item.status === 'cancelled' ? ' appointment-row-cancelled' : '';
       const primary = appointmentPrimaryAction(item);
       const patientActions = role === 'patient' ? appointmentActions(item) : '';
-      return `<article class="appointment-mobile-card${dimmed}"><div class="appointment-mobile-card-header"><strong>${escapeHtml(item.name || 'Patient')}</strong>${role !== 'patient' ? appointmentKebabMenu(item) : ''}</div><p class="appointment-mobile-card-service">${escapeHtml(item.service || 'Appointment')}</p><p class="appointment-mobile-card-when">${escapeHtml(appointmentWhenLabel(item))}</p><p class="appointment-mobile-card-status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(appointmentStatusLabel(item.status))}</span></p>${primary ? `<div class="appointment-mobile-card-actions">${primary}</div>` : ''}${patientActions ? `<div class="appointment-mobile-card-actions">${patientActions}</div>` : ''}</article>`;
+      return `<article class="appointment-mobile-card${dimmed}"><div class="appointment-mobile-card-header"><strong>${escapeHtml(item.name || 'Patient')}</strong>${role !== 'patient' ? appointmentKebabMenu(item) : ''}</div><p class="appointment-mobile-card-service">${escapeHtml(item.service || 'Appointment')}</p><p class="appointment-mobile-card-when">${escapeHtml(appointmentWhenLabel(item))}</p><p class="appointment-mobile-card-status"><span class="appointment-status ${appointmentStatusConfig(item.status).chip}">${escapeHtml(appointmentStatusLabel(item.status))}</span></p>${primary ? `<div class="appointment-mobile-card-actions">${primary}</div>` : ''}${patientActions ? `<div class="appointment-mobile-card-actions">${patientActions}</div>` : ''}</article>`;
     };
 
     const renderAppointmentPage = () => {
+      if (role === 'owner') renderOwnerAppointments();
       const query = normalizePatientValue(appointmentSearch?.value);
       const status = appointmentStatusFilter?.value || '';
       const date = appointmentDateFilter?.value || '';
@@ -1646,8 +1726,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         ? '<tr><th scope="col" data-sort-key="service">Examination / Appointment</th><th scope="col" data-sort-key="preferredDate">Date</th><th scope="col">Time</th><th scope="col">Status</th><th scope="col">Actions</th></tr>'
         : '<tr><th scope="col" data-sort-key="service">Examination / Appointment</th><th scope="col" data-sort-key="name">Patient</th><th scope="col" data-sort-key="preferredDate">Date</th><th scope="col">Time</th><th scope="col">Status</th><th scope="col">Actions</th></tr>';
       appointmentList.innerHTML = visible.length ? `<div class="appointment-table-wrap"><table class="appointment-table"><thead>${tableHeaders}</thead><tbody>${visible.map((item) => { const hasKebab = role !== 'patient'; const dimmed = item.status === 'cancelled' ? ' appointment-row-cancelled' : ''; const patientRow = role === 'patient'
-          ? `<tr class="${dimmed}"><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service || 'Appointment')}</strong><small>${escapeHtml(item.name || 'Patient')}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Time">${escapeHtml(formatTo12Hour(item.preferredTime || 'Time to be confirmed'))}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(appointmentStatusLabel(item.status))}</span></td><td class="${hasKebab ? 'appointment-actions-cell-with-kebab' : ''}" data-label="Actions"><div class="appointment-actions ${hasKebab ? 'appointment-actions-with-kebab' : ''}">${appointmentActions(item)}</div></td></tr>`
-          : `<tr class="${dimmed}"><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service)}</strong></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Time">${escapeHtml(formatTo12Hour(item.preferredTime || 'Time to be confirmed'))}</td><td data-label="Status"><span class="appointment-status status-${escapeHtml(item.status)}">${escapeHtml(appointmentStatusLabel(item.status))}</span></td><td class="${hasKebab ? 'appointment-actions-cell-with-kebab' : ''}" data-label="Actions"><div class="appointment-actions ${hasKebab ? 'appointment-actions-with-kebab' : ''}">${appointmentActions(item)}</div></td></tr>`;
+          ? `<tr class="${dimmed}"><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service || 'Appointment')}</strong><small>${escapeHtml(item.name || 'Patient')}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Time">${escapeHtml(formatTo12Hour(item.preferredTime || 'Time to be confirmed'))}</td><td data-label="Status"><span class="appointment-status ${appointmentStatusConfig(item.status).chip}">${escapeHtml(appointmentStatusLabel(item.status))}</span></td><td class="${hasKebab ? 'appointment-actions-cell-with-kebab' : ''}" data-label="Actions"><div class="appointment-actions ${hasKebab ? 'appointment-actions-with-kebab' : ''}">${appointmentActions(item)}</div></td></tr>`
+          : `<tr class="${dimmed}"><td data-label="Examination / Appointment"><strong>${escapeHtml(item.service)}</strong></td><td data-label="Patient"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.email)}</small></td><td data-label="Date">${escapeHtml(item.preferredDate || 'Date to be confirmed')}</td><td data-label="Time">${escapeHtml(formatTo12Hour(item.preferredTime || 'Time to be confirmed'))}</td><td data-label="Status"><span class="appointment-status ${appointmentStatusConfig(item.status).chip}">${escapeHtml(appointmentStatusLabel(item.status))}</span></td><td class="${hasKebab ? 'appointment-actions-cell-with-kebab' : ''}" data-label="Actions"><div class="appointment-actions ${hasKebab ? 'appointment-actions-with-kebab' : ''}">${appointmentActions(item)}</div></td></tr>`;
           return patientRow; }).join('')}</tbody></table></div><div class="appointment-mobile-list">${visible.map(appointmentCardMarkup).join('')}</div>` : '<p class="empty-appointments">No appointments match these filters.</p>';
       appointmentList.querySelectorAll('[data-sort-key]').forEach((header) => header.addEventListener('click', () => { const key = header.dataset.sortKey; appointmentSort = { key, direction: appointmentSort.key === key && appointmentSort.direction === 'asc' ? 'desc' : 'asc' }; renderAppointmentPage(); }));
       appointmentPagination.innerHTML = `${paginationSummary(filtered.length, appointmentPage, pageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${appointmentPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${appointmentPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${appointmentPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
@@ -1954,6 +2034,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         if (!response.ok) throw new Error(result.message);
           showState(`${result.appointments?.length || 0} appointment${result.appointments?.length === 1 ? '' : 's'} found.`, 'success');
           appointments = result.appointments || [];
+          if (Array.isArray(result.statuses)) {
+            appointmentStatuses = result.statuses;
+            renderAppointmentStatusFilter();
+          }
           if (role === 'patient') {
             const pendingAppointment = [...appointments]
               .filter((appointment) => String(appointment.status || '').toLowerCase() === 'pending')
@@ -2368,7 +2452,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         ? new Date(`${appointment.preferredDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()
         : 'DATE TBD';
 
-      bookingConfirmedTitle.textContent = 'Booking Confirmed';
+      bookingConfirmedTitle.textContent = isRescheduled ? 'Appointment rescheduled' : 'Booking Confirmed';
       bookingConfirmedMessage.innerHTML = `
         <div class="appointment-confirmation-card">
           <div class="appointment-confirmation-visual appointment-confirmation-visual--success" aria-hidden="true">
@@ -2394,7 +2478,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       `;
       bookingConfirmedDetails.textContent = 'Please arrive 10 minutes before your scheduled appointment time.';
       bookingConfirmedPrimary.textContent = 'OK';
-      bookingConfirmedPrimary.hidden = false;
+      bookingConfirmedPrimary.hidden = isRescheduled;
       bookingConfirmedPrimary.onclick = closeConfirmedBookingResult;
       bookingConfirmedSecondary.textContent = 'Close';
       bookingConfirmedSecondary.onclick = closeConfirmedBookingResult;

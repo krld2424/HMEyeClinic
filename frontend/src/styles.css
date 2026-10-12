@@ -4180,6 +4180,88 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   gap: 18px;
 }
 
+.appointment-view-toggle {
+  display: flex;
+  justify-self: end;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.appointment-view-toggle button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: .86rem;
+  cursor: pointer;
+}
+
+.appointment-view-toggle button.is-active { background: var(--white); color: var(--primary-dark); box-shadow: 0 1px 4px rgba(17, 56, 58, .12); }
+.owner-appointments-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 18px; align-items: start; }
+.owner-month-calendar, .owner-today-panel { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--white); box-shadow: 0 8px 24px rgba(22, 52, 48, .07); }
+.owner-month-calendar-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.owner-month-calendar-header h2, .owner-today-panel h2 { margin: 0; color: var(--text); font: 700 1.2rem 'Manrope', 'Segoe UI', sans-serif; }
+.owner-month-calendar-header > div { display: flex; gap: 6px; }
+.owner-month-calendar-header .btn { min-height: 34px; padding: 0 10px; }
+.owner-calendar-weekdays, .owner-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.owner-calendar-weekdays { padding: 12px 0 8px; color: var(--muted); font-size: .76rem; font-weight: 700; text-align: center; }
+.owner-calendar-day { min-width: 0; min-height: 112px; padding: 7px; border: 1px solid #edf0ef; background: var(--white); }
+.owner-calendar-day.is-outside { background: #fafbfa; }
+.owner-calendar-day.is-outside .owner-calendar-date { color: #a4aaa8; }
+.owner-calendar-date { display: grid; place-items: center; width: 27px; height: 27px; margin-bottom: 4px; color: var(--text); font-size: .82rem; }
+.owner-calendar-date.is-today { border: 2px solid var(--primary); border-radius: 50%; color: var(--primary-dark); font-weight: 800; }
+.owner-calendar-day-items { display: grid; gap: 4px; }
+.owner-calendar-chip { width: 100%; overflow: hidden; padding: 4px 6px; border: 0; border-radius: 5px; text-align: left; text-overflow: ellipsis; white-space: nowrap; font: 700 .69rem 'Manrope', sans-serif; cursor: pointer; }
+.owner-calendar-chip.status-pending { background: #fff4d8; color: #885b00; }
+.owner-calendar-chip.status-confirmed { background: #e8f1fb; color: #2c5f98; }
+.owner-calendar-chip.status-completed { background: #e3f4e9; color: #23734d; }
+.owner-calendar-chip.status-cancelled { background: #fde9e7; color: #a32e28; }
+.owner-calendar-chip.status-rescheduled { background: #eee9fb; color: #5b42a1; }
+.owner-calendar-chip.status-no-show, .owner-calendar-chip.status-rejected, .owner-calendar-chip.status-neutral { background: #eef0f1; color: #62696d; }
+.owner-calendar-chip.is-muted { opacity: .58; }
+.owner-calendar-chip.is-struck { text-decoration: line-through; }
+.owner-calendar-more { justify-self: start; padding: 2px 3px; border: 0; background: none; color: var(--primary-dark); font-size: .7rem; font-weight: 800; cursor: pointer; }
+.owner-today-panel h2 { display: flex; align-items: center; gap: 8px; font-size: 1.05rem; }
+.owner-today-panel h2 span { color: var(--primary); font-size: 1.25rem; }
+.owner-today-panel h3 { margin: 22px 0 10px; color: var(--muted); font-size: .76rem; }
+.owner-status-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.owner-status-legend span { display: flex; align-items: center; gap: 7px; color: var(--text); font-size: .72rem; }
+.owner-status-legend i { flex: 0 0 9px; width: 9px; height: 9px; border-radius: 50%; background: var(--status-dot); }
+.owner-today-list { display: grid; gap: 8px; padding-top: 14px; }
+.owner-today-appointment, .owner-day-appointment { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--white); color: var(--text); text-align: left; cursor: pointer; }
+.owner-today-appointment > span, .owner-day-appointment > span { color: var(--primary-dark); font-size: .75rem; font-weight: 800; }
+.owner-today-appointment > strong, .owner-day-appointment > strong { grid-column: 1 / -1; font-size: .85rem; }
+.owner-today-appointment .appointment-status, .owner-day-appointment .appointment-status { justify-self: start; padding: 3px 7px; font-size: .65rem; }
+.owner-today-empty { display: grid; justify-items: center; padding: 42px 10px; color: var(--muted); }
+.owner-today-empty span { color: #c5cdca; font-size: 2.8rem; }
+.owner-day-dialog { width: min(480px, calc(100% - 28px)); max-height: 80vh; padding: 20px; border: 1px solid var(--line); border-radius: 14px; }
+.owner-day-dialog::backdrop { background: rgba(19, 34, 31, .38); }
+.owner-day-dialog-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+.owner-day-dialog-header h2 { margin: 0; font-size: 1rem; }
+#owner-day-list { display: grid; gap: 8px; max-height: 60vh; overflow: auto; }
+[hidden] { display: none !important; }
+
+@media (max-width: 900px) {
+  .owner-appointments-layout { grid-template-columns: minmax(0, 1fr); }
+  .owner-today-panel { order: 2; }
+}
+
+@media (max-width: 600px) {
+  .owner-month-calendar, .owner-today-panel { padding: 12px; }
+  .owner-month-calendar-header { align-items: flex-start; }
+  .owner-month-calendar-header h2 { font-size: 1rem; }
+  .owner-calendar-day { min-height: 78px; padding: 4px; }
+  .owner-calendar-chip { padding: 3px 4px; font-size: .58rem; }
+  .owner-calendar-more { font-size: .61rem; }
+  .owner-calendar-date { width: 23px; height: 23px; font-size: .74rem; }
+}
+
 .appointment-calendar-panel {
   min-width: 0;
   padding: 4px 0 0;
