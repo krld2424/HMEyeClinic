@@ -38,8 +38,8 @@ router.get('/profile', allowRoles('patient'), async (req, res) => {
 });
 
 router.patch('/profile', allowRoles('patient'), async (req, res) => {
-  const { name, phone, age, gender } = req.body;
-  const user = await User.findByIdAndUpdate(req.user.id, { name, phone, age, gender }, { new: true, runValidators: true }).select('-password');
+  const { name, phone, age, gender, barangay, town } = req.body;
+  const user = await User.findByIdAndUpdate(req.user.id, { name, phone, age, gender, barangay, town }, { new: true, runValidators: true }).select('-password');
   if (!user) return res.status(404).json({ message: 'Profile not found.' });
   broadcastRealtimeEvent(req.app.get('io'), {
     type: 'user',

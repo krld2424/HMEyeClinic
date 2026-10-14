@@ -1,5 +1,6 @@
 ---
 import '../styles.css';
+import StatusModal from '../components/StatusModal.astro';
 ---
 
 <!doctype html>
@@ -23,6 +24,7 @@ import '../styles.css';
   </head>
   <body>
     <slot />
+    <StatusModal />
   </body>
   <script>
     const localToday = () => {

@@ -1,0 +1,61 @@
+---
+const { id = 'status-modal' } = Astro.props;
+---
+
+<dialog id={id} class="status-modal" aria-labelledby={`${id}-title`} aria-describedby={`${id}-message`}>
+  <button class="status-modal__close" type="button" data-status-close aria-label="Close">&times;</button>
+  <div class="status-modal__content">
+    <div class="status-modal__badge" data-status-icon aria-hidden="true">&#10003;</div>
+    <h2 id={`${id}-title`} data-status-title>Success!</h2>
+    <p id={`${id}-message`} data-status-message></p>
+    <button class="status-modal__action" type="button" data-status-action>Continue</button>
+  </div>
+</dialog>
+
+<style>
+  .status-modal { position: fixed; width: min(360px, calc(100vw - 2rem)); max-width: 360px; border: 0; border-radius: 20px; padding: 0; color: var(--heading-color, #183b43); background: #fff; box-shadow: 0 22px 60px rgba(16, 42, 52, .2); }
+  .status-modal::backdrop { background: rgba(14, 35, 40, .48); }
+  .status-modal__close { position: absolute; top: 12px; right: 14px; border: 0; background: transparent; color: #8a9698; font: 400 30px/1 sans-serif; cursor: pointer; }
+  .status-modal__content { display: grid; justify-items: center; gap: 12px; padding: 32px 28px 26px; text-align: center; }
+  .status-modal__badge { display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%; background: var(--primary, #0e8482); color: #fff; font: 700 60px/1 Arial, sans-serif; }
+  .status-modal[data-variant="error"] .status-modal__badge { background: #c94b4b; }
+  .status-modal__content h2 { margin: 4px 0 0; font-size: 1.55rem; }
+  .status-modal__content p { min-height: 2.8em; margin: 0; color: var(--muted, #68787c); line-height: 1.5; }
+  .status-modal__action { min-width: 190px; margin-top: 8px; padding: 10px 22px; border: 2px solid var(--primary, #0e8482); border-radius: 999px; background: #fff; color: var(--primary, #0e8482); font: inherit; font-weight: 700; text-transform: uppercase; cursor: pointer; }
+  .status-modal[data-variant="error"] .status-modal__action { border-color: #c94b4b; color: #c94b4b; }
+  @media (prefers-reduced-motion: no-preference) { .status-modal[open] { animation: status-modal-in .18s ease-out; } @keyframes status-modal-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } } }
+</style>
+
+<script>
+  const dialog = document.getElementById('status-modal');
+  const title = dialog?.querySelector('[data-status-title]');
+  const message = dialog?.querySelector('[data-status-message]');
+  const icon = dialog?.querySelector('[data-status-icon]');
+  const action = dialog?.querySelector('[data-status-action]');
+  let currentOptions: StatusModalOptions = {};
+
+  const close = (reason = 'close') => {
+    if (!dialog?.open) return;
+    dialog.close();
+    if (reason === 'action') {
+      currentOptions.onAction?.();
+      dialog.dispatchEvent(new CustomEvent('statusmodal:action', { bubbles: true, detail: { variant: currentOptions.variant, message: currentOptions.message } }));
+    }
+    currentOptions = {};
+  };
+
+  window.showStatusModal = (options = {}) => {
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+    currentOptions = options;
+    const variant = options.variant === 'error' ? 'error' : 'success';
+    dialog.dataset.variant = variant;
+    if (title) title.textContent = options.title || (variant === 'success' ? 'Success!' : 'Error!');
+    if (message) message.textContent = options.message || '';
+    if (icon) icon.textContent = variant === 'success' ? '\u2713' : '\u00d7';
+    if (action) action.textContent = options.buttonLabel || (variant === 'success' ? 'Continue' : 'Try again');
+    if (!dialog.open) dialog.showModal();
+  };
+  dialog?.querySelector('[data-status-close]')?.addEventListener('click', () => close());
+  action?.addEventListener('click', () => close('action'));
+  dialog?.addEventListener('click', (event) => { if (event.target === dialog) close(); });
+</script>

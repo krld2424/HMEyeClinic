@@ -112,10 +112,10 @@ const navigation = {
 };
 
 const sidebarGroups = {
-  patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'follow-ups', 'medical-records', 'prescriptions', 'claim-stub']], ['Account', ['notifications', 'profile', 'archived']]],
-  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'prescriptions', 'follow-ups']], ['Billing', ['claim-stub']], ['Archived', ['archived']]],
+  patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'medical-records', 'claim-stub']], ['Account', ['notifications', 'profile', 'archived']]],
+  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'patient-records']], ['Billing', ['claim-stub']], ['Archived', ['archived']]],
   'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'eyeglass-job-orders']], ['Billing', ['billing', 'claim-stub']], ['Archived', ['archived']]],
-  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'consultations', 'patient-records', 'eyeglass-job-orders', 'prescriptions', 'follow-ups']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances', 'claim-stub']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']], ['Archived', ['archived']]],
+  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'patient-records', 'eyeglass-job-orders']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances', 'claim-stub']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']], ['Archived', ['archived']]],
 };
 const groupIcons = {
   Overview: 'overview',
@@ -543,7 +543,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               </div>
                     <div class="booking-details">
               <div class="field-row">
-                <div class="field-group"><label for="workflow-service">Service</label><select id="workflow-service" name="service" required><option value="">Select a service</option><option>Comprehensive Eye Examination</option><option>Vision Assessment</option><option>Eye Health Screening</option><option>Optical Consultation</option></select></div>
+                <div class="field-group"><label for="workflow-service">Service</label><select id="workflow-service" name="service" required><option value="">Select a service</option><option>Comprehensive Eye Examination</option><option>Vision Assessment</option><option>Eye Health Screening</option><option>Optical Consultation</option><option>Follow-up Consultation</option></select></div>
                 <div class="field-group"><label for="workflow-date">Preferred date</label><input id="workflow-date" name="preferredDate" type="date" required /></div>
               </div>
                       <div id="clinic-hours-display" style="font-size: 0.9rem; color: #666; margin: -0.5rem 0 0.5rem 0; display: none;"></div>
@@ -696,7 +696,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                 <input type="hidden" name="patientId" />
                 <div class="field-row"><div class="field-group"><label for="walk-in-surname">Surname</label><input id="walk-in-surname" name="surname" required /></div><div class="field-group"><label for="walk-in-name">Name</label><input id="walk-in-name" name="name" required /></div><div class="field-group"><label for="walk-in-date">Date</label><input id="walk-in-date" name="date" type="date" /></div></div>
                 <div class="field-row"><div class="field-group"><label for="walk-in-brgy">Brgy</label><input id="walk-in-brgy" name="brgy" /></div><div class="field-group"><label for="walk-in-town">Town</label><input id="walk-in-town" name="town" /></div><div class="field-group"><label for="walk-in-age">Age</label><input id="walk-in-age" name="age" type="number" min="0" max="120" /></div><div class="field-group"><label for="walk-in-phone">Contact Number</label><input id="walk-in-phone" name="phone" required /></div><div class="field-group"><label for="walk-in-gender">Gender</label><input id="walk-in-gender" name="gender" /></div></div>
-                <div class="field-row"><div class="field-group"><label for="walk-in-service">Service needed</label><select id="walk-in-service" name="service" required><option value="">Select a service</option><option>Comprehensive Eye Examination</option><option>Vision Assessment</option><option>Eye Health Screening</option><option>Optical Consultation</option></select></div></div>
+                <div class="field-row"><div class="field-group"><label for="walk-in-service">Service needed</label><select id="walk-in-service" name="service" required><option value="">Select a service</option><option>Comprehensive Eye Examination</option><option>Vision Assessment</option><option>Eye Health Screening</option><option>Optical Consultation</option><option>Follow-up Consultation</option></select></div></div>
                 <div class="patient-referral-section"><h5>Referral Information</h5><div class="field-row"><div class="field-group"><label for="walk-in-referred-by">Referred by</label><input id="walk-in-referred-by" name="referredBy" /></div><div class="field-group"><label for="walk-in-person">Person</label><input id="walk-in-person" name="person" /></div><div class="field-group"><label for="walk-in-hospital">Hospital</label><input id="walk-in-hospital" name="hospital" /></div><div class="field-group"><label for="walk-in-online">Online: FB/IG</label><select id="walk-in-online" name="online"><option value="">Select platform</option><option>Facebook</option><option>Instagram</option></select></div><div class="field-group"><label for="walk-in-passed-by">Passed by</label><input id="walk-in-passed-by" name="passedBy" /></div></div></div>
                 <fieldset class="walk-in-account-choice"><legend>Would this patient like an account created?</legend><label><input type="radio" name="accountRequested" value="no" checked /> No</label><label><input type="radio" name="accountRequested" value="yes" /> Yes</label><div class="field-group" id="walk-in-account-email-group" hidden><label for="walk-in-account-email">Email for account invitation</label><input id="walk-in-account-email" name="accountEmail" type="email" autocomplete="email" /></div></fieldset>
                 <button type="submit" class="btn btn-primary">Add to today’s queue</button><p id="walk-in-status" class="form-status" aria-live="polite"></p>
@@ -782,6 +782,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             <form id="profile-form" class="workflow-form">
               <div class="field-row"><div class="field-group"><label for="profile-name">Full name</label><input id="profile-name" name="name" required /></div><div class="field-group"><label for="profile-email">Email</label><input id="profile-email" name="email" type="email" disabled /></div></div>
               <div class="field-row"><div class="field-group"><label for="profile-phone">Contact number</label><input id="profile-phone" name="phone" type="tel" /></div><div class="field-group"><label for="profile-age">Age</label><input id="profile-age" name="age" type="number" min="0" max="120" /></div></div>
+              <div class="field-row"><div class="field-group"><label for="profile-barangay">Barangay</label><input id="profile-barangay" name="barangay" /></div><div class="field-group"><label for="profile-town">Town</label><input id="profile-town" name="town" /></div></div>
               <div class="field-group"><label for="profile-gender">Gender</label><input id="profile-gender" name="gender" /></div>
               <button type="submit" class="btn btn-primary">Save profile</button><p id="profile-status" class="form-status" aria-live="polite"></p>
             </form>
@@ -1419,12 +1420,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
 
     const showAppointmentActionStatus = (message, type) => {
-      if (!appointmentActionStatus) return;
-      appointmentActionStatus.textContent = message;
-      appointmentActionStatus.className = `task-state ${type}`;
-      appointmentActionStatus.hidden = false;
-      window.clearTimeout(showAppointmentActionStatus.timeout);
-      showAppointmentActionStatus.timeout = window.setTimeout(() => { appointmentActionStatus.hidden = true; }, 5000);
+      if (appointmentActionStatus) { appointmentActionStatus.textContent = ''; appointmentActionStatus.hidden = true; }
+      window.showStatusModal?.({ variant: type === 'error' ? 'error' : 'success', message, buttonLabel: type === 'error' ? 'Try again' : 'Continue' });
     };
 
     const closeRescheduleDialog = () => {
@@ -2187,7 +2184,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             if (type === 'claim-stubs' && typeof loadClaimStubs === 'function') await loadClaimStubs();
             await loadArchivedRecords();
           } catch (error) {
-            alert(error.message || 'Unable to restore the record.');
+            window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to restore the record.', buttonLabel: 'Try again' });
           }
         });
       });
@@ -2297,8 +2294,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             const result = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(result.message || 'Unable to archive claim stub.');
             await loadClaimStubs();
+            window.showStatusModal?.({ variant: 'success', message: 'Claim stub archived.', buttonLabel: 'Continue' });
           } catch (error) {
-            alert(error.message || 'Unable to archive claim stub.');
+            window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to archive claim stub.', buttonLabel: 'Try again' });
           }
         });
       });
@@ -2314,7 +2312,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             await loadClaimStubs();
           } catch (error) {
             select.value = previous || 'not-claimed';
-            alert(error.message || 'Unable to update claim stub status.');
+            window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to update claim stub status.', buttonLabel: 'Try again' });
           }
         });
       });
@@ -3102,23 +3100,25 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       delete values.phone;
       delete values.age;
       delete values.gender;
-      if (patientRecordStatus) { patientRecordStatus.textContent = isEditMode ? 'Saving recent changes...' : 'Saving patient record...'; patientRecordStatus.classList.remove('error'); }
+        if (patientRecordStatus) { patientRecordStatus.textContent = ''; patientRecordStatus.classList.remove('error'); }
       try {
         if (isEditMode) {
           const recordId = patientRecordModal?.dataset.recordId || patientRecordForm?.dataset.recordId;
           const response = await fetch(`${api}/api/clinical-records/${recordId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ title: 'Patient Record', details: JSON.stringify(values), issuedAt: values.date || new Date().toISOString().slice(0, 10), status: 'active' }) });
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || 'Unable to update patient record.');
-          if (patientRecordStatus) patientRecordStatus.textContent = 'Patient record updated.';
+          if (patientRecordStatus) patientRecordStatus.textContent = '';
+          window.showStatusModal?.({ variant: 'success', message: 'Changes saved.', buttonLabel: 'Continue' });
         } else {
           const response = await fetch(`${api}/api/clinical-records/patient-record`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ patientId: patientAccountId?.value || undefined, patient, record: values }) });
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || 'Unable to create patient record.');
-          if (patientRecordStatus) patientRecordStatus.textContent = result.message;
+          if (patientRecordStatus) patientRecordStatus.textContent = '';
+          window.showStatusModal?.({ variant: 'success', message: 'Patient added successfully.', buttonLabel: 'Continue' });
         }
         await loadClinicalRecords();
         window.setTimeout(closePatientRecordModal, 500);
-      } catch (error) { if (patientRecordStatus) { patientRecordStatus.textContent = error.message; patientRecordStatus.classList.add('error'); } }
+      } catch (error) { if (patientRecordStatus) { patientRecordStatus.textContent = ''; patientRecordStatus.classList.remove('error'); } window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to save the patient record.', buttonLabel: 'Try again' }); }
     });
 
     const walkInForm = document.getElementById('walk-in-form');
@@ -3165,7 +3165,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     walkInForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (!walkInForm.reportValidity()) return;
-      if (walkInStatus) { walkInStatus.textContent = 'Registering walk-in...'; walkInStatus.classList.remove('error'); }
+        if (walkInStatus) { walkInStatus.textContent = ''; walkInStatus.classList.remove('error'); }
       const values = Object.fromEntries(new FormData(walkInForm).entries());
       const patient = { patientId: values.patientId || undefined, name: values.name, surname: values.surname, phone: values.phone, age: values.age, gender: values.gender, brgy: values.brgy, town: values.town };
       const record = { date: values.date, referredBy: values.referredBy, person: values.person, online: values.online, hospital: values.hospital, passedBy: values.passedBy, service: values.service };
@@ -3173,7 +3173,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const response = await fetch(`${api}/api/appointments/walk-in`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ patient, record, accountRequested: values.accountRequested === 'yes', accountEmail: values.accountEmail }) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to register walk-in.');
-        if (walkInStatus) walkInStatus.textContent = result.invitationSent ? 'Patient registered. Account invitation sent.' : result.accountLinked ? 'Patient registered and linked to the existing account.' : (values.accountRequested === 'yes' ? 'Patient record and queue ticket created. The account could not be set up; staff can link or invite an account later.' : 'Patient registered and added to today’s queue.');
+        if (walkInStatus) walkInStatus.textContent = '';
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(result.ticketUrl)}`;
         walkInTicket.hidden = false;
         walkInTicket.innerHTML = `<h2>Queue ticket</h2><p><strong>Queue number:</strong> ${escapeHtml(result.appointment.queueNumber)}</p><p><strong>Date:</strong> ${escapeHtml(result.appointment.preferredDate)}</p><p><strong>Service:</strong> ${escapeHtml(result.appointment.service)}</p><img src="${qrUrl}" alt="QR code for live queue status" /><div><button type="button" class="btn btn-secondary" id="walk-in-print-ticket">Print ticket</button></div>`;
@@ -3189,7 +3189,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         walkInAccountEmailGroup.hidden = true;
         if (walkInSearch) walkInSearch.value = '';
         await loadClinicQueue();
-      } catch (error) { if (walkInStatus) { walkInStatus.textContent = error.message; walkInStatus.classList.add('error'); } }
+        window.showStatusModal?.({ variant: 'success', message: result.invitationSent ? 'Account created successfully.' : 'Patient added successfully.', buttonLabel: 'Continue' });
+      } catch (error) { if (walkInStatus) { walkInStatus.textContent = ''; walkInStatus.classList.remove('error'); } window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to register the walk-in patient.', buttonLabel: 'Try again' }); }
     });
 
     const clinicQueueList = document.getElementById('clinic-queue-list');
@@ -3217,8 +3218,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           button.disabled = true;
           const update = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: 'in_progress' }) });
           const payload = await update.json();
-          if (!update.ok) { button.disabled = false; await loadClinicQueue(); if (clinicQueueStatus) clinicQueueStatus.textContent = payload.message || 'Unable to call patient.'; return; }
+          if (!update.ok) { button.disabled = false; await loadClinicQueue(); if (clinicQueueStatus) clinicQueueStatus.textContent = payload.message || 'Unable to call patient.'; window.showStatusModal?.({ variant: 'error', message: payload.message || 'Unable to call patient.', buttonLabel: 'Try again' }); return; }
           await loadClinicQueue();
+          window.showStatusModal?.({ variant: 'success', message: 'Patient checked in successfully.', buttonLabel: 'Continue' });
         }));
       } catch (error) {
         if (clinicQueueList) clinicQueueList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`;
@@ -3238,14 +3240,14 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const response = await fetch(`${api}/api/workspace/profile`, { headers: { Authorization: `Bearer ${token}` } });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || 'Unable to load profile.');
-      ['name', 'email', 'phone', 'age', 'gender'].forEach((field) => { const input = profileForm.elements.namedItem(field); if (input) input.value = result.user[field] || ''; });
+      ['name', 'email', 'phone', 'age', 'gender', 'barangay', 'town'].forEach((field) => { const input = profileForm.elements.namedItem(field); if (input) input.value = result.user[field] || ''; });
     };
     profileForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
       const response = await fetch(`${api}/api/workspace/profile`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(Object.fromEntries(new FormData(profileForm).entries())) });
       const result = await response.json();
       profileStatus.textContent = result.message || 'Profile updated.';
-      if (response.ok) localStorage.setItem('hmVisionUser', JSON.stringify({ ...user, name: result.user.name }));
+      if (response.ok) localStorage.setItem('hmVisionUser', JSON.stringify({ ...user, name: result.user.name, phone: result.user.phone, age: result.user.age, gender: result.user.gender, barangay: result.user.barangay, town: result.user.town }));
     });
     loadProfile().catch((error) => { if (profileStatus) profileStatus.textContent = error.message; });
 
@@ -3366,10 +3368,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
     const setAdminStatus = (message, type = 'success') => {
       if (!adminStatus) return;
-      adminStatus.textContent = message;
+      const isProgress = /^creating\b/i.test(message);
+      adminStatus.textContent = isProgress ? message : '';
       adminStatus.classList.remove('error', 'success');
-      if (type === 'error') adminStatus.classList.add('error');
-      if (type === 'success') adminStatus.classList.add('success');
+      if (!isProgress) window.showStatusModal?.({ variant: type === 'error' ? 'error' : 'success', message, buttonLabel: type === 'error' ? 'Try again' : 'Continue' });
     };
 
     const renderAdminConfirmation = () => {
@@ -3444,7 +3446,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const response = await fetch(`${api}/api/admin/users`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to create account.');
-        setAdminStatus(result.message || 'Account created successfully.', 'success');
+        setAdminStatus('Account created successfully.', 'success');
         adminForm.reset();
         adminForm.hidden = true;
         adminFormToggle.textContent = 'Create account';
@@ -3487,10 +3489,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const response = await fetch(`${api}/api/admin/users/${button.dataset.userId}/archive`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: shouldArchive }) });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) {
-          alert(result.message || 'Unable to update this account.');
+          window.showStatusModal?.({ variant: 'error', message: result.message || 'Unable to update this account.', buttonLabel: 'Try again' });
           return;
         }
         await loadUsers();
+        if (shouldArchive) window.showStatusModal?.({ variant: 'success', message: 'Team member archived.', buttonLabel: 'Continue' });
       }));
     };
 
@@ -3645,11 +3648,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       return data.name || data.invoiceNumber || data.orderNumber || data.reference || data.sku || record.recordType;
     };
     const setOperationStatus = (message, type = 'success') => {
-      if (!operationStatus) return;
-      operationStatus.textContent = message;
-      operationStatus.classList.remove('error', 'success');
-      if (type === 'error') operationStatus.classList.add('error');
-      if (type === 'success') operationStatus.classList.add('success');
+      const isProgress = /^saving\b/i.test(message);
+      if (operationStatus) { operationStatus.textContent = isProgress ? message : ''; operationStatus.classList.remove('error', 'success'); }
+      if (!isProgress) window.showStatusModal?.({ variant: type === 'error' ? 'error' : 'success', message: type === 'success' && /updated|saved/i.test(message) ? 'Changes saved.' : message, buttonLabel: type === 'error' ? 'Try again' : 'Continue' });
     };
     const renderOperationConfirmation = () => {
       if (!operationForm || !operationConfirmSummary) return;
@@ -3958,11 +3959,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
     const bindOperationActions = (records) => {
       operationList?.querySelectorAll('.operation-remove').forEach((button) => button.addEventListener('click', async () => {
-        if (!window.confirm('Remove this record?')) return;
-        const response = await fetch(`${api}/api/clinic-operations/${button.dataset.operationId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-        const result = await response.json();
-        if (!response.ok) { if (operationStatus) operationStatus.textContent = result.message || 'Unable to remove record.'; operationStatus?.classList.add('error'); return; }
-        await loadOperations();
+        const record = records.find((item) => item._id === button.dataset.operationId);
+        if (!record || !window.confirm(`Permanently delete this ${record.recordType.replace(/-/g, ' ')}? This can't be undone.`)) return;
+        try {
+          const response = await fetch(`${api}/api/clinic-operations/${button.dataset.operationId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || `Unable to delete ${record.recordType.replace(/-/g, ' ')}.`);
+          await loadOperations();
+          window.showStatusModal?.({ variant: 'success', message: `${record.recordType.replace(/-/g, ' ')} deleted.`, buttonLabel: 'Continue' });
+        } catch (error) { window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to delete this record.', buttonLabel: 'Try again' }); }
       }));
       operationList?.querySelectorAll('.operation-archive').forEach((button) => button.addEventListener('click', async () => {
         const record = records.find((item) => item._id === button.dataset.operationId);
@@ -3971,11 +3976,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         if (!window.confirm(shouldArchive ? 'Archive this record? It will be hidden from the default list.' : 'Restore this record to the active list?')) return;
         const response = await fetch(`${api}/api/clinic-operations/${record._id}/archive`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: shouldArchive }) });
         const result = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          alert(result.message || 'Unable to archive this record.');
-          return;
-        }
+        if (!response.ok) { window.showStatusModal?.({ variant: 'error', message: result.message || `Unable to ${shouldArchive ? 'archive' : 'restore'} ${record.recordType.replace(/-/g, ' ')}.`, buttonLabel: 'Try again' }); return; }
         await loadOperations();
+        if (shouldArchive) window.showStatusModal?.({ variant: 'success', message: `${record.recordType.replace(/-/g, ' ')} archived.`, buttonLabel: 'Continue' });
       }));
       operationList?.querySelectorAll('.operation-edit:not(:disabled)').forEach((button) => button.addEventListener('click', () => {
         const record = records.find((item) => item._id === button.dataset.operationId);
@@ -4032,6 +4035,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         delete data.adjustmentType;
       }
       ['quantity', 'minimumStock', 'reorderLevel', 'cost', 'sellingPrice', 'beginningBalance', 'receipt', 'sold', 'endingBalance', 'total', 'amount'].forEach((field) => { if (data[field] !== undefined) data[field] = Number(data[field]); });
+      const wasEditing = Boolean(editingOperationId);
       setOperationStatus('Saving record...', 'success');
       try {
         const endpoint = editingOperationId ? `${api}/api/clinic-operations/${editingOperationId}` : `${api}/api/clinic-operations/${operationTypeBySection[section]}`;
@@ -4042,7 +4046,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         editingOperationId = '';
         const submit = operationForm.querySelector('button[type="submit"]');
         if (submit) submit.textContent = `Save ${pageTitle}`;
-        setOperationStatus(`${pageTitle} ${response.status === 200 ? 'updated' : 'saved'}.`, 'success');
+        setOperationStatus(wasEditing ? 'Changes saved.' : `${pageTitle} saved.`, 'success');
         if (operationFormModal) operationFormModal.close();
         if (operationConfirmModal) operationConfirmModal.close();
         if (operationFormToggle) operationFormToggle.setAttribute('aria-expanded', 'false');
@@ -4586,7 +4590,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       invoiceForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
         const customer = applyCustomerDetails('billing-customer');
-        if (!customer.patientName) { invoiceStatus.textContent = 'Select a customer.'; invoiceStatus.classList.add('error'); return; }
+        if (!customer.patientName) { invoiceStatus.textContent = ''; invoiceStatus.classList.remove('error'); window.showStatusModal?.({ variant: 'error', message: 'Select a customer before saving the invoice.', buttonLabel: 'Try again' }); return; }
         if (!window.confirm(editingInvoiceId ? 'Update this invoice?' : 'Create this invoice?')) return;
         const payload = {
           ...customer,
@@ -4604,26 +4608,28 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           const response = await fetch(editingInvoiceId ? `${api}/api/clinic-operations/${editingInvoiceId}` : `${api}/api/clinic-operations/invoice`, { method: editingInvoiceId ? 'PATCH' : 'POST', headers: billingHeaders, body: JSON.stringify(payload) });
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || 'Unable to save invoice.');
+          const invoiceWasEdited = Boolean(editingInvoiceId);
           invoiceForm.reset();
           editingInvoiceId = '';
           itemsBody.innerHTML = itemRowMarkup();
           if (invoiceDate) invoiceDate.value = todayIso();
           if (dueDate) dueDate.value = todayIso();
           invoiceForm.querySelector('button[type="submit"]').textContent = 'Create invoice';
-          invoiceStatus.textContent = result.record?.data?.invoiceNumber ? `Invoice ${result.record.data.invoiceNumber} saved.` : 'Invoice saved.';
+          invoiceStatus.textContent = '';
           if (billingInvoiceFormModal) billingInvoiceFormModal.close();
           if (billingInvoiceFormToggle) billingInvoiceFormToggle.setAttribute('aria-expanded', 'false');
           billingPage = 1;
           await loadBilling();
-        } catch (error) { invoiceStatus.textContent = error.message; invoiceStatus.classList.add('error'); }
+          window.showStatusModal?.({ variant: 'success', message: invoiceWasEdited ? 'Changes saved.' : 'Invoice created successfully.', buttonLabel: 'Continue' });
+        } catch (error) { invoiceStatus.textContent = ''; invoiceStatus.classList.remove('error'); window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to save invoice.', buttonLabel: 'Try again' }); }
       });
       paymentForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
         const invoiceId = document.getElementById('billing-payment-invoice')?.value;
         const invoice = billingInvoices.find((item) => item._id === invoiceId);
         const amount = Number(document.getElementById('billing-payment-amount')?.value);
-        if (!invoice) { paymentStatus.textContent = 'Select an invoice.'; paymentStatus.classList.add('error'); return; }
-        if (amount > Number(invoice.data.balance || 0)) { paymentStatus.textContent = 'Payment cannot exceed the remaining balance.'; paymentStatus.classList.add('error'); return; }
+        if (!invoice) { paymentStatus.textContent = ''; paymentStatus.classList.remove('error'); window.showStatusModal?.({ variant: 'error', message: 'Select an invoice before recording payment.', buttonLabel: 'Try again' }); return; }
+        if (amount > Number(invoice.data.balance || 0)) { paymentStatus.textContent = ''; paymentStatus.classList.remove('error'); window.showStatusModal?.({ variant: 'error', message: 'Payment cannot exceed the remaining balance.', buttonLabel: 'Try again' }); return; }
         if (!window.confirm('Record this payment?')) return;
         paymentStatus.textContent = 'Recording payment...';
         paymentStatus.classList.remove('error');
@@ -4642,14 +4648,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           if (!response.ok) throw new Error(result.message || 'Unable to record payment.');
           paymentForm.reset();
           if (paymentDate) paymentDate.value = todayIso();
-          paymentStatus.textContent = result.record?.data?.receiptNumber ? `Receipt ${result.record.data.receiptNumber} recorded.` : 'Payment recorded.';
+          paymentStatus.textContent = '';
           await loadBilling();
+          window.showStatusModal?.({ variant: 'success', message: 'Payment recorded successfully.', buttonLabel: 'Continue' });
           detailTitle.textContent = 'Payment receipt';
           detailContent.innerHTML = receiptMarkup(result.record);
           detailModal?.showModal();
           const paymentFormModal = document.getElementById('billing-payment-form-modal');
           paymentFormModal?.close();
-        } catch (error) { paymentStatus.textContent = error.message; paymentStatus.classList.add('error'); }
+        } catch (error) { paymentStatus.textContent = ''; paymentStatus.classList.remove('error'); window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to record payment.', buttonLabel: 'Try again' }); }
       });
       const paymentFormModal = document.getElementById('billing-payment-form-modal');
       const paymentFormToggle = document.getElementById('billing-payment-form-toggle');
@@ -4703,15 +4710,17 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           if (!window.confirm('Cancel this invoice? This cannot be undone unless no payments were recorded.')) return;
           const response = await fetch(`${api}/api/clinic-operations/invoice/${cancel.dataset.billingCancel}/cancel`, { method: 'POST', headers: billingHeaders });
           const result = await response.json();
-          if (!response.ok) { alert(result.message || 'Unable to cancel invoice.'); return; }
+          if (!response.ok) { window.showStatusModal?.({ variant: 'error', message: result.message || 'Unable to cancel invoice.', buttonLabel: 'Try again' }); return; }
           await loadBilling();
+          window.showStatusModal?.({ variant: 'success', message: 'Invoice cancelled.', buttonLabel: 'Continue' });
         }
         if (reverse) {
           if (!window.confirm('Reverse this payment? The invoice balance will be restored.')) return;
           const response = await fetch(`${api}/api/clinic-operations/payment/${reverse.dataset.billingReverse}/reverse`, { method: 'POST', headers: billingHeaders, body: JSON.stringify({ reason: 'Owner reversal' }) });
           const result = await response.json();
-          if (!response.ok) { alert(result.message || 'Unable to reverse payment.'); return; }
+          if (!response.ok) { window.showStatusModal?.({ variant: 'error', message: result.message || 'Unable to reverse payment.', buttonLabel: 'Try again' }); return; }
           await loadBilling();
+          window.showStatusModal?.({ variant: 'success', message: 'Payment reversed.', buttonLabel: 'Continue' });
         }
         if (pay) {
           const invoice = billingInvoices.find((item) => item._id === pay.dataset.billingPay);
@@ -4725,7 +4734,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         if (remind) {
           const response = await fetch(`${api}/api/clinic-operations/invoice/${remind.dataset.billingRemind}/reminder`, { method: 'POST', headers: billingHeaders });
           const result = await response.json();
-          alert(result.message || 'Reminder processed.');
+          window.showStatusModal?.({ variant: response.ok ? 'success' : 'error', message: result.message || (response.ok ? 'Reminder processed.' : 'Unable to send reminder.'), buttonLabel: response.ok ? 'Continue' : 'Try again' });
         }
       });
       document.getElementById('billing-detail-close')?.addEventListener('click', () => detailModal?.close());
@@ -4944,7 +4953,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
         adminForm?.addEventListener('submit', async (event) => {
           event.preventDefault();
-          adminStatus.textContent = 'Creating account...';
+          adminStatus.textContent = '';
           adminStatus.classList.remove('error');
 
           try {
@@ -4958,19 +4967,20 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'Unable to create account.');
-            adminStatus.textContent = result.message;
+            adminStatus.textContent = '';
+            window.showStatusModal?.({ variant: 'success', message: 'Account created successfully.', buttonLabel: 'Continue' });
             adminForm.reset();
             await loadManagedUsers();
           } catch (error) {
-            adminStatus.textContent = error.message;
-            adminStatus.classList.add('error');
+            adminStatus.textContent = '';
+            window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to create account.', buttonLabel: 'Try again' });
           }
         });
 
         loadManagedUsers().catch((error) => {
           if (adminStatus) {
-            adminStatus.textContent = error.message;
-            adminStatus.classList.add('error');
+            adminStatus.textContent = '';
+            window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to load managed accounts.', buttonLabel: 'Try again' });
           }
         });
       }

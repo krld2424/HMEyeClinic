@@ -12,33 +12,45 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
       <h1>Create your account</h1>
       <p class="auth-intro">Your registration automatically creates a Patient account.</p>
 
-      <form id="register-form" class="auth-form active register-form">
-        <div class="field-row">
-          <div class="field-group"><label for="first-name">First name</label><input id="first-name" name="firstName" type="text" required /></div>
-          <div class="field-group"><label for="last-name">Last name</label><input id="last-name" name="lastName" type="text" required /></div>
+      <div class="registration-progress" role="group" aria-label="Registration progress">
+        <div class="registration-progress__labels"><span data-registration-step-label="1" aria-current="step">1. Personal</span><span data-registration-step-label="2">2. Account</span><span data-registration-step-label="3">3. Verify</span></div>
+        <div class="registration-progress__track" role="progressbar" aria-label="Account registration progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1"><span id="registration-progress-fill"></span></div>
+        <p id="registration-progress-caption" aria-live="polite">Step 1 of 3: Personal details</p>
+      </div>
+
+      <form id="register-form" class="auth-form active register-form" novalidate>
+        <div class="register-form-step" data-register-step="1">
+          <h2>Personal details</h2>
+          <div class="field-row">
+            <div class="field-group"><label for="first-name">First name</label><input id="first-name" name="firstName" type="text" required /></div>
+            <div class="field-group"><label for="last-name">Last name</label><input id="last-name" name="lastName" type="text" required /></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label for="middle-initial">Middle initial</label><input id="middle-initial" name="middleInitial" type="text" maxlength="1" pattern="[A-Za-z]?" /></div>
+            <div class="field-group"><label for="suffix">Suffix</label><input id="suffix" name="suffix" type="text" placeholder="Jr., Sr., III" /></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label for="age">Age</label><input id="age" name="age" type="number" inputmode="numeric" min="0" max="120" step="1" pattern="[0-9]*" required /></div>
+            <div class="field-group"><label for="gender">Gender</label><select id="gender" name="gender" required><option value="">Select gender</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label for="register-barangay">Barangay</label><input id="register-barangay" name="barangay" type="text" autocomplete="address-level3" required /></div>
+            <div class="field-group"><label for="register-town">Town</label><input id="register-town" name="town" type="text" autocomplete="address-level2" required /></div>
+          </div>
+          <button type="button" id="register-next-account" class="btn btn-primary auth-submit">Continue to account details</button>
         </div>
-        <div class="field-row">
-          <div class="field-group"><label for="middle-initial">Middle initial</label><input id="middle-initial" name="middleInitial" type="text" maxlength="1" pattern="[A-Za-z]?" /></div>
-          <div class="field-group"><label for="suffix">Suffix</label><input id="suffix" name="suffix" type="text" placeholder="Jr., Sr., III" /></div>
+        <div class="register-form-step" data-register-step="2" hidden>
+          <h2>Account details</h2>
+          <div class="field-row">
+            <div class="field-group"><label for="register-email">Email</label><input id="register-email" name="email" type="email" placeholder="name@example.com" autocomplete="email" required /></div>
+            <div class="field-group"><label for="register-phone">Contact number</label><input id="register-phone" name="phone" type="tel" inputmode="tel" placeholder="+63 000-000-0000" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" required /></div>
+          </div>
+          <div class="field-row">
+            <div class="field-group"><label for="register-password">Password</label><div class="password-field"><input id="register-password" name="password" type="password" minlength="8" autocomplete="new-password" required /><button class="password-toggle" type="button" data-password-toggle="register-password" aria-label="Show password">Show</button></div></div>
+            <div class="field-group"><label for="confirm-password">Confirm password</label><div class="password-field"><input id="confirm-password" name="confirmPassword" type="password" minlength="8" autocomplete="new-password" required /><button class="password-toggle" type="button" data-password-toggle="confirm-password" aria-label="Show password">Show</button></div></div>
+          </div>
+          <div class="register-form-step__actions"><button type="button" id="register-back-personal" class="btn btn-secondary">Back</button><button type="submit" class="btn btn-primary auth-submit">Create Patient Account</button></div>
         </div>
-        <div class="field-row">
-          <div class="field-group"><label for="age">Age</label><input id="age" name="age" type="number" inputmode="numeric" min="0" max="120" step="1" pattern="[0-9]*" required /></div>
-          <div class="field-group"><label for="gender">Gender</label><select id="gender" name="gender" required><option value="">Select gender</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select></div>
-        </div>
-        <div class="field-row">
-          <div class="field-group"><label for="register-barangay">Barangay</label><input id="register-barangay" name="barangay" type="text" autocomplete="address-level3" required /></div>
-          <div class="field-group"><label for="register-town">Town</label><input id="register-town" name="town" type="text" autocomplete="address-level2" required /></div>
-        </div>
-        <div class="field-row">
-          <div class="field-group"><label for="register-email">Email</label><input id="register-email" name="email" type="email" placeholder="name@example.com" autocomplete="email" required /></div>
-          <div class="field-group"><label for="register-phone">Contact number</label><input id="register-phone" name="phone" type="tel" inputmode="tel" placeholder="+63 000-000-0000" pattern="\+63 [0-9]{3}-[0-9]{3}-[0-9]{4}" maxlength="16" required /></div>
-        </div>
-        <div class="field-row">
-          <div class="field-group"><label for="register-password">Password</label><div class="password-field"><input id="register-password" name="password" type="password" minlength="8" autocomplete="new-password" required /><button class="password-toggle" type="button" data-password-toggle="register-password" aria-label="Show password">Show</button></div></div>
-          <div class="field-group"><label for="confirm-password">Confirm password</label><div class="password-field"><input id="confirm-password" name="confirmPassword" type="password" minlength="8" autocomplete="new-password" required /><button class="password-toggle" type="button" data-password-toggle="confirm-password" aria-label="Show password">Show</button></div></div>
-        </div>
-        <button type="submit" class="btn btn-primary auth-submit">Create Patient Account</button>
-        <p id="register-status" class="form-status" aria-live="polite"></p>
       </form>
       <section id="register-otp-step" class="auth-form active" hidden aria-labelledby="register-otp-title">
         <h2 id="register-otp-title">Verify your email</h2>
@@ -49,7 +61,6 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
             <input id="register-otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required />
           </div>
           <button type="submit" class="btn btn-primary auth-submit" id="verify-registration-otp">Verify email</button>
-          <p id="register-otp-status" class="form-status" aria-live="polite"></p>
           <button type="button" class="btn btn-secondary auth-submit" id="resend-registration-otp">Resend code</button>
         </form>
       </section>
@@ -57,76 +68,21 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
     </section>
   </main>
 
-  <dialog id="registration-success-dialog" class="registration-success-dialog" aria-labelledby="registration-success-title">
-    <div class="registration-success-dialog__content">
-      <div class="registration-success-icon" aria-hidden="true">✓</div>
-      <h2 id="registration-success-title">Account created</h2>
-      <p>Your patient account has been created successfully. You can sign in and continue to your patient dashboard from the login page.</p>
-      <div class="registration-success-actions">
-        <a href="/login" class="btn btn-primary">Go to sign in</a>
-        <button type="button" class="btn btn-secondary" id="close-registration-success-dialog">Close</button>
-      </div>
-    </div>
-  </dialog>
-
   <style>
     .auth-card-register [hidden] { display: none !important; }
     .register-form { gap: 14px; }
     .register-form .field-row { gap: 12px 18px; }
+    .register-form-step { display: grid; gap: 14px; }
+    .register-form-step h2 { margin: 0; color: var(--text); font-size: 1.12rem; }
+    .register-form-step__actions { display: flex; gap: 12px; }
+    .register-form-step__actions > * { flex: 1; }
+    .registration-progress { display: grid; gap: 8px; margin: 4px 0 20px; }
+    .registration-progress__labels { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .78rem; }
+    .registration-progress__labels [aria-current="step"] { color: var(--primary-dark); font-weight: 700; }
+    .registration-progress__track { height: 8px; overflow: hidden; border-radius: 999px; background: var(--primary-soft); }
+    .registration-progress__track span { display: block; width: 33.333%; height: 100%; border-radius: inherit; background: var(--primary); transition: width .25s ease; }
+    #registration-progress-caption { margin: 0; color: var(--muted); font-size: .85rem; }
 
-    .registration-success-dialog {
-      width: min(480px, calc(100vw - 2rem));
-      border: none;
-      border-radius: 22px;
-      padding: 0;
-      background: #ffffff;
-      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
-    }
-
-    .registration-success-dialog::backdrop {
-      background: rgba(15, 23, 42, 0.48);
-    }
-
-    .registration-success-dialog__content {
-      display: grid;
-      justify-items: center;
-      gap: 1rem;
-      padding: 2rem 1.5rem 1.5rem;
-      text-align: center;
-    }
-
-    .registration-success-icon {
-      display: grid;
-      place-items: center;
-      width: 4rem;
-      height: 4rem;
-      border-radius: 50%;
-      background: rgba(16, 185, 129, 0.12);
-      color: #097963;
-      font-size: 2rem;
-      font-weight: 700;
-    }
-
-    .registration-success-dialog h2 {
-      margin: 0;
-      color: var(--heading-color, #102a43);
-      font-size: clamp(1.35rem, 2vw, 1.7rem);
-    }
-
-    .registration-success-dialog p {
-      margin: 0;
-      color: var(--muted, #52607a);
-      line-height: 1.6;
-    }
-
-    .registration-success-actions {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      width: 100%;
-      margin-top: 0.25rem;
-    }
   </style>
 
   <script type="module">
@@ -147,21 +103,38 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
     const resendOtpButton = document.getElementById('resend-registration-otp');
     const phone = document.getElementById('register-phone');
     const age = document.getElementById('age');
-    const successDialog = document.getElementById('registration-success-dialog');
-    const closeSuccessDialogButton = document.getElementById('close-registration-success-dialog');
-
-    const openSuccessDialog = () => {
-      if (successDialog && typeof successDialog.showModal === 'function') {
-        successDialog.showModal();
-      }
+    const createAccountButton = form.querySelector('[type="submit"]');
+    const progressTrack = document.querySelector('.registration-progress__track');
+    const progressFill = document.getElementById('registration-progress-fill');
+    const progressCaption = document.getElementById('registration-progress-caption');
+    const registerSteps = [...form.querySelectorAll('[data-register-step]')];
+    let activeRegisterStep = 1;
+    const updateRegistrationProgress = (step) => {
+      progressTrack?.setAttribute('aria-valuenow', String(step));
+      if (progressFill) progressFill.style.width = `${(step / 3) * 100}%`;
+      document.querySelectorAll('[data-registration-step-label]').forEach((label) => {
+        if (label.dataset.registrationStepLabel === String(step)) label.setAttribute('aria-current', 'step');
+        else label.removeAttribute('aria-current');
+      });
+      if (progressCaption) progressCaption.textContent = ['Step 1 of 3: Personal details', 'Step 2 of 3: Account details', 'Step 3 of 3: Verify your email'][step - 1];
     };
-
-    closeSuccessDialogButton?.addEventListener('click', () => {
-      if (successDialog && typeof successDialog.close === 'function') {
-        successDialog.close();
-      }
+    const showRegisterStep = (step) => {
+      activeRegisterStep = step;
+      registerSteps.forEach((item) => { item.hidden = item.dataset.registerStep !== String(step); });
+      updateRegistrationProgress(step);
+      const firstInput = registerSteps[step - 1]?.querySelector('input, select');
+      firstInput?.focus();
+    };
+    const validateRegisterStep = (step) => {
+      const fields = [...(registerSteps[step - 1]?.querySelectorAll('input, select, textarea') || [])];
+      const invalidField = fields.find((field) => !field.checkValidity());
+      if (invalidField) { invalidField.reportValidity(); return false; }
+      return true;
+    };
+    document.getElementById('register-next-account')?.addEventListener('click', () => {
+      if (validateRegisterStep(1)) showRegisterStep(2);
     });
-
+    document.getElementById('register-back-personal')?.addEventListener('click', () => showRegisterStep(1));
     const formatPhone = (value) => {
       const digits = value.replace(/\D/g, '').replace(/^63/, '').slice(0, 10);
       const groups = [digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean);
@@ -189,6 +162,7 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
       otpEmail.textContent = email;
       form.hidden = true;
       otpStep.hidden = false;
+      updateRegistrationProgress(3);
       otpInput.focus();
       startResendCooldown(60);
     };
@@ -211,43 +185,44 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
     };
 
     const setOtpStatus = (message, isError = false) => {
-      otpStatus.textContent = message;
-      otpStatus.classList.toggle('error', isError);
-      otpStatus.classList.toggle('success', !isError);
+      otpStatus?.replaceChildren();
+      otpStatus?.classList.remove('error', 'success');
+      if (isError) window.showStatusModal?.({ variant: 'error', message, buttonLabel: 'Try again' });
     };
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      if (!form.checkValidity()) { form.reportValidity(); return; }
+      if (activeRegisterStep !== 2 || !validateRegisterStep(2)) return;
       const payload = Object.fromEntries(new FormData(form).entries());
       const ageValue = Number(payload.age);
       if (!Number.isInteger(ageValue) || ageValue < 0 || ageValue > 120) {
-        status.textContent = 'Age must be a whole number between 0 and 120.';
-        status.classList.add('error');
+        window.showStatusModal?.({ variant: 'error', message: 'Age must be a whole number between 0 and 120.', buttonLabel: 'Try again' });
         return;
       }
       if (payload.phone && !/^\+63 \d{3}-\d{3}-\d{4}$/.test(payload.phone)) {
-        status.textContent = 'Phone number must use +63 000-000-0000 format.';
-        status.classList.add('error');
+        window.showStatusModal?.({ variant: 'error', message: 'Phone number must use +63 000-000-0000 format.', buttonLabel: 'Try again' });
         return;
       }
-      if (payload.password !== payload.confirmPassword) { status.textContent = 'Passwords do not match.'; status.classList.add('error'); return; }
+      if (payload.password !== payload.confirmPassword) { window.showStatusModal?.({ variant: 'error', message: 'Passwords do not match.', buttonLabel: 'Try again' }); return; }
       delete payload.confirmPassword;
       payload.name = [payload.firstName, payload.middleInitial ? `${payload.middleInitial}.` : '', payload.lastName, payload.suffix].filter(Boolean).join(' ');
 
       try {
+        createAccountButton.disabled = true;
+        createAccountButton.textContent = 'Creating account…';
         const response = await fetch(`${api}/api/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to create account.');
 
-        status.textContent = result.message || 'Verification code sent.';
-        status.classList.remove('error');
-        status.classList.add('success');
+        status?.replaceChildren();
+        updateRegistrationProgress(3);
         showOtpStep(payload.email);
       } catch (error) {
-        status.textContent = error.message;
-        status.classList.remove('success');
-        status.classList.add('error');
+        status?.replaceChildren();
+        window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to create your account.', buttonLabel: 'Try again' });
+      } finally {
+        createAccountButton.disabled = false;
+        createAccountButton.textContent = 'Create Patient Account';
       }
     });
 
@@ -264,13 +239,14 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to verify your email.');
 
-        setOtpStatus('Email verified. Your account is ready.', false);
+        setOtpStatus('', false);
+        updateRegistrationProgress(3);
         form.reset();
         form.hidden = false;
         otpForm.reset();
         clearInterval(resendTimer);
         otpStep.hidden = true;
-        openSuccessDialog();
+        window.showStatusModal({ variant: 'success', title: 'Success!', message: 'Account created successfully.', buttonLabel: 'Go to sign in', onAction: () => { window.location.href = '/login'; } });
       } catch (error) {
         setOtpStatus(error.message, true);
       } finally {
@@ -296,7 +272,8 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
           throw new Error(result.message || 'Unable to resend the verification code.');
         }
         otpInput.value = '';
-        setOtpStatus(result.message, false);
+        setOtpStatus('', false);
+        window.showStatusModal?.({ variant: 'success', message: 'A new verification code was sent.', buttonLabel: 'Continue' });
         startResendCooldown(60);
       } catch (error) {
         setOtpStatus(error.message, true);
