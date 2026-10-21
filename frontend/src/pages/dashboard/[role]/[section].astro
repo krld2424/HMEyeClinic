@@ -2529,10 +2529,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       if (event.target === bookingConfirmedModal) closeConfirmedBookingResult();
     });
 
-    const getLocalDateValue = (date = new Date()) => {
-      const offsetDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
-      return offsetDate.toISOString().slice(0, 10);
-    };
+    const getLocalDateValue = (date = new Date()) => clinicDateValue(date);
 
     const isoDate = (date) => {
       const year = date.getFullYear();
@@ -2541,6 +2538,44 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       return `${year}-${month}-${day}`;
     };
 
+    const clinicDateParts = (date = new Date()) => {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+      }).formatToParts(date);
+      return Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+    };
+
+    const clinicDateValue = (date = new Date()) => {
+      const parts = clinicDateParts(date);
+      return `${parts.year}-${parts.month}-${parts.day}`;
+    };
+
+    const clinicClosingMinutes = (dateValue) => {
+      const [year, month, day] = dateValue.split('-').map(Number);
+      const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+      if (weekday === 0) return null;
+      return weekday === 6 ? (17 * 60) + 30 : 18 * 60;
+    };
+
+    const isClinicDayClosed = (dateValue, now = new Date()) => {
+      if (dateValue !== clinicDateValue(now)) return false;
+      const closingMinutes = clinicClosingMinutes(dateValue);
+      if (closingMinutes === null) return false;
+      const parts = clinicDateParts(now);
+      return (Number(parts.hour) * 60) + Number(parts.minute) >= closingMinutes;
+    };
+
+    const getFirstBookableDate = (now = new Date()) => {
+      const today = clinicDateValue(now);
+      if (!isClinicDayClosed(today, now)) return today;
+      const [year, month, day] = today.split('-').map(Number);
+      return isoDate(new Date(Date.UTC(year, month - 1, day + 1)));
+    };
+
+    const clinicToday = clinicDateValue();
+    calendarCursor = new Date(`${clinicToday}T12:00:00`);
+
     const isPastSlotForToday = (selectedDateValue, selectedTimeValue, now = new Date()) => {
       if (!selectedDateValue || !selectedTimeValue) return false;
       const todayDate = getLocalDateValue(now);
@@ -2548,7 +2583,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
       const [hours, minutes] = String(selectedTimeValue).split(':').map(Number);
       const slotMinutes = (hours * 60) + minutes;
-      const nowMinutes = (now.getHours() * 60) + now.getMinutes();
+      const nowParts = clinicDateParts(now);
+      const nowMinutes = (Number(nowParts.hour) * 60) + Number(nowParts.minute);
       const bufferMinutes = 15;
 
       return slotMinutes <= nowMinutes + bufferMinutes;
@@ -2600,12 +2636,11 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       for (let index = 0; index < firstDay; index += 1) calendarGrid.insertAdjacentHTML('beforeend', '<span class="calendar-day empty"></span>');
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const firstBookableDate = getFirstBookableDate();
       for (let day = 1; day <= daysInMonth; day += 1) {
         const date = new Date(year, month, day);
         const value = isoDate(date);
-        const disabled = date < today;
+        const disabled = value < firstBookableDate || isClinicDayClosed(value);
         calendarGrid.insertAdjacentHTML('beforeend', `<button type="button" class="calendar-day ${value === selectedDate ? 'selected' : ''}" data-calendar-date="${value}" ${disabled ? 'disabled' : ''}>${day}</button>`);
       }
       calendarGrid.querySelectorAll('[data-calendar-date]').forEach((button) => button.addEventListener('click', () => {
@@ -2617,9 +2652,16 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
 
     if (workflowDate) {
-      workflowDate.min = getLocalDateValue();
+      workflowDate.min = getFirstBookableDate();
       workflowDate.addEventListener('change', () => {
         selectedDate = workflowDate.value;
+        if (selectedDate && (selectedDate < getFirstBookableDate() || isClinicDayClosed(selectedDate))) {
+          workflowDate.value = '';
+          selectedDate = '';
+          workflowTime.innerHTML = '<option value="">Select a date first</option>';
+          renderCalendar();
+          return;
+        }
         console.log('[booking date debug]', {
           selectedDate,
           todayDate: getLocalDateValue(),
@@ -2627,6 +2669,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         });
         loadAvailability(selectedDate);
         renderCalendar();
+      });
+    }
+    if (rescheduleDateInput) {
+      rescheduleDateInput.min = getFirstBookableDate();
+      rescheduleDateInput.addEventListener('change', () => {
+        if (rescheduleDateInput.value && (rescheduleDateInput.value < getFirstBookableDate() || isClinicDayClosed(rescheduleDateInput.value))) {
+          rescheduleDateInput.value = '';
+          rescheduleDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
       });
     }
     document.getElementById('calendar-prev')?.addEventListener('click', () => { calendarCursor.setMonth(calendarCursor.getMonth() - 1); renderCalendar(); });
