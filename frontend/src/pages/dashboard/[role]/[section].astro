@@ -2573,8 +2573,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       return isoDate(new Date(Date.UTC(year, month - 1, day + 1)));
     };
 
-    const clinicToday = clinicDateValue();
-    calendarCursor = new Date(`${clinicToday}T12:00:00`);
+    const bookingClinicToday = clinicDateValue();
+    calendarCursor = new Date(`${bookingClinicToday}T12:00:00`);
 
     const isPastSlotForToday = (selectedDateValue, selectedTimeValue, now = new Date()) => {
       if (!selectedDateValue || !selectedTimeValue) return false;
