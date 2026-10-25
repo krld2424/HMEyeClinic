@@ -30,7 +30,7 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
         <div class="field-group turnstile-field">
           <div
             class="cf-turnstile"
-            data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY}
+            data-sitekey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || ''}
             data-callback="onTurnstileSuccess"
             data-expired-callback="onTurnstileExpired"
             data-error-callback="onTurnstileError"
@@ -95,29 +95,35 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
     const status = document.getElementById('login-status');
     const submitButton = form.querySelector('button[type="submit"]');
     const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
-    let turnstileVerified = true;
+    let turnstileVerified = false;
 
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
 
     const updateSubmitState = () => {
       const isBusy = form.dataset.submitting === 'true';
-      submitButton.disabled = isBusy;
+      submitButton.disabled = isBusy || !turnstileVerified;
       submitButton.setAttribute('aria-busy', String(isBusy));
       submitButton.textContent = isBusy ? 'Signing in...' : 'Sign In';
     };
 
-    window.onTurnstileSuccess = () => {
-      turnstileVerified = true;
+    window.onTurnstileSuccess = (challengeToken) => {
+      turnstileVerified = Boolean(challengeToken);
+      status.textContent = '';
+      status.classList.remove('error');
       updateSubmitState();
     };
 
     window.onTurnstileExpired = () => {
-      turnstileVerified = true;
+      turnstileVerified = false;
+      status.textContent = 'Security verification expired. Please verify again.';
+      status.classList.add('error');
       updateSubmitState();
     };
 
     window.onTurnstileError = () => {
-      turnstileVerified = true;
+      turnstileVerified = false;
+      status.textContent = 'Security verification could not load. Please refresh and try again.';
+      status.classList.add('error');
       updateSubmitState();
     };
 
@@ -127,9 +133,10 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
     };
 
     if (!turnstileKey) {
-      status.textContent = 'Turnstile is disabled.';
-      status.classList.remove('error');
+      status.textContent = 'Security verification is not configured. Please contact the clinic.';
+      status.classList.add('error');
     }
+    updateSubmitState();
 
     document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
       toggle.addEventListener('click', () => {
@@ -146,9 +153,11 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
       if (form.dataset.submitting === 'true') return;
 
       const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
-      if (turnstileToken) {
-        status.textContent = 'Security verification is temporarily disabled.';
-        status.classList.remove('error');
+      if (!turnstileKey || !turnstileVerified || !turnstileToken) {
+        status.textContent = turnstileKey ? 'Please complete the security verification.' : 'Security verification is not configured. Please contact the clinic.';
+        status.classList.add('error');
+        updateSubmitState();
+        return;
       }
 
       setSubmittingState(true);

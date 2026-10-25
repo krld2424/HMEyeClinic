@@ -455,10 +455,17 @@ router.post('/register/verify-otp', patientRegistrationOtpLimiter, async (req, r
 
 router.post('/login', loginLimiter, async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password, role, turnstileToken } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required.' });
+    }
+
+    if (!process.env.TURNSTILE_SECRET_KEY) {
+      return res.status(503).json({ message: 'Security verification is not configured. Please contact the clinic.' });
+    }
+    if (!turnstileToken || !(await verifyTurnstileToken(turnstileToken, req.ip))) {
+      return res.status(400).json({ message: 'Security verification failed. Please try again.' });
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });
