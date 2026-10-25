@@ -574,9 +574,11 @@
         if (!response.ok) throw new Error(result.message);
         templateId = result.template._id;
         status.textContent = result.message;
+        window.showStatusModal?.({ variant: 'success', message: result.message || 'Invoice template saved.', buttonLabel: 'Continue' });
       } catch (e) {
         status.textContent = e.message;
         status.classList.add('error');
+        window.showStatusModal?.({ variant: 'error', message: e.message || 'Unable to save invoice template.', buttonLabel: 'Try again' });
       }
     };
 
@@ -599,9 +601,11 @@
         status.textContent = result.message;
         // Reload template data after deletion to get the auto-created default template
         await list();
+        window.showStatusModal?.({ variant: 'success', message: result.message || 'Invoice template deleted.', buttonLabel: 'Continue' });
       } catch (e) {
         status.textContent = e.message;
         status.classList.add('error');
+        window.showStatusModal?.({ variant: 'error', message: e.message || 'Unable to delete invoice template.', buttonLabel: 'Try again' });
       }
     };
 

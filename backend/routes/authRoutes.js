@@ -4,7 +4,8 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import PatientRegistrationOtp from '../models/PatientRegistrationOtp.js';
 import crypto from 'node:crypto';
-import { sendPasswordResetOtp, sendPatientRegistrationOtp } from '../config/resend.js';
+import { sendPasswordResetOtp, sendPasswordChangeOtp, sendPatientRegistrationOtp } from '../config/resend.js';
+import { requireAuth } from '../middleware/auth.js';
 import { forgotPasswordLimiter, loginLimiter, otpLimiter, patientRegistrationOtpLimiter, registrationLimiter } from '../middleware/rateLimit.js';
 import { broadcastRealtimeEvent, publicUserPayload } from '../config/realtime.js';
 
@@ -181,6 +182,79 @@ router.post('/reset-password', async (req, res) => {
   user.passwordResetTokenExpiresAt = undefined;
   await user.save();
   return res.status(200).json({ success: true, message: 'Password reset successfully.' });
+});
+
+router.post('/change-password/request-code', requireAuth, forgotPasswordLimiter, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, message: 'Account not found.' });
+    if (user.passwordChangeOtpSentAt && Date.now() - user.passwordChangeOtpSentAt.getTime() < 60_000) {
+      return res.status(429).json({ success: false, message: 'Please wait one minute before requesting another code.' });
+    }
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    user.passwordChangeOtpHash = hashValue(otp);
+    user.passwordChangeOtpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    user.passwordChangeOtpAttempts = 0;
+    user.passwordChangeOtpSentAt = new Date();
+    user.passwordChangeTokenHash = undefined;
+    user.passwordChangeTokenExpiresAt = undefined;
+    await user.save();
+    try {
+      await sendPasswordChangeOtp(user.email, otp);
+    } catch (error) {
+      user.passwordChangeOtpHash = undefined;
+      user.passwordChangeOtpExpiresAt = undefined;
+      user.passwordChangeOtpAttempts = 0;
+      user.passwordChangeOtpSentAt = undefined;
+      await user.save();
+      throw error;
+    }
+    return res.status(200).json({ success: true, message: 'A verification code was sent to your registered email.' });
+  } catch (error) {
+    console.error('Password change code error:', error.message);
+    return res.status(500).json({ success: false, message: 'Unable to send a verification code. Please try again.' });
+  }
+});
+
+router.post('/change-password/verify-code', requireAuth, otpLimiter, async (req, res) => {
+  const otp = String(req.body.otp || '').trim();
+  const user = await User.findById(req.user.id);
+  const invalidResponse = { success: false, message: 'Invalid or expired verification code.' };
+  if (!user || !/^\d{6}$/.test(otp) || !user.passwordChangeOtpHash || !user.passwordChangeOtpExpiresAt || user.passwordChangeOtpExpiresAt <= new Date()) {
+    return res.status(400).json(invalidResponse);
+  }
+  if (user.passwordChangeOtpAttempts >= 5 || hashValue(otp) !== user.passwordChangeOtpHash) {
+    user.passwordChangeOtpAttempts += 1;
+    await user.save();
+    return res.status(400).json(invalidResponse);
+  }
+  const changeToken = crypto.randomBytes(32).toString('hex');
+  user.passwordChangeOtpHash = undefined;
+  user.passwordChangeOtpExpiresAt = undefined;
+  user.passwordChangeOtpAttempts = 0;
+  user.passwordChangeTokenHash = hashValue(changeToken);
+  user.passwordChangeTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  await user.save();
+  return res.status(200).json({ success: true, message: 'Email verified.', changeToken });
+});
+
+router.post('/change-password/confirm', requireAuth, async (req, res) => {
+  const changeToken = String(req.body.changeToken || '').trim();
+  const password = String(req.body.password || '');
+  const validPassword = password.length >= 8 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /\d/.test(password) && /[^A-Za-z0-9]/.test(password);
+  if (!changeToken || !validPassword) return res.status(400).json({ success: false, message: 'Password must be 8+ characters with uppercase, lowercase, number, and special character.' });
+  const user = await User.findOne({
+    _id: req.user.id,
+    passwordChangeTokenHash: hashValue(changeToken),
+    passwordChangeTokenExpiresAt: { $gt: new Date() },
+  });
+  if (!user) return res.status(400).json({ success: false, message: 'Verification expired. Request a new code and try again.' });
+  user.password = await bcrypt.hash(password, 10);
+  user.mustResetPassword = false;
+  user.passwordChangeTokenHash = undefined;
+  user.passwordChangeTokenExpiresAt = undefined;
+  await user.save();
+  return res.status(200).json({ success: true, message: 'Your password was changed successfully.' });
 });
 
 router.post('/register', registrationLimiter, patientRegistrationOtpLimiter, async (req, res) => {

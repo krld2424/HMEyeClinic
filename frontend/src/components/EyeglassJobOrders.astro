@@ -387,7 +387,8 @@ import { Search } from '@lucide/astro';
         const result = await request(`/api/job-orders/${encodeURIComponent(record._id)}/archive`, { method: 'PATCH', body: JSON.stringify({ archived: true }) });
         statusMessage.textContent = result.message;
         await loadRecords();
-      } catch (error) { statusMessage.textContent = error.message; statusMessage.classList.add('error'); }
+        window.showStatusModal?.({ variant: 'success', message: result.message || 'Job order archived.', buttonLabel: 'Continue' });
+      } catch (error) { statusMessage.textContent = error.message; statusMessage.classList.add('error'); window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to archive job order.', buttonLabel: 'Try again' }); }
     }
   });
   const joNumberInput = document.getElementById('job-order-number');
@@ -409,10 +410,12 @@ import { Search } from '@lucide/astro';
       const result = await request(path, { method: isEdit ? 'PATCH' : 'POST', body: JSON.stringify(data) });
       formMessage.textContent = result.message;
       await loadRecords();
+      window.showStatusModal?.({ variant: 'success', message: result.message || (isEdit ? 'Job order updated.' : 'Job order created.'), buttonLabel: 'Continue' });
       window.setTimeout(() => formDialog.close(), 300);
     } catch (error) {
       formMessage.textContent = error.message;
       formMessage.classList.add('error');
+      window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to save job order.', buttonLabel: 'Try again' });
     } finally {
       saveButton.disabled = false;
     }
