@@ -208,7 +208,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         <button class="sidebar-collapse-toggle" type="button" id="sidebar-collapse-toggle" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar"><SidebarIcon name="panel-left" /></button>
       </div>
       <span class="sidebar-role">{role} workspace</span>
-      {role !== 'owner' && (
+      {role !== 'owner' && role !== 'eye-care-assistant' && (
         <div class="sidebar-identity" aria-label="Account identifier">
           <span id="sidebar-id-label">{role === 'patient' ? 'Patient ID' : 'User ID'}</span>
           <strong id="sidebar-user-id">Loading...</strong>
@@ -685,7 +685,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                 <h2>Register walk-in patient</h2>
                 <input type="hidden" name="patientId" />
                 <div class="field-row"><div class="field-group"><label for="walk-in-surname">Surname</label><input id="walk-in-surname" name="surname" required /></div><div class="field-group"><label for="walk-in-name">Name</label><input id="walk-in-name" name="name" required /></div><div class="field-group"><label for="walk-in-date">Date</label><input id="walk-in-date" name="date" type="date" /></div></div>
-                <div class="field-row"><div class="field-group"><label for="walk-in-brgy">Brgy</label><input id="walk-in-brgy" name="brgy" /></div><div class="field-group"><label for="walk-in-town">Town</label><input id="walk-in-town" name="town" /></div><div class="field-group"><label for="walk-in-age">Age</label><input id="walk-in-age" name="age" type="number" min="0" max="120" /></div><div class="field-group"><label for="walk-in-phone">Contact Number</label><input id="walk-in-phone" name="phone" required /></div><div class="field-group"><label for="walk-in-gender">Gender</label><input id="walk-in-gender" name="gender" /></div></div>
+                <div class="field-row"><div class="field-group"><label for="walk-in-brgy">Brgy</label><input id="walk-in-brgy" name="brgy" /></div><div class="field-group"><label for="walk-in-town">Town</label><input id="walk-in-town" name="town" /></div><div class="field-group"><label for="walk-in-age">Age</label><input id="walk-in-age" name="age" type="number" min="0" max="120" /></div><div class="field-group"><label for="walk-in-phone">Contact Number</label><input id="walk-in-phone" name="phone" type="tel" inputmode="numeric" placeholder="0000-000-00000" pattern="[0-9]{4}-[0-9]{3}-[0-9]{5}" maxlength="15" required /></div><div class="field-group"><label for="walk-in-gender">Gender</label><input id="walk-in-gender" name="gender" /></div></div>
                 <div class="field-row"><div class="field-group"><label for="walk-in-service">Service needed</label><select id="walk-in-service" name="service" required><option value="">Select a service</option><option>Comprehensive Eye Examination</option><option>Vision Assessment</option><option>Eye Health Screening</option><option>Optical Consultation</option><option>Follow-up Consultation</option></select></div></div>
                 <div class="patient-referral-section"><h5>Referral Information</h5><div class="field-row"><div class="field-group"><label for="walk-in-referred-by">Referred by</label><input id="walk-in-referred-by" name="referredBy" /></div><div class="field-group"><label for="walk-in-person">Person</label><input id="walk-in-person" name="person" /></div><div class="field-group"><label for="walk-in-hospital">Hospital</label><input id="walk-in-hospital" name="hospital" /></div><div class="field-group"><label for="walk-in-online">Online: FB/IG</label><select id="walk-in-online" name="online"><option value="">Select platform</option><option>Facebook</option><option>Instagram</option></select></div><div class="field-group"><label for="walk-in-passed-by">Passed by</label><input id="walk-in-passed-by" name="passedBy" /></div></div></div>
                 <fieldset class="walk-in-account-choice"><legend>Would this patient like an account created?</legend><label><input type="radio" name="accountRequested" value="no" checked /> No</label><label><input type="radio" name="accountRequested" value="yes" /> Yes</label><div class="field-group" id="walk-in-account-email-group" hidden><label for="walk-in-account-email">Email for account invitation</label><input id="walk-in-account-email" name="accountEmail" type="email" autocomplete="email" /></div></fieldset>
@@ -770,7 +770,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
           {section === 'profile' && (
             <div class="account-profile-workspace">
-              <div class="section-header split"><div><h2>Account Profile</h2><p>Manage your account details and security.</p></div><button type="button" class="btn btn-secondary" id="change-password-open">Change password</button></div>
+              <div class="section-header split"><div><h2>Account Profile</h2><p>Manage your account details and security.</p></div><div class="account-profile-actions">{role === 'owner' && <button type="button" class="btn btn-secondary" id="owner-profile-edit">Edit profile</button>}<button type="button" class="btn btn-secondary" id="change-password-open">Change password</button></div></div>
               {role === 'patient' ? (
                 <form id="profile-form" class="workflow-form">
                   <div class="field-row"><div class="field-group"><label for="profile-name">Full name</label><input id="profile-name" name="name" required /></div><div class="field-group"><label for="profile-email">Email</label><input id="profile-email" name="email" type="email" disabled /></div></div>
@@ -780,7 +780,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                   <button type="submit" class="btn btn-primary">Save profile</button><p id="profile-status" class="form-status" aria-live="polite"></p>
                 </form>
               ) : (
-                <div class="profile-account-summary"><p><strong>Name</strong><span id="profile-account-name">Loading...</span></p><p><strong>Email</strong><span id="profile-account-email">Loading...</span></p><p><strong>Role</strong><span>{pageTitle}</span></p></div>
+                <>
+                  <div class="profile-account-summary" id="owner-profile-summary"><p><strong>Name</strong><span id="profile-account-name">Loading...</span></p><p><strong>Email</strong><span id="profile-account-email">Loading...</span></p><p><strong>Phone</strong><span id="profile-account-phone">Loading...</span></p><p><strong>Role</strong><span>{pageTitle}</span></p></div>
+                  {role === 'owner' && <form id="owner-profile-form" class="workflow-form" hidden><div class="field-row"><div class="field-group"><label for="owner-profile-name">Full name</label><input id="owner-profile-name" name="name" required /></div><div class="field-group"><label for="owner-profile-email">Email</label><input id="owner-profile-email" name="email" type="email" required /></div></div><div class="field-group"><label for="owner-profile-phone">Phone</label><input id="owner-profile-phone" name="phone" type="tel" /></div><div class="account-profile-actions"><button type="button" class="btn btn-secondary" id="owner-profile-cancel">Cancel</button><button type="submit" class="btn btn-primary">Save changes</button></div></form>}
+                </>
               )}
               <dialog id="change-password-dialog" class="confirmation-dialog" aria-labelledby="change-password-title">
                 <div class="confirmation-dialog__content">
@@ -1526,6 +1529,21 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
 
     const formatScheduleValue = (date, time) => `${date ? new Date(`${date}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date unavailable'}${time ? `, ${formatTo12Hour(time)}` : ''}`;
+    const appointmentSummaryText = (appointment, date = appointment.preferredDate, time = appointment.preferredTime) => `${appointment.name || 'Patient'} — ${appointment.service || 'Appointment'} — ${formatScheduleValue(date, time)}`;
+    const appointmentOutcomeMessage = (appointment, status, previousStatus = '') => {
+      const subject = appointmentSummaryText(appointment);
+      const name = appointment.name || 'Patient';
+      const service = appointment.service || 'appointment';
+      if (status === 'confirmed') return `Booking confirmed for ${subject}.`;
+      if (status === 'cancelled' && role !== 'patient' && ['pending', 'rescheduled'].includes(previousStatus)) return `Booking declined for ${subject}.`;
+      if (status === 'cancelled') return `Appointment cancelled for ${subject}.`;
+      if (status === 'rejected') return `Booking declined for ${subject}.`;
+      if (status === 'checked_in') return `${name} checked in for ${service} on ${formatScheduleValue(appointment.preferredDate, appointment.preferredTime)}.`;
+      if (status === 'in_progress') return `${name} was called for ${service} scheduled ${formatScheduleValue(appointment.preferredDate, appointment.preferredTime)}.`;
+      if (status === 'completed') return `Appointment marked completed for ${subject}.`;
+      return `Appointment status changed to ${appointmentStatusLabel(status)} for ${subject}.`;
+    };
+    const appointmentActionError = (error, appointment, action) => `${error} (${action}: ${appointmentSummaryText(appointment)}).`;
 
     const closeCorrectionDialog = () => {
       pendingCompletedCorrection = null;
@@ -1655,14 +1673,15 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             });
             const result = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(result.message || 'The appointment action failed.');
-            appointments = appointments.map((item) => item._id === appointment._id ? { ...item, status: nextStatus } : item);
-            showAppointmentActionStatus('Patient record updated successfully.', 'success');
+            const updatedAppointment = result.appointment || { ...appointment, status: nextStatus };
+            appointments = appointments.map((item) => item._id === appointment._id ? updatedAppointment : item);
+            showAppointmentActionStatus(appointmentOutcomeMessage(updatedAppointment, nextStatus, appointment.status), 'success');
             renderAppointmentStats();
             renderMainAppointmentCalendar();
             renderAppointmentPage();
             appointmentDetailDialog.close();
           } catch (error) {
-            showAppointmentActionStatus(error.message || 'The appointment action failed.', 'error');
+            showAppointmentActionStatus(appointmentActionError(error.message || 'The appointment action failed', appointment, 'Update failed'), 'error');
           } finally {
             actionButton.disabled = false;
           }
@@ -1888,13 +1907,16 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/archive`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: shouldArchive }) });
             const result = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(result.message || 'The archive action failed.');
-            appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? { ...item, archived: shouldArchive, status: shouldArchive ? 'cancelled' : item.status } : item);
-            showAppointmentActionStatus(shouldArchive ? 'Appointment archived.' : 'Appointment restored.', 'success');
+            const appointment = appointments.find((item) => item._id === button.dataset.appointmentId);
+            const updatedAppointment = result.appointment || { ...appointment, archived: shouldArchive, status: shouldArchive ? 'cancelled' : appointment?.status };
+            appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? updatedAppointment : item);
+            showAppointmentActionStatus(`${shouldArchive ? 'Appointment archived' : 'Appointment restored'}: ${appointmentSummaryText(updatedAppointment)}.`, 'success');
             renderAppointmentStats();
             renderMainAppointmentCalendar();
             renderAppointmentPage();
           } catch (error) {
-            showAppointmentActionStatus(error.message || 'The archive action failed.', 'error');
+            const appointment = appointments.find((item) => item._id === button.dataset.appointmentId);
+            showAppointmentActionStatus(appointmentActionError(error.message || 'The archive action failed', appointment || {}, shouldArchive ? 'Archive failed' : 'Restore failed'), 'error');
           } finally {
             button.disabled = false;
           }
@@ -1903,11 +1925,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         button.disabled = true;
         try {
           if (role === 'patient' && actionStatus === 'cancelled') {
+            const appointment = appointments.find((item) => item._id === button.dataset.appointmentId);
             const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: 'cancelled' }) });
             const result = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(result.message || 'The appointment action failed.');
             appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? { ...item, status: 'cancelled' } : item);
-            showAppointmentActionStatus('Appointment cancelled.', 'success');
+            showAppointmentActionStatus(appointmentOutcomeMessage(appointment || {}, 'cancelled'), 'success');
             renderAppointmentStats();
             renderMainAppointmentCalendar();
             renderAppointmentPage();
@@ -1916,14 +1939,17 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           const response = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: actionStatus }) });
           const result = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(result.message || 'The appointment action failed.');
-          appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? { ...item, status: actionStatus } : item);
-          showAppointmentActionStatus('Appointment updated successfully.', 'success');
+          const appointment = appointments.find((item) => item._id === button.dataset.appointmentId);
+          const updatedAppointment = result.appointment || { ...appointment, status: actionStatus };
+          appointments = appointments.map((item) => item._id === button.dataset.appointmentId ? updatedAppointment : item);
+          showAppointmentActionStatus(appointmentOutcomeMessage(updatedAppointment, actionStatus, appointment?.status), 'success');
           renderAppointmentStats();
           renderMainAppointmentCalendar();
           renderAppointmentPage();
         } catch (error) {
           button.disabled = false;
-          showAppointmentActionStatus(error.message || 'The appointment action failed.', 'error');
+          const appointment = appointments.find((item) => item._id === button.dataset.appointmentId);
+          showAppointmentActionStatus(appointmentActionError(error.message || 'The appointment action failed', appointment || {}, 'Update failed'), 'error');
         }
       }));
     };
@@ -1952,14 +1978,14 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         appointments = appointments.map((item) => item._id === appointment._id ? { ...item, status: 'rescheduled', preferredDate: newDate, preferredTime: newTime, lastReschedule: result.appointment?.lastReschedule || { previousDate: appointment.preferredDate, previousTime: appointment.preferredTime, newDate, newTime } } : item);
         pendingReschedule = null;
         rescheduleReviewDialog?.close();
-        showAppointmentActionStatus('Appointment rescheduled and patient notified.', 'success');
+        showAppointmentActionStatus(`Appointment rescheduled for ${appointment.name || 'Patient'} — ${appointment.service || 'Appointment'}: ${formatScheduleValue(appointment.preferredDate, appointment.preferredTime)} to ${formatScheduleValue(newDate, newTime)}. Patient notified.`, 'success');
         renderAppointmentStats();
         appointmentCalendarCursor = new Date(`${newDate}T00:00:00`);
         renderMainAppointmentCalendar();
         renderAppointmentPage();
       } catch (error) {
         if (rescheduleReviewError) rescheduleReviewError.textContent = error.message || 'The appointment could not be rescheduled.';
-        showAppointmentActionStatus(error.message || 'The appointment could not be rescheduled.', 'error');
+        showAppointmentActionStatus(appointmentActionError(error.message || 'The appointment could not be rescheduled', appointment, 'Reschedule failed'), 'error');
       } finally {
         rescheduleCommit.disabled = false;
       }
@@ -1997,15 +2023,16 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const response = await fetch(`${api}/api/appointments/${pendingCompletedCorrection._id}/correct-status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: 'pending', reason }) });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.message || 'The record correction failed.');
-        appointments = appointments.map((item) => item._id === pendingCompletedCorrection._id ? { ...item, status: 'pending' } : item);
+        const correctedAppointment = pendingCompletedCorrection;
+        appointments = appointments.map((item) => item._id === correctedAppointment._id ? { ...item, status: 'pending' } : item);
         closeCorrectionDialog();
-        showAppointmentActionStatus('Completed record corrected successfully.', 'success');
+        showAppointmentActionStatus(`Completed appointment corrected to pending for ${appointmentSummaryText(correctedAppointment)}. Reason: ${reason}`, 'success');
         renderAppointmentStats();
         renderMainAppointmentCalendar();
         renderAppointmentPage();
       } catch (error) {
         if (appointmentCorrectionError) appointmentCorrectionError.textContent = error.message || 'The record correction failed.';
-        showAppointmentActionStatus(error.message || 'The record correction failed.', 'error');
+        showAppointmentActionStatus(appointmentActionError(error.message || 'The record correction failed', pendingCompletedCorrection, 'Correction failed'), 'error');
       } finally {
         appointmentCorrectionConfirm.disabled = false;
       }
@@ -2256,6 +2283,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           const type = button.dataset.archiveType;
           const id = button.dataset.archiveId;
           if (!id) return;
+          const archivedRecord = archivedItems.find((item) => item.id === id);
           if (!window.confirm('Restore this record to the active list?')) return;
           try {
             const endpoints = {
@@ -2277,7 +2305,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             if (type === 'clinical-records') await loadClinicalRecords();
             if (type === 'claim-stubs' && typeof loadClaimStubs === 'function') await loadClaimStubs();
             await loadArchivedRecords();
-            window.showStatusModal?.({ variant: 'success', message: result.message || 'Record restored successfully.', buttonLabel: 'Continue' });
+            window.showStatusModal?.({ variant: 'success', message: `${archivedRecord?.type || 'Record'} "${archivedRecord?.label || id}" restored to active records.`, buttonLabel: 'Continue' });
           } catch (error) {
             window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to restore the record.', buttonLabel: 'Try again' });
           }
@@ -2384,12 +2412,13 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       claimStubList.querySelectorAll('.claim-stub-archive-action').forEach((button) => {
         button.addEventListener('click', async () => {
           if (!window.confirm('Archive this claim stub?')) return;
+          const stub = claimStubs.find((item) => item._id === button.dataset.stubId);
           try {
             const response = await fetch(`${api}/api/claim-stubs/${button.dataset.stubId}/archive`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: true }) });
             const result = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(result.message || 'Unable to archive claim stub.');
             await loadClaimStubs();
-            window.showStatusModal?.({ variant: 'success', message: 'Claim stub archived.', buttonLabel: 'Continue' });
+            window.showStatusModal?.({ variant: 'success', message: `Claim stub for ${stub?.patientName || 'patient'}${stub?.visitDate ? ` (visit ${stub.visitDate})` : ''} archived.`, buttonLabel: 'Continue' });
           } catch (error) {
             window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to archive claim stub.', buttonLabel: 'Try again' });
           }
@@ -2397,7 +2426,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       });
       claimStubList.querySelectorAll('.claim-stub-status-select').forEach((select) => {
         select.addEventListener('change', async () => {
-          const previous = claimStubs.find((item) => item._id === select.dataset.stubId)?.status;
+          const stub = claimStubs.find((item) => item._id === select.dataset.stubId);
+          const previous = stub?.status;
           select.className = `claim-stub-status-select status-${select.value}`;
           select.dataset.status = select.value;
           try {
@@ -2405,7 +2435,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             const result = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(result.message || 'Unable to update claim stub status.');
             await loadClaimStubs();
-            window.showStatusModal?.({ variant: 'success', message: result.message || 'Claim stub status updated.', buttonLabel: 'Continue' });
+            window.showStatusModal?.({ variant: 'success', message: `Claim stub for ${stub?.patientName || 'patient'}${stub?.visitDate ? ` (visit ${stub.visitDate})` : ''} changed from ${claimStubStatusLabel(previous)} to ${claimStubStatusLabel(select.value)}.`, buttonLabel: 'Continue' });
           } catch (error) {
             select.value = previous || 'not-claimed';
             window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to update claim stub status.', buttonLabel: 'Try again' });
@@ -2912,6 +2942,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       followUpPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { followUpPage += 1; renderFollowUps(); });
       followUpList.querySelectorAll('.follow-up-action').forEach((button) => button.addEventListener('click', async () => {
         button.disabled = true;
+        const followUp = followUps.find((item) => item._id === button.dataset.id);
         const update = { status: button.dataset.status };
         if (button.dataset.status === 'scheduled') update.scheduledDate = window.prompt('Scheduled date (YYYY-MM-DD):', new Date().toISOString().slice(0, 10));
         try {
@@ -2921,7 +2952,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           if (!response.ok) throw new Error(result.message || 'Unable to update follow-up request.');
           followUps = followUps.map((item) => item._id === button.dataset.id ? { ...item, ...update } : item);
           renderFollowUps();
-          window.showStatusModal?.({ variant: 'success', message: result.message || `Follow-up ${update.status}.`, buttonLabel: 'Continue' });
+          const patientName = followUp?.patientName || 'Patient';
+          const reason = followUp?.reason ? ` for ${followUp.reason}` : '';
+          const actionMessage = update.status === 'scheduled'
+            ? `Follow-up for ${patientName}${reason} scheduled for ${update.scheduledDate}.`
+            : `Follow-up for ${patientName}${reason} marked ${update.status}.`;
+          window.showStatusModal?.({ variant: 'success', message: actionMessage, buttonLabel: 'Continue' });
         } catch (error) {
           button.disabled = false;
           window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to update follow-up request.', buttonLabel: 'Try again' });
@@ -2934,13 +2970,14 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       event.preventDefault();
       followUpStatus.textContent = 'Submitting request...';
       try {
-        const response = await fetch(`${api}/api/follow-ups`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(Object.fromEntries(new FormData(followUpForm).entries())) });
+        const followUpRequest = Object.fromEntries(new FormData(followUpForm).entries());
+        const response = await fetch(`${api}/api/follow-ups`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(followUpRequest) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to submit request.');
         followUpStatus.textContent = result.message;
         followUpForm.reset();
         await loadPatientFollowUps();
-        window.showStatusModal?.({ variant: 'success', message: result.message || 'Follow-up request submitted.', buttonLabel: 'Continue' });
+        window.showStatusModal?.({ variant: 'success', message: `Follow-up request submitted for ${followUpRequest.reason}${followUpRequest.preferredDate ? ` on ${followUpRequest.preferredDate}` : ''}.`, buttonLabel: 'Continue' });
       } catch (error) { followUpStatus.textContent = error.message; followUpStatus.classList.add('error'); }
     });
 
@@ -3102,7 +3139,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         recordStatus.textContent = result.message;
         clinicalRecordForm.reset();
         await loadClinicalRecords();
-        window.showStatusModal?.({ variant: 'success', message: result.message || 'Record added.', buttonLabel: 'Continue' });
+        window.showStatusModal?.({ variant: 'success', message: `${payload.type || 'Clinical record'} added for patient ${payload.patientId}.`, buttonLabel: 'Continue' });
       } catch (error) { recordStatus.textContent = error.message; recordStatus.classList.add('error'); window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to save record.', buttonLabel: 'Try again' }); }
     });
 
@@ -3289,13 +3326,13 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || 'Unable to update patient record.');
           if (patientRecordStatus) patientRecordStatus.textContent = '';
-          window.showStatusModal?.({ variant: 'success', message: 'Changes saved.', buttonLabel: 'Continue' });
+          window.showStatusModal?.({ variant: 'success', message: `Patient record for ${patient.name} updated${values.service ? ` for ${values.service}` : ''}${values.date ? ` (visit ${values.date})` : ''}.`, buttonLabel: 'Continue' });
         } else {
           const response = await fetch(`${api}/api/clinical-records/patient-record`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ patientId: patientAccountId?.value || undefined, patient, record: values }) });
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || 'Unable to create patient record.');
           if (patientRecordStatus) patientRecordStatus.textContent = '';
-          window.showStatusModal?.({ variant: 'success', message: 'Patient added successfully.', buttonLabel: 'Continue' });
+          window.showStatusModal?.({ variant: 'success', message: `Patient record created for ${patient.name}${values.service ? ` for ${values.service}` : ''}${values.date ? ` (visit ${values.date})` : ''}.`, buttonLabel: 'Continue' });
         }
         await loadClinicalRecords();
         window.setTimeout(closePatientRecordModal, 500);
@@ -3308,6 +3345,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const walkInTicket = document.getElementById('walk-in-ticket');
     const walkInStatus = document.getElementById('walk-in-status');
     const walkInAccountEmailGroup = document.getElementById('walk-in-account-email-group');
+    const walkInPhone = document.getElementById('walk-in-phone');
+    const formatWalkInPhone = () => {
+      const digits = (walkInPhone?.value || '').replace(/\D/g, '').slice(0, 12);
+      walkInPhone.value = [digits.slice(0, 4), digits.slice(4, 7), digits.slice(7, 12)].filter(Boolean).join('-');
+    };
+    walkInPhone?.addEventListener('input', formatWalkInPhone);
     const walkInDateField = walkInForm?.elements.namedItem('date');
     if (walkInDateField && !walkInDateField.value) {
       const now = new Date();
@@ -3335,6 +3378,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             walkInForm.elements.namedItem('name').value = patient.firstName || patient.name.split(/\s+/)[0] || '';
             walkInForm.elements.namedItem('surname').value = patient.lastName || patient.name.split(/\s+/).slice(1).join(' ');
             walkInForm.elements.namedItem('phone').value = patient.phone || '';
+            formatWalkInPhone();
             walkInForm.elements.namedItem('age').value = patient.age || '';
             walkInForm.elements.namedItem('gender').value = patient.gender || '';
             walkInSearch.value = patient.name;
@@ -3370,7 +3414,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         walkInAccountEmailGroup.hidden = true;
         if (walkInSearch) walkInSearch.value = '';
         await loadClinicQueue();
-        window.showStatusModal?.({ variant: 'success', message: result.invitationSent ? 'Account created successfully.' : 'Patient added successfully.', buttonLabel: 'Continue' });
+        window.showStatusModal?.({ variant: 'success', message: result.invitationSent ? `Patient account and walk-in record created for ${patient.name}; an invitation was sent to ${values.accountEmail}.` : `Walk-in patient ${patient.name} added for ${record.service || 'an eye care visit'} on ${record.date || 'today'}.`, buttonLabel: 'Continue' });
       } catch (error) { if (walkInStatus) { walkInStatus.textContent = ''; walkInStatus.classList.remove('error'); } window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to register the walk-in patient.', buttonLabel: 'Try again' }); }
     });
 
@@ -3397,11 +3441,12 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No patients are checked in today.</p>';
         clinicQueueList.querySelectorAll('.queue-call-next').forEach((button) => button.addEventListener('click', async () => {
           button.disabled = true;
+          const queuePatient = items.find((item) => item._id === button.dataset.appointmentId);
           const update = await fetch(`${api}/api/appointments/${button.dataset.appointmentId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: 'in_progress' }) });
           const payload = await update.json();
           if (!update.ok) { button.disabled = false; await loadClinicQueue(); if (clinicQueueStatus) clinicQueueStatus.textContent = payload.message || 'Unable to call patient.'; window.showStatusModal?.({ variant: 'error', message: payload.message || 'Unable to call patient.', buttonLabel: 'Try again' }); return; }
           await loadClinicQueue();
-          window.showStatusModal?.({ variant: 'success', message: 'Patient checked in successfully.', buttonLabel: 'Continue' });
+          window.showStatusModal?.({ variant: 'success', message: appointmentOutcomeMessage(queuePatient || {}, 'in_progress'), buttonLabel: 'Continue' });
         }));
       } catch (error) {
         if (clinicQueueList) clinicQueueList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message)}</p>`;
@@ -3416,6 +3461,48 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
     const profileForm = document.getElementById('profile-form');
     const profileStatus = document.getElementById('profile-status');
+    const ownerProfileForm = document.getElementById('owner-profile-form');
+    const ownerProfileSummary = document.getElementById('owner-profile-summary');
+    const setOwnerProfileEditMode = (isEditing) => {
+      if (ownerProfileSummary) ownerProfileSummary.hidden = isEditing;
+      if (ownerProfileForm) ownerProfileForm.hidden = !isEditing;
+      document.getElementById('owner-profile-edit')?.toggleAttribute('hidden', isEditing);
+    };
+    const loadOwnerProfile = async () => {
+      if (!ownerProfileForm) return;
+      const response = await fetch(`${api}/api/workspace/account-profile`, { headers: { Authorization: `Bearer ${token}` } });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load profile.');
+      const account = result.user;
+      document.getElementById('profile-account-name').textContent = account.name || '—';
+      document.getElementById('profile-account-email').textContent = account.email || '—';
+      document.getElementById('profile-account-phone').textContent = account.phone || '—';
+      ownerProfileForm.elements.namedItem('name').value = account.name || '';
+      ownerProfileForm.elements.namedItem('email').value = account.email || '';
+      ownerProfileForm.elements.namedItem('phone').value = account.phone || '';
+    };
+    document.getElementById('owner-profile-edit')?.addEventListener('click', () => setOwnerProfileEditMode(true));
+    document.getElementById('owner-profile-cancel')?.addEventListener('click', () => { setOwnerProfileEditMode(false); loadOwnerProfile().catch(() => {}); });
+    ownerProfileForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        const response = await fetch(`${api}/api/workspace/account-profile`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(Object.fromEntries(new FormData(ownerProfileForm).entries())) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Unable to update profile.');
+        const account = result.user;
+        document.getElementById('profile-account-name').textContent = account.name || '—';
+        document.getElementById('profile-account-email').textContent = account.email || '—';
+        document.getElementById('profile-account-phone').textContent = account.phone || '—';
+        localStorage.setItem('hmVisionUser', JSON.stringify({ ...user, name: account.name, email: account.email }));
+        setOwnerProfileEditMode(false);
+        window.showStatusModal?.({ variant: 'success', message: `Owner profile for ${account.name || 'your account'} updated.`, buttonLabel: 'Continue' });
+      } catch (error) {
+        window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to update profile.', buttonLabel: 'Try again' });
+      }
+    });
+    loadOwnerProfile().catch((error) => {
+      if (ownerProfileSummary) ownerProfileSummary.innerHTML = `<p class="form-status error">${escapeHtml(error.message)}</p>`;
+    });
     const loadProfile = async () => {
       if (!profileForm) return;
       const response = await fetch(`${api}/api/workspace/profile`, { headers: { Authorization: `Bearer ${token}` } });
@@ -3430,8 +3517,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       profileStatus.textContent = result.message || 'Profile updated.';
       if (response.ok) {
         localStorage.setItem('hmVisionUser', JSON.stringify({ ...user, name: result.user.name, phone: result.user.phone, age: result.user.age, gender: result.user.gender, barangay: result.user.barangay, town: result.user.town }));
-        window.showStatusModal?.({ variant: 'success', message: result.message || 'Profile updated.', buttonLabel: 'Continue' });
-      } else window.showStatusModal?.({ variant: 'error', message: result.message || 'Unable to update profile.', buttonLabel: 'Try again' });
+        window.showStatusModal?.({ variant: 'success', message: `Profile for ${result.user.name || 'your account'} updated.`, buttonLabel: 'Continue' });
+      } else window.showStatusModal?.({ variant: 'error', message: result.message || 'Unable to update your profile.', buttonLabel: 'Try again' });
     });
     loadProfile().catch((error) => { if (profileStatus) profileStatus.textContent = error.message; });
 
@@ -3522,7 +3609,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       if (!response.ok) throw new Error(result.message || 'Unable to load clinic settings.');
       ['name', 'phone', 'email', 'address', 'hours', 'logo'].forEach((field) => { const input = settingsForm.elements.namedItem(field); if (input) input.value = result.settings[field] || ''; });
     };
-    settingsForm?.addEventListener('submit', async (event) => { event.preventDefault(); try { const response = await fetch(`${api}/api/workspace/clinic-settings`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(Object.fromEntries(new FormData(settingsForm).entries())) }); const result = await response.json(); settingsStatus.textContent = result.message || 'Settings updated.'; if (!response.ok) throw new Error(result.message || 'Unable to update settings.'); window.showStatusModal?.({ variant: 'success', message: result.message || 'Settings updated.', buttonLabel: 'Continue' }); } catch (error) { settingsStatus.textContent = error.message; settingsStatus.classList.add('error'); window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to update settings.', buttonLabel: 'Try again' }); } });
+    settingsForm?.addEventListener('submit', async (event) => { event.preventDefault(); try { const settings = Object.fromEntries(new FormData(settingsForm).entries()); const response = await fetch(`${api}/api/workspace/clinic-settings`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(settings) }); const result = await response.json(); settingsStatus.textContent = result.message || 'Settings updated.'; if (!response.ok) throw new Error(result.message || 'Unable to update settings.'); window.showStatusModal?.({ variant: 'success', message: `Clinic settings for ${settings.name || 'the clinic'} updated.`, buttonLabel: 'Continue' }); } catch (error) { settingsStatus.textContent = error.message; settingsStatus.classList.add('error'); window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to update clinic settings.', buttonLabel: 'Try again' }); } });
     loadSettings().catch((error) => { if (settingsStatus) settingsStatus.textContent = error.message; });
 
     const clinicLogoUpload = document.getElementById('clinic-logo-upload');
@@ -3630,7 +3717,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const response = await fetch(`${api}/api/admin/users`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Unable to create account.');
-        setAdminStatus('Account created successfully.', 'success');
+        setAdminStatus(`${payload.role || 'Staff'} account for ${safeName} (${payload.email}) created.`, 'success');
         adminForm.reset();
         adminForm.hidden = true;
         adminFormToggle.textContent = 'Create account';
@@ -3666,15 +3753,17 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       managedUsers.querySelectorAll('.user-status-button').forEach((button) => button.addEventListener('click', async () => {
         try {
           const isActive = button.dataset.active !== 'true';
+          const member = users.find((item) => item._id === button.dataset.userId);
           const response = await fetch(`${api}/api/admin/users/${button.dataset.userId}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ isActive }) });
           const result = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(result.message || 'Unable to update team member.');
           await loadUsers();
-          window.showStatusModal?.({ variant: 'success', message: result.message || `Team member ${isActive ? 'activated' : 'deactivated'}.`, buttonLabel: 'Continue' });
+          window.showStatusModal?.({ variant: 'success', message: `Team member ${member?.name || 'account'} (${member?.role || 'staff'}) ${isActive ? 'activated' : 'deactivated'}.`, buttonLabel: 'Continue' });
         } catch (error) { window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to update team member.', buttonLabel: 'Try again' }); }
       }));
       managedUsers.querySelectorAll('.user-archive-button').forEach((button) => button.addEventListener('click', async () => {
         const shouldArchive = button.dataset.archived !== 'true';
+        const member = users.find((item) => item._id === button.dataset.userId);
         if (!window.confirm(shouldArchive ? 'Archive this staff account? It will be hidden from the active list.' : 'Restore this staff account to the active list?')) return;
         const response = await fetch(`${api}/api/admin/users/${button.dataset.userId}/archive`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ archived: shouldArchive }) });
         const result = await response.json().catch(() => ({}));
@@ -3683,7 +3772,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           return;
         }
         await loadUsers();
-        window.showStatusModal?.({ variant: 'success', message: shouldArchive ? 'Team member archived.' : 'Team member restored.', buttonLabel: 'Continue' });
+        window.showStatusModal?.({ variant: 'success', message: `Team member ${member?.name || 'account'} (${member?.role || 'staff'}) ${shouldArchive ? 'archived' : 'restored'}.`, buttonLabel: 'Continue' });
       }));
     };
 
@@ -3840,7 +3929,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const setOperationStatus = (message, type = 'success') => {
       const isProgress = /^saving\b/i.test(message);
       if (operationStatus) { operationStatus.textContent = isProgress ? message : ''; operationStatus.classList.remove('error', 'success'); }
-      if (!isProgress) window.showStatusModal?.({ variant: type === 'error' ? 'error' : 'success', message: type === 'success' && /updated|saved/i.test(message) ? 'Changes saved.' : message, buttonLabel: type === 'error' ? 'Try again' : 'Continue' });
+      if (!isProgress) window.showStatusModal?.({ variant: type === 'error' ? 'error' : 'success', message, buttonLabel: type === 'error' ? 'Try again' : 'Continue' });
     };
     const renderOperationConfirmation = () => {
       if (!operationForm || !operationConfirmSummary) return;
@@ -4156,7 +4245,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || `Unable to delete ${record.recordType.replace(/-/g, ' ')}.`);
           await loadOperations();
-          window.showStatusModal?.({ variant: 'success', message: `${record.recordType.replace(/-/g, ' ')} deleted.`, buttonLabel: 'Continue' });
+          window.showStatusModal?.({ variant: 'success', message: `${record.recordType.replace(/-/g, ' ')} "${operationLabel(record)}" deleted.`, buttonLabel: 'Continue' });
         } catch (error) { window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to delete this record.', buttonLabel: 'Try again' }); }
       }));
       operationList?.querySelectorAll('.operation-archive').forEach((button) => button.addEventListener('click', async () => {
@@ -4168,7 +4257,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const result = await response.json().catch(() => ({}));
         if (!response.ok) { window.showStatusModal?.({ variant: 'error', message: result.message || `Unable to ${shouldArchive ? 'archive' : 'restore'} ${record.recordType.replace(/-/g, ' ')}.`, buttonLabel: 'Try again' }); return; }
         await loadOperations();
-        window.showStatusModal?.({ variant: 'success', message: `${record.recordType.replace(/-/g, ' ')} ${shouldArchive ? 'archived' : 'restored'}.`, buttonLabel: 'Continue' });
+        window.showStatusModal?.({ variant: 'success', message: `${record.recordType.replace(/-/g, ' ')} "${operationLabel(record)}" ${shouldArchive ? 'archived' : 'restored'}.`, buttonLabel: 'Continue' });
       }));
       operationList?.querySelectorAll('.operation-edit:not(:disabled)').forEach((button) => button.addEventListener('click', () => {
         const record = records.find((item) => item._id === button.dataset.operationId);
@@ -4226,6 +4315,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       }
       ['quantity', 'minimumStock', 'reorderLevel', 'cost', 'sellingPrice', 'beginningBalance', 'receipt', 'sold', 'endingBalance', 'total', 'amount'].forEach((field) => { if (data[field] !== undefined) data[field] = Number(data[field]); });
       const wasEditing = Boolean(editingOperationId);
+      const savedRecordName = operationLabel({ recordType: operationTypeBySection[section], data });
       setOperationStatus('Saving record...', 'success');
       try {
         const endpoint = editingOperationId ? `${api}/api/clinic-operations/${editingOperationId}` : `${api}/api/clinic-operations/${operationTypeBySection[section]}`;
@@ -4236,7 +4326,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         editingOperationId = '';
         const submit = operationForm.querySelector('button[type="submit"]');
         if (submit) submit.textContent = `Save ${pageTitle}`;
-        setOperationStatus(wasEditing ? 'Changes saved.' : `${pageTitle} saved.`, 'success');
+        setOperationStatus(`${pageTitle} ${wasEditing ? 'updated' : 'created'}: ${savedRecordName}.`, 'success');
         if (operationFormModal) operationFormModal.close();
         if (operationConfirmModal) operationConfirmModal.close();
         if (operationFormToggle) operationFormToggle.setAttribute('aria-expanded', 'false');
@@ -4799,6 +4889,8 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || 'Unable to save invoice.');
           const invoiceWasEdited = Boolean(editingInvoiceId);
+          const savedInvoice = result.record?.data || payload;
+          const savedInvoiceSummary = `Invoice ${savedInvoice.invoiceNumber || 'new invoice'} for ${savedInvoice.patientName || customer.patientName}`;
           invoiceForm.reset();
           editingInvoiceId = '';
           itemsBody.innerHTML = itemRowMarkup();
@@ -4810,7 +4902,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           if (billingInvoiceFormToggle) billingInvoiceFormToggle.setAttribute('aria-expanded', 'false');
           billingPage = 1;
           await loadBilling();
-          window.showStatusModal?.({ variant: 'success', message: invoiceWasEdited ? 'Changes saved.' : 'Invoice created successfully.', buttonLabel: 'Continue' });
+          window.showStatusModal?.({ variant: 'success', message: `${savedInvoiceSummary} ${invoiceWasEdited ? 'updated' : 'created'}.`, buttonLabel: 'Continue' });
         } catch (error) { invoiceStatus.textContent = ''; invoiceStatus.classList.remove('error'); window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to save invoice.', buttonLabel: 'Try again' }); }
       });
       paymentForm?.addEventListener('submit', async (event) => {
@@ -4836,11 +4928,13 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           }) });
           const result = await response.json();
           if (!response.ok) throw new Error(result.message || 'Unable to record payment.');
+          const payment = result.record?.data || {};
+          const paymentSummary = `Payment of ${peso(payment.amount ?? amount)} from ${payment.patientName || invoice.data.patientName} for invoice ${payment.invoiceNumber || invoice.data.invoiceNumber || 'invoice'}${payment.receiptNumber ? ` (receipt ${payment.receiptNumber})` : ''}`;
           paymentForm.reset();
           if (paymentDate) paymentDate.value = todayIso();
           paymentStatus.textContent = '';
           await loadBilling();
-          window.showStatusModal?.({ variant: 'success', message: 'Payment recorded successfully.', buttonLabel: 'Continue' });
+          window.showStatusModal?.({ variant: 'success', message: `${paymentSummary} recorded.`, buttonLabel: 'Continue' });
           detailTitle.textContent = 'Payment receipt';
           detailContent.innerHTML = receiptMarkup(result.record);
           detailModal?.showModal();
@@ -4897,20 +4991,22 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           invoiceForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         if (cancel) {
+          const invoice = billingInvoices.find((item) => item._id === cancel.dataset.billingCancel);
           if (!window.confirm('Cancel this invoice? This cannot be undone unless no payments were recorded.')) return;
           const response = await fetch(`${api}/api/clinic-operations/invoice/${cancel.dataset.billingCancel}/cancel`, { method: 'POST', headers: billingHeaders });
           const result = await response.json();
           if (!response.ok) { window.showStatusModal?.({ variant: 'error', message: result.message || 'Unable to cancel invoice.', buttonLabel: 'Try again' }); return; }
           await loadBilling();
-          window.showStatusModal?.({ variant: 'success', message: 'Invoice cancelled.', buttonLabel: 'Continue' });
+          window.showStatusModal?.({ variant: 'success', message: `Invoice ${invoice?.data?.invoiceNumber || 'invoice'} for ${invoice?.data?.patientName || 'customer'} cancelled.`, buttonLabel: 'Continue' });
         }
         if (reverse) {
+          const payment = billingPayments.find((item) => item._id === reverse.dataset.billingReverse);
           if (!window.confirm('Reverse this payment? The invoice balance will be restored.')) return;
           const response = await fetch(`${api}/api/clinic-operations/payment/${reverse.dataset.billingReverse}/reverse`, { method: 'POST', headers: billingHeaders, body: JSON.stringify({ reason: 'Owner reversal' }) });
           const result = await response.json();
           if (!response.ok) { window.showStatusModal?.({ variant: 'error', message: result.message || 'Unable to reverse payment.', buttonLabel: 'Try again' }); return; }
           await loadBilling();
-          window.showStatusModal?.({ variant: 'success', message: 'Payment reversed.', buttonLabel: 'Continue' });
+          window.showStatusModal?.({ variant: 'success', message: `Payment${payment?.data?.receiptNumber ? ` ${payment.data.receiptNumber}` : ''} for ${payment?.data?.patientName || 'patient'} on invoice ${payment?.data?.invoiceNumber || 'invoice'} reversed.`, buttonLabel: 'Continue' });
         }
         if (pay) {
           const invoice = billingInvoices.find((item) => item._id === pay.dataset.billingPay);
@@ -5158,7 +5254,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'Unable to create account.');
             adminStatus.textContent = '';
-            window.showStatusModal?.({ variant: 'success', message: 'Account created successfully.', buttonLabel: 'Continue' });
+            window.showStatusModal?.({ variant: 'success', message: `${result.user?.role || 'User'} account for ${result.user?.name || result.user?.email || 'new user'} created.`, buttonLabel: 'Continue' });
             adminForm.reset();
             await loadManagedUsers();
           } catch (error) {

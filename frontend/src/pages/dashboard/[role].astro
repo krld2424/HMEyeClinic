@@ -112,7 +112,7 @@ const groupIcons = {
         <button class="sidebar-collapse-toggle" type="button" id="sidebar-collapse-toggle" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar"><SidebarIcon name="panel-left" /></button>
       </div>
       <span class="sidebar-role">{content ? content.heading : 'Clinic workspace'}</span>
-      {role !== 'owner' && (
+      {role !== 'owner' && role !== 'eye-care-assistant' && (
         <div class="sidebar-identity" aria-label="Account identifier">
           <span>{role === 'patient' ? 'Patient ID' : 'User ID'}</span>
           <strong id="sidebar-user-id">Loading...</strong>

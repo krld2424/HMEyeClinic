@@ -246,7 +246,7 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
         otpForm.reset();
         clearInterval(resendTimer);
         otpStep.hidden = true;
-        window.showStatusModal({ variant: 'success', title: 'Success!', message: 'Account created successfully.', buttonLabel: 'Go to sign in', onAction: () => { window.location.href = '/login'; } });
+        window.showStatusModal({ variant: 'success', title: 'Success!', message: `Account for ${payload.name || payload.email} created successfully.`, buttonLabel: 'Go to sign in', onAction: () => { window.location.href = '/login'; } });
       } catch (error) {
         setOtpStatus(error.message, true);
       } finally {
@@ -273,7 +273,7 @@ import logoBlue from '../assets/logo/HMEC logo blue.png';
         }
         otpInput.value = '';
         setOtpStatus('', false);
-        window.showStatusModal?.({ variant: 'success', message: 'A new verification code was sent.', buttonLabel: 'Continue' });
+        window.showStatusModal?.({ variant: 'success', message: `A new verification code was sent to ${registrationEmail}.`, buttonLabel: 'Continue' });
         startResendCooldown(60);
       } catch (error) {
         setOtpStatus(error.message, true);

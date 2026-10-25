@@ -3794,6 +3794,10 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   margin-top: 20px;
 }
 
+.profile-account-summary[hidden],
+#owner-profile-form[hidden] { display: none !important; }
+.account-profile-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+
 .profile-account-summary p {
   display: grid;
   gap: 4px;

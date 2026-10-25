@@ -52,6 +52,41 @@ router.patch('/profile', allowRoles('patient'), async (req, res) => {
   return res.status(200).json({ message: 'Profile updated.', user });
 });
 
+router.get('/account-profile', allowRoles('owner'), async (req, res) => {
+  const user = await User.findById(req.user.id).select('name email phone role');
+  if (!user) return res.status(404).json({ message: 'Profile not found.' });
+  return res.status(200).json({ user });
+});
+
+router.patch('/account-profile', allowRoles('owner'), async (req, res) => {
+  const name = String(req.body.name || '').trim();
+  const email = String(req.body.email || '').trim().toLowerCase();
+  const phone = String(req.body.phone || '').trim();
+  if (!name || !email) return res.status(400).json({ message: 'Name and email are required.' });
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ message: 'Enter a valid email address.' });
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'Profile not found.' });
+    user.name = name;
+    user.email = email;
+    user.phone = phone;
+    await user.save();
+    broadcastRealtimeEvent(req.app.get('io'), {
+      type: 'user',
+      action: 'updated',
+      entityId: String(user._id),
+      payload: publicUserPayload(user),
+      roles: ['owner'],
+      userIds: [String(user._id)],
+    });
+    return res.status(200).json({ message: 'Owner profile updated.', user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role } });
+  } catch (error) {
+    if (error.code === 11000) return res.status(409).json({ message: 'An account with this email already exists.' });
+    return res.status(400).json({ message: error.message || 'Unable to update profile.' });
+  }
+});
+
 router.get('/dashboard-summary', allowRoles('patient', 'owner', 'optometrist', 'eye-care-assistant'), async (req, res) => {
   try {
     const today = new Date().toISOString().slice(0, 10);

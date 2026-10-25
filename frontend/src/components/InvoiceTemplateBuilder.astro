@@ -574,7 +574,7 @@
         if (!response.ok) throw new Error(result.message);
         templateId = result.template._id;
         status.textContent = result.message;
-        window.showStatusModal?.({ variant: 'success', message: result.message || 'Invoice template saved.', buttonLabel: 'Continue' });
+        window.showStatusModal?.({ variant: 'success', message: `Invoice template "${result.template?.name || templatePayload().name}" saved.`, buttonLabel: 'Continue' });
       } catch (e) {
         status.textContent = e.message;
         status.classList.add('error');
@@ -588,7 +588,8 @@
         status.classList.add('error');
         return;
       }
-      if (!confirm('Are you sure you want to delete this template? This action cannot be undone.')) return;
+      const templateName = document.getElementById('template-name')?.value.trim() || 'Default Invoice Template';
+      if (!confirm(`Are you sure you want to delete "${templateName}"? This action cannot be undone.`)) return;
       try {
         status.classList.remove('error');
         status.textContent = 'Removing…';
@@ -601,7 +602,7 @@
         status.textContent = result.message;
         // Reload template data after deletion to get the auto-created default template
         await list();
-        window.showStatusModal?.({ variant: 'success', message: result.message || 'Invoice template deleted.', buttonLabel: 'Continue' });
+        window.showStatusModal?.({ variant: 'success', message: `Invoice template "${templateName}" deleted.`, buttonLabel: 'Continue' });
       } catch (e) {
         status.textContent = e.message;
         status.classList.add('error');

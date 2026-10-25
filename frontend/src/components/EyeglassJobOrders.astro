@@ -387,7 +387,7 @@ import { Search } from '@lucide/astro';
         const result = await request(`/api/job-orders/${encodeURIComponent(record._id)}/archive`, { method: 'PATCH', body: JSON.stringify({ archived: true }) });
         statusMessage.textContent = result.message;
         await loadRecords();
-        window.showStatusModal?.({ variant: 'success', message: result.message || 'Job order archived.', buttonLabel: 'Continue' });
+        window.showStatusModal?.({ variant: 'success', message: `Eyeglass job order ${record.joNumber || record._id} for ${[record.name, record.surname].filter(Boolean).join(' ') || 'patient'} archived.`, buttonLabel: 'Continue' });
       } catch (error) { statusMessage.textContent = error.message; statusMessage.classList.add('error'); window.showStatusModal?.({ variant: 'error', message: error.message || 'Unable to archive job order.', buttonLabel: 'Try again' }); }
     }
   });
@@ -410,7 +410,7 @@ import { Search } from '@lucide/astro';
       const result = await request(path, { method: isEdit ? 'PATCH' : 'POST', body: JSON.stringify(data) });
       formMessage.textContent = result.message;
       await loadRecords();
-      window.showStatusModal?.({ variant: 'success', message: result.message || (isEdit ? 'Job order updated.' : 'Job order created.'), buttonLabel: 'Continue' });
+      window.showStatusModal?.({ variant: 'success', message: `Eyeglass job order ${data.joNumber || result.jobOrder?.joNumber || 'new order'} for ${[data.name, data.surname].filter(Boolean).join(' ') || 'patient'} ${isEdit ? 'updated' : 'created'}.`, buttonLabel: 'Continue' });
       window.setTimeout(() => formDialog.close(), 300);
     } catch (error) {
       formMessage.textContent = error.message;
