@@ -3787,6 +3787,25 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   font-size: 1.04rem;
 }
 
+.profile-account-summary {
+  display: grid;
+  gap: 12px;
+  max-width: 680px;
+  margin-top: 20px;
+}
+
+.profile-account-summary p {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+}
+
+.profile-account-summary strong { color: var(--muted); font-size: .82rem; }
+
 .task-placeholder {
   display: grid;
   gap: 6px;

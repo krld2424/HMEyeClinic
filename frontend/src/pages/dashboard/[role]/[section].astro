@@ -57,6 +57,7 @@ const navigation = {
     prescriptions: 'Prescriptions',
     'follow-ups': 'Follow-ups',
     'claim-stub': 'Claim Stub',
+    profile: 'Profile',
     archived: 'Archived',
   },
   'eye-care-assistant': {
@@ -74,6 +75,7 @@ const navigation = {
     'stock-out': 'Stock Out',
     'stock-adjustment': 'Stock Adjustment',
     'inventory-history': 'Inventory History',
+    profile: 'Profile',
     archived: 'Archived',
   },
   owner: {
@@ -107,15 +109,16 @@ const navigation = {
     'payment-history': 'Payment History',
     'outstanding-balances': 'Outstanding Balances',
     'claim-stub': 'Claim Stub',
+    profile: 'Profile',
     archived: 'Archived',
   },
 };
 
 const sidebarGroups = {
   patient: [['Overview', ['dashboard']], ['Care', ['book-exam', 'appointments', 'medical-records', 'claim-stub']], ['Account', ['notifications', 'profile', 'archived']]],
-  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'patient-records']], ['Billing', ['claim-stub']], ['Archived', ['archived']]],
-  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'eyeglass-job-orders']], ['Billing', ['billing', 'claim-stub']], ['Archived', ['archived']]],
-  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'patient-records', 'eyeglass-job-orders']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances', 'claim-stub']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']], ['Archived', ['archived']]],
+  optometrist: [['Overview', ['dashboard', 'today-patients']], ['Clinical Work', ['today-patients', 'appointments', 'patient-records']], ['Billing', ['claim-stub']], ['Account', ['profile', 'archived']]],
+  'eye-care-assistant': [['Overview', ['dashboard', 'clinic-queue']], ['Operations', ['check-in', 'appointments', 'patient-records', 'eyeglass-job-orders']], ['Billing', ['billing', 'claim-stub']], ['Account', ['profile', 'archived']]],
+  owner: [['Overview', ['dashboard', 'reports']], ['Clinical Work', ['today-patients', 'appointments', 'patient-records', 'eyeglass-job-orders']], ['Management', ['manage-team', 'roles-permissions']], ['Supplier Transactions', ['suppliers', 'purchase-orders', 'receiving', 'purchase-history']], ['Inventory', ['inventory', 'inventory-history']], ['Billing', ['billing-invoices', 'invoice-templates', 'customer-payments', 'payment-history', 'outstanding-balances', 'claim-stub']], ['Monitoring & Settings', ['audit-logs', 'clinic-settings']], ['Account', ['profile', 'archived']]],
 };
 const groupIcons = {
   Overview: 'overview',
@@ -142,9 +145,9 @@ const canAccessJobOrders = ['owner', 'eye-care-assistant'].includes(role);
 export function getStaticPaths() {
   return [
     ['patient', 'dashboard'], ['patient', 'book-exam'], ['patient', 'appointments'], ['patient', 'follow-ups'], ['patient', 'medical-records'], ['patient', 'prescriptions'], ['patient', 'claim-stub'], ['patient', 'notifications'], ['patient', 'profile'], ['patient', 'archived'],
-    ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'], ['optometrist', 'claim-stub'], ['optometrist', 'archived'],
-    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'eyeglass-job-orders'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'claim-stub'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'], ['eye-care-assistant', 'archived'],
-    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'eyeglass-job-orders'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'claim-stub'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'], ['owner', 'archived'],
+    ['optometrist', 'dashboard'], ['optometrist', 'today-patients'], ['optometrist', 'appointments'], ['optometrist', 'consultations'], ['optometrist', 'patient-records'], ['optometrist', 'prescriptions'], ['optometrist', 'follow-ups'], ['optometrist', 'claim-stub'], ['optometrist', 'profile'], ['optometrist', 'archived'],
+    ['eye-care-assistant', 'dashboard'], ['eye-care-assistant', 'check-in'], ['eye-care-assistant', 'appointments'], ['eye-care-assistant', 'clinic-queue'], ['eye-care-assistant', 'patient-records'], ['eye-care-assistant', 'eyeglass-job-orders'], ['eye-care-assistant', 'billing'], ['eye-care-assistant', 'claim-stub'], ['eye-care-assistant', 'inventory'], ['eye-care-assistant', 'stock-movements'], ['eye-care-assistant', 'stock-in'], ['eye-care-assistant', 'stock-out'], ['eye-care-assistant', 'stock-adjustment'], ['eye-care-assistant', 'inventory-history'], ['eye-care-assistant', 'profile'], ['eye-care-assistant', 'archived'],
+    ['owner', 'dashboard'], ['owner', 'today-patients'], ['owner', 'appointments'], ['owner', 'consultations'], ['owner', 'patient-records'], ['owner', 'eyeglass-job-orders'], ['owner', 'prescriptions'], ['owner', 'follow-ups'], ['owner', 'manage-team'], ['owner', 'manage-users'], ['owner', 'roles-permissions'], ['owner', 'suppliers'], ['owner', 'purchase-orders'], ['owner', 'receiving'], ['owner', 'purchase-history'], ['owner', 'inventory'], ['owner', 'stock-movements'], ['owner', 'stock-in'], ['owner', 'stock-out'], ['owner', 'stock-adjustment'], ['owner', 'inventory-history'], ['owner', 'billing-invoices'], ['owner', 'invoice-templates'], ['owner', 'customer-payments'], ['owner', 'payment-history'], ['owner', 'outstanding-balances'], ['owner', 'claim-stub'], ['owner', 'audit-logs'], ['owner', 'reports'], ['owner', 'clinic-settings'], ['owner', 'profile'], ['owner', 'archived'],
   ].map(([routeRole, routeSection]) => ({ params: { role: routeRole, section: routeSection } }));
 }
 
@@ -250,31 +253,9 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg><span id="notification-count" class="notification-count" hidden></span>
           </button>
           <a href={`/dashboard/${role}/dashboard`} class="btn btn-secondary">Overview</a>
-          <button type="button" class="btn btn-secondary" id="change-password-open">Change password</button>
           <div class="notification-popover" id="notification-popover" hidden><strong>Notifications</strong><div id="notification-list"><p>Loading notifications...</p></div></div>
         </div>
       </section>
-
-      <dialog id="change-password-dialog" class="confirmation-dialog" aria-labelledby="change-password-title">
-        <div class="confirmation-dialog__content">
-          <div class="dialog-header-row"><h3 id="change-password-title">Change password</h3><button type="button" class="btn btn-secondary btn-icon" id="change-password-close" aria-label="Close password change">&times;</button></div>
-          <p id="change-password-email-note">Verify your registered email to continue.</p>
-          <div class="password-change-progress" role="progressbar" aria-label="Password change progress" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1"><span id="password-change-progress-fill"></span></div>
-          <p class="password-change-step" id="password-change-step">Step 1 of 2: Verify your email</p>
-          <form id="change-password-otp-form" class="workflow-form">
-            <button type="button" class="btn btn-secondary" id="password-change-send-code">Send verification code</button>
-            <div class="field-group"><label for="password-change-otp">Email verification code</label><input id="password-change-otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="6-digit code" required /></div>
-            <button type="submit" class="btn btn-primary">Verify email</button>
-          </form>
-          <form id="change-password-form" class="workflow-form" hidden>
-            <div class="field-group"><label for="new-account-password">New password</label><input id="new-account-password" type="password" autocomplete="new-password" minlength="8" required /></div>
-            <div class="field-group"><label for="confirm-account-password">Confirm new password</label><input id="confirm-account-password" type="password" autocomplete="new-password" minlength="8" required /></div>
-            <ul class="password-requirements"><li data-change-requirement="length">8+ characters</li><li data-change-requirement="case">1 uppercase + lowercase</li><li data-change-requirement="number">1 number</li><li data-change-requirement="special">1 special character</li></ul>
-            <button type="submit" class="btn btn-primary" id="password-change-submit" disabled>Change password</button>
-          </form>
-          <p id="password-change-status" class="form-status" role="status" aria-live="polite"></p>
-        </div>
-      </dialog>
 
       {isValidRoute && (
         section === 'dashboard' ? (
@@ -787,14 +768,41 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
             </div>
           )}
 
-          {section === 'profile' && role === 'patient' && (
-            <form id="profile-form" class="workflow-form">
-              <div class="field-row"><div class="field-group"><label for="profile-name">Full name</label><input id="profile-name" name="name" required /></div><div class="field-group"><label for="profile-email">Email</label><input id="profile-email" name="email" type="email" disabled /></div></div>
-              <div class="field-row"><div class="field-group"><label for="profile-phone">Contact number</label><input id="profile-phone" name="phone" type="tel" /></div><div class="field-group"><label for="profile-age">Age</label><input id="profile-age" name="age" type="number" min="0" max="120" /></div></div>
-              <div class="field-row"><div class="field-group"><label for="profile-barangay">Barangay</label><input id="profile-barangay" name="barangay" /></div><div class="field-group"><label for="profile-town">Town</label><input id="profile-town" name="town" /></div></div>
-              <div class="field-group"><label for="profile-gender">Gender</label><input id="profile-gender" name="gender" /></div>
-              <button type="submit" class="btn btn-primary">Save profile</button><p id="profile-status" class="form-status" aria-live="polite"></p>
-            </form>
+          {section === 'profile' && (
+            <div class="account-profile-workspace">
+              <div class="section-header split"><div><h2>Account Profile</h2><p>Manage your account details and security.</p></div><button type="button" class="btn btn-secondary" id="change-password-open">Change password</button></div>
+              {role === 'patient' ? (
+                <form id="profile-form" class="workflow-form">
+                  <div class="field-row"><div class="field-group"><label for="profile-name">Full name</label><input id="profile-name" name="name" required /></div><div class="field-group"><label for="profile-email">Email</label><input id="profile-email" name="email" type="email" disabled /></div></div>
+                  <div class="field-row"><div class="field-group"><label for="profile-phone">Contact number</label><input id="profile-phone" name="phone" type="tel" /></div><div class="field-group"><label for="profile-age">Age</label><input id="profile-age" name="age" type="number" min="0" max="120" /></div></div>
+                  <div class="field-row"><div class="field-group"><label for="profile-barangay">Barangay</label><input id="profile-barangay" name="barangay" /></div><div class="field-group"><label for="profile-town">Town</label><input id="profile-town" name="town" /></div></div>
+                  <div class="field-group"><label for="profile-gender">Gender</label><input id="profile-gender" name="gender" /></div>
+                  <button type="submit" class="btn btn-primary">Save profile</button><p id="profile-status" class="form-status" aria-live="polite"></p>
+                </form>
+              ) : (
+                <div class="profile-account-summary"><p><strong>Name</strong><span id="profile-account-name">Loading...</span></p><p><strong>Email</strong><span id="profile-account-email">Loading...</span></p><p><strong>Role</strong><span>{pageTitle}</span></p></div>
+              )}
+              <dialog id="change-password-dialog" class="confirmation-dialog" aria-labelledby="change-password-title">
+                <div class="confirmation-dialog__content">
+                  <div class="dialog-header-row"><h3 id="change-password-title">Change password</h3><button type="button" class="btn btn-secondary btn-icon" id="change-password-close" aria-label="Close password change">&times;</button></div>
+                  <p id="change-password-email-note">Verify your registered email to continue.</p>
+                  <div class="password-change-progress" role="progressbar" aria-label="Password change progress" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1"><span id="password-change-progress-fill"></span></div>
+                  <p class="password-change-step" id="password-change-step">Step 1 of 2: Verify your email</p>
+                  <form id="change-password-otp-form" class="workflow-form">
+                    <button type="button" class="btn btn-secondary" id="password-change-send-code">Send verification code</button>
+                    <div class="field-group"><label for="password-change-otp">Email verification code</label><input id="password-change-otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="6-digit code" required /></div>
+                    <button type="submit" class="btn btn-primary">Verify email</button>
+                  </form>
+                  <form id="change-password-form" class="workflow-form" hidden>
+                    <div class="field-group"><label for="new-account-password">New password</label><input id="new-account-password" type="password" autocomplete="new-password" minlength="8" required /></div>
+                    <div class="field-group"><label for="confirm-account-password">Confirm new password</label><input id="confirm-account-password" type="password" autocomplete="new-password" minlength="8" required /></div>
+                    <ul class="password-requirements"><li data-change-requirement="length">8+ characters</li><li data-change-requirement="case">1 uppercase + lowercase</li><li data-change-requirement="number">1 number</li><li data-change-requirement="special">1 special character</li></ul>
+                    <button type="submit" class="btn btn-primary" id="password-change-submit" disabled>Change password</button>
+                  </form>
+                  <p id="password-change-status" class="form-status" role="status" aria-live="polite"></p>
+                </div>
+              </dialog>
+            </div>
           )}
 
           {(['medical-records', 'prescriptions'].includes(section) && role === 'patient') && <div id="patient-record-list" class="record-list"><p class="empty-appointments">Loading records...</p></div>}
@@ -987,6 +995,10 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const section = pathParts[2];
     const token = localStorage.getItem('hmVisionToken');
     const user = JSON.parse(localStorage.getItem('hmVisionUser') || 'null');
+    const profileAccountName = document.getElementById('profile-account-name');
+    const profileAccountEmail = document.getElementById('profile-account-email');
+    if (profileAccountName) profileAccountName.textContent = user?.name || '—';
+    if (profileAccountEmail) profileAccountEmail.textContent = user?.email || '—';
     const api = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
     const passwordChangeDialog = document.getElementById('change-password-dialog');
     const passwordOtpForm = document.getElementById('change-password-otp-form');
