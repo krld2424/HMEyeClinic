@@ -3782,7 +3782,7 @@ body.sidebar-is-collapsed .sidebar-group-links a {
 
 .task-page-description {
   max-width: 720px;
-  margin: 0 0 28px;
+  margin: 0;
   color: var(--muted);
   font-size: 1.04rem;
 }

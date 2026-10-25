@@ -507,14 +507,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
                       </>
                     )}
                     {section === 'payment-history' && (
-                      <>
-                        <select id="billing-customer-filter"><option value="">All customers</option></select>
-                        <select id="billing-method-filter"><option value="">All methods</option><option>Cash</option><option>GCash</option><option>Bank Transfer</option><option>Credit/Debit Card</option><option>Other</option></select>
-                        <select id="billing-payment-status-filter"><option value="">All statuses</option><option value="recorded">Recorded</option><option value="reversed">Reversed</option></select>
-                        <input id="billing-date-from" type="date" aria-label="Payment date from" />
-                        <input id="billing-date-to" type="date" aria-label="Payment date to" />
-                        <button type="button" class="btn btn-secondary" id="billing-export">Export CSV</button>
-                      </>
+                      <button type="button" class="btn btn-secondary" id="billing-export">Export CSV</button>
                     )}
                     {section === 'outstanding-balances' && (
                       <>
@@ -3102,6 +3095,32 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     });
 
     const patientRecordForm = document.getElementById('patient-record-form');
+    if (patientRecordForm) {
+      const refractionInputs = [...patientRecordForm.querySelectorAll('[data-step="2"] input')];
+      const claimAmountInputs = [...patientRecordForm.querySelectorAll('.claim-grid input')].filter((input) => /_(from|less|to)$/.test(input.name));
+      const numericJobOrderNames = /^(?:job(?:Od|Os))(?:Sph|Cyl|Ax|Add|Mpd|ShFh|H|V|Diag|Nb)$/i;
+      const jobOrderInputs = [...patientRecordForm.querySelectorAll('.job-order-grid input')].filter((input) => numericJobOrderNames.test(input.name));
+      refractionInputs.forEach((input) => {
+        input.dataset.numericOnly = 'signed';
+        input.inputMode = 'decimal';
+        if (input.placeholder === '20/') input.placeholder = '20';
+      });
+      claimAmountInputs.forEach((input) => { input.dataset.numericOnly = 'unsigned'; input.inputMode = 'decimal'; });
+      jobOrderInputs.forEach((input) => {
+        const field = input.name.replace(/^job(?:Od|Os)/i, '').toLowerCase();
+        input.dataset.numericOnly = ['sph', 'cyl', 'add'].includes(field) ? 'signed' : 'unsigned';
+        input.inputMode = 'decimal';
+      });
+      patientRecordForm.addEventListener('input', (event) => {
+        const input = event.target;
+        if (!(input instanceof HTMLInputElement) || !input.dataset.numericOnly) return;
+        const allowSign = input.dataset.numericOnly === 'signed';
+        const sign = allowSign && /^[+-]/.test(input.value) ? input.value[0] : '';
+        const numericPart = input.value.replace(/[+-]/g, '').replace(/[^\d.]/g, '');
+        const [whole, ...fractionParts] = numericPart.split('.');
+        input.value = `${sign}${whole}${fractionParts.length ? `.${fractionParts.join('')}` : ''}`;
+      });
+    }
     const patientRecordModal = document.getElementById('patient-record-modal');
     const patientRecordCreateToggle = document.getElementById('patient-record-create-toggle');
     const patientRecordClose = document.getElementById('patient-record-close');
@@ -4676,7 +4695,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           const data = payment.data || {};
           const reversed = data.status === 'reversed';
           return `<tr><td data-label="Payment ID"><small>${escapeHtml(payment._id)}</small></td><td data-label="Receipt">${escapeHtml(data.receiptNumber || '—')}</td><td data-label="Customer">${escapeHtml(data.patientName || '—')}</td><td data-label="Invoice">${escapeHtml(data.invoiceNumber || '—')}</td><td data-label="Date">${escapeHtml(data.paymentDate || '—')}</td><td data-label="Amount" class="table-number">${peso(data.amount)}</td><td data-label="Method">${escapeHtml(data.method || '—')}</td><td data-label="Reference">${escapeHtml(data.reference || '—')}</td><td data-label="Recorded by">${escapeHtml(payment.createdBy?.name || data.recordedBy || '—')}</td><td data-label="Status"><span class="${statusClass(data.status)}">${statusLabel(data.status)}</span></td><td data-label="Actions"><div class="table-actions"><button type="button" class="btn btn-secondary" data-billing-view="payment" data-id="${payment._id}">View</button>${reversed ? '' : `<button type="button" class="btn btn-secondary action-delete" data-billing-reverse="${payment._id}">Reverse</button>`}</div></td></tr>`;
-        }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No payments match these filters.</p>';
+        }).join('')}</tbody></table></div>` : '<p class="empty-appointments">No payments found.</p>';
         billingPagination.innerHTML = `${paginationSummary(filtered2.length, billingPage, billingPageSize)}${pages > 1 ? `<button type="button" class="btn btn-secondary" data-page="prev" ${billingPage === 1 ? 'disabled' : ''}>Previous</button><span>Page ${billingPage} of ${pages}</span><button type="button" class="btn btn-secondary" data-page="next" ${billingPage === pages ? 'disabled' : ''}>Next</button>` : ''}`;
         billingPagination.querySelector('[data-page="prev"]')?.addEventListener('click', () => { billingPage -= 1; renderBilling(); });
         billingPagination.querySelector('[data-page="next"]')?.addEventListener('click', () => { billingPage += 1; renderBilling(); });
