@@ -3925,25 +3925,6 @@ body.sidebar-is-collapsed .sidebar-group-links a {
   font-size: 0.88rem;
 }
 
-.task-state {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 42px;
-  margin-bottom: 22px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: var(--surface);
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.task-state.success {
-  background: #edf9f3;
-  color: #23734d;
-}
-
-.task-state.error,
 .form-status.error {
   background: #fff2f0;
   color: #b42318;

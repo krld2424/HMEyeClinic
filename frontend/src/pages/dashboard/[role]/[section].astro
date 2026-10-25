@@ -349,11 +349,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
           ) : (
           <section class={`container task-page-card card ${section === 'appointments' ? 'appointments-task-page' : ''} ${role === 'owner' ? 'owner-task-page' : ''} ${role === 'optometrist' ? 'optometrist-task-page' : ''} ${role === 'eye-care-assistant' ? 'eye-care-assistant-task-page' : ''} ${role === 'patient' ? 'patient-task-page' : ''}`}>
             <p class="task-page-description">{copy}</p>
-            <div class="task-state" id="task-state">
-              <span class="loading-dot"></span>
-              Loading workspace data...
-            </div>
-
             {((role === 'owner' && ['suppliers', 'purchase-orders', 'receiving', 'purchase-history'].includes(section)) || (canAccessInventory && inventorySections.includes(section))) && (
               <div class="operation-workspace">
                 {['stock-movements', 'stock-in', 'stock-out'].includes(section) && <nav class="stock-movement-tabs" aria-label="Stock movement type"><a class={section !== 'stock-out' ? 'is-current' : ''} href={`/dashboard/${role}/stock-movements`}>Stock In</a><a class={section === 'stock-out' ? 'is-current' : ''} href={`/dashboard/${role}/stock-out`}>Stock Out</a></nav>}
@@ -641,7 +636,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
               <div id="appointment-list" class="appointment-list"><p class="empty-appointments">Loading appointments...</p></div>
               <div id="appointment-pagination" class="pagination" aria-label="Appointment pages" hidden></div>
               </div>
-                <p id="appointment-action-status" class="task-state" aria-live="polite" hidden></p>
                 {role === 'patient' && (
                   <>
                     <dialog id="booking-result-modal" class="confirmation-dialog booking-result-dialog" aria-labelledby="booking-result-title">
@@ -1229,13 +1223,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
       });
     });
 
-    const state = document.getElementById('task-state');
-    const showState = (message, type = '') => {
-      if (!state) return;
-      state.className = `task-state ${type}`;
-      state.textContent = message;
-    };
-
     const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]);
     const renderActionButton = ({
       label,
@@ -1441,7 +1428,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     const appointmentMainCalendarGrid = document.getElementById('appointment-main-calendar-grid');
     const appointmentCalendarViewTitle = document.getElementById('appointment-calendar-view-title');
     const appointmentStatList = document.getElementById('appointment-stat-list');
-    const appointmentActionStatus = document.getElementById('appointment-action-status');
     const rescheduleDialog = document.getElementById('appointment-reschedule-dialog');
     const rescheduleDateInput = document.getElementById('appointment-reschedule-date');
     const rescheduleTimeInput = document.getElementById('appointment-reschedule-time');
@@ -1525,7 +1511,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
     };
 
     const showAppointmentActionStatus = (message, type) => {
-      if (appointmentActionStatus) { appointmentActionStatus.textContent = ''; appointmentActionStatus.hidden = true; }
       window.showStatusModal?.({ variant: type === 'error' ? 'error' : 'success', message, buttonLabel: type === 'error' ? 'Try again' : 'Continue' });
     };
 
@@ -2170,7 +2155,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         const response = await fetchWithTimeout(`${api}${endpoint}${includeArchived ? '?archived=true' : ''}`, { headers: { Authorization: `Bearer ${token}` } });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message);
-          if (role !== 'owner') showState(`${result.appointments?.length || 0} appointment${result.appointments?.length === 1 ? '' : 's'} found.`, 'success');
           appointments = result.appointments || [];
           if (Array.isArray(result.statuses)) {
             appointmentStatuses = result.statuses;
@@ -2211,7 +2195,7 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
         renderMainAppointmentCalendar();
           renderAppointmentPage();
       } catch (error) {
-        showState(error.message || 'Unable to load appointments.', 'error');
+        if (appointmentList) appointmentList.innerHTML = `<p class="empty-appointments">${escapeHtml(error.message || 'Unable to load appointments.')}</p>`;
         appointmentList.innerHTML = '<p class="empty-appointments">Try again when the clinic API is available.</p>';
       }
     };
@@ -2447,8 +2431,6 @@ const copy = pageCopy[section] || 'This workspace is ready for your clinic workf
 
     if (appointmentList) {
       loadAppointments();
-    } else if (section !== 'book-exam' && section !== 'manage-team') {
-      showState('Workspace ready. No records require attention right now.', 'success');
     }
 
     const refreshAppointmentFilters = () => {
